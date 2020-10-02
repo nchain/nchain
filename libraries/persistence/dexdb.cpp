@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -113,7 +113,7 @@ bool Dex0(DexOperatorDetail& detail){
     detail.owner_regid =  regid;
     detail.fee_receiver_regid = regid;
     detail.name = "wayki-dex";
-    detail.portal_url = "https://dex.waykichain.com";
+    detail.portal_url = "https://dex.nchain.com";
     detail.order_open_mode = OpenMode::PUBLIC;
     detail.taker_fee_ratio = 40000;
     detail.maker_fee_ratio = 40000;

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -69,8 +69,8 @@ public:
 
         assert(genesisBlockHash == IniCfg().GetGenesisBlockHash(MAIN_NET));
 
-        vSeeds.push_back(CDNSSeedData("seed1.waykichain.net", "n1.waykichain.net"));
-        vSeeds.push_back(CDNSSeedData("seed2.waykichain.net", "n2.waykichain.net"));
+        vSeeds.push_back(CDNSSeedData("seed1.nchain.net", "n1.nchain.net"));
+        vSeeds.push_back(CDNSSeedData("seed2.nchain.net", "n2.nchain.net"));
 
         base58Prefixes[PUBKEY_ADDRESS] = IniCfg().GetAddressPrefix(MAIN_NET, PUBKEY_ADDRESS);
         base58Prefixes[SCRIPT_ADDRESS] = IniCfg().GetAddressPrefix(MAIN_NET, SCRIPT_ADDRESS);

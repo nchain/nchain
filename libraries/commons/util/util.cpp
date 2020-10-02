@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2014 The WaykiChain developers
+// Copyright (c) 2009-2014 The nchain developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -675,13 +675,13 @@ fs::path GetAbsolutePath(const string& path) {
 void ReadConfigFile(map<string, string>& mapSettingsRet, map<string, vector<string>>& mapMultiSettingsRet) {
     fs::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good())
-        return;  // No WaykiChain.conf file is OK
+        return;  // No nchain.conf file is OK
 
     set<string> setOptions;
     setOptions.insert("*");
 
     for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
-        // Don't overwrite existing settings so command line settings override WaykiChain.conf
+        // Don't overwrite existing settings so command line settings override nchain.conf
         string strKey = strprintf("-%s", it->string_key);
         if (mapSettingsRet.count(strKey) == 0)
             mapSettingsRet[strKey] = it->value[0];

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -149,7 +149,7 @@ bool CKey::VerifyPubKey(const CPubKey &pubkey) const {
         return false;
     }
     uint8_t rnd[8];
-    std::string str = "WaykiChain key verification\n";
+    std::string str = "nchain key verification\n";
     GetRandBytes(rnd, sizeof(rnd));
     uint256 hash;
     SHA256_CTX ctx;

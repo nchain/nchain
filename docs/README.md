@@ -1,11 +1,11 @@
-WaykiChain v2.0.0.0
+nchain v2.0.0.0
 =====================
 
-Copyright (c) 2017-2019 WaykiChain Core Developers
+Copyright (c) 2017-2019 nchain Core Developers
 
 ### Need Help?
 
-* See the documentation at the [WaykiChain DevDocs](https://wicc-devbook.readthedocs.io/en/latest/)
+* See the documentation at the [nchain DevDocs](https://wicc-devbook.readthedocs.io/en/latest/)
 for help and more information.
 
 

@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -570,7 +570,7 @@ Value getclosedcdp(const Array& params, bool fHelp) {
 //             "1.\"sender\":          (string, required) tx sender's address\n"
 //             "2.\"asset_symbol\":    (string, required) asset symbol, must be composed of 6 or 7 capital letters [A-Z]\n"
 //             "3.\"asset_owner_addr\":(string, required) asset owner address, can be same as tx owner address\n"
-//             "4.\"asset_name\":      (string, required) asset long name, E.g WaykiChain coin\n"
+//             "4.\"asset_name\":      (string, required) asset long name, E.g nchain coin\n"
 //             "5.\"total_supply\":    (numeric, required) asset total supply, the unit is \"sa\" \n"
 //             "6.\"mintable\":        (boolean, required) whether this asset token can be minted in the future\n"
 //             "7.\"symbol:fee:unit\": (string:numeric:string, optional) fee paid for miner, default is WICC:10000:sawi\n"

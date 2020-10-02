@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -295,11 +295,11 @@ Value submitsendtx(const Array& params, bool fHelp) {
                 "\nExamples:\n" +
                 HelpExampleCli("submitsendtx",
                                "\"wLKf2NqwtHk3BfzK5wMDfbKYN1SC3weyR4\" \"wNDue1jHcgRSioSDL4o1AzXz3D72gCMkP6\" "
-                               "\"WICC:1000000:sawi\" \"WICC:10000:sawi\" \"Hello, WaykiChain!\"") +
+                               "\"WICC:1000000:sawi\" \"WICC:10000:sawi\" \"Hello, nchain!\"") +
                 "\nAs json rpc call\n" +
                 HelpExampleRpc("submitsendtx",
                                "\"wLKf2NqwtHk3BfzK5wMDfbKYN1SC3weyR4\", \"wNDue1jHcgRSioSDL4o1AzXz3D72gCMkP6\", "
-                               "\"WICC:1000000:sawi\", \"WICC:10000:sawi\", \"Hello, WaykiChain!\""));
+                               "\"WICC:1000000:sawi\", \"WICC:10000:sawi\", \"Hello, nchain!\""));
 
     EnsureWalletIsUnlocked();
 
@@ -364,10 +364,10 @@ Value submitsendmultitx(const Array& params, bool fHelp) {
             "\"txid\"                   (string) The transaction id.\n"
             "\nExamples:\n" +
             HelpExampleCli("submitsendmultitx",
-                           R"("wLKf2NqwtHk3BfzK5wMDfbKYN1SC3weyR4" "[{"to_uid":"0-1", "symbol_amount_unit":"WICC:100:WI"}]" "Hello, WaykiChain!")") +
+                           R"("wLKf2NqwtHk3BfzK5wMDfbKYN1SC3weyR4" "[{"to_uid":"0-1", "symbol_amount_unit":"WICC:100:WI"}]" "Hello, nchain!")") +
             "\nAs json rpc call\n" +
             HelpExampleRpc("submitsendmultitx",
-                           R"("wLKf2NqwtHk3BfzK5wMDfbKYN1SC3weyR4",  "[{"to_uid":"0-1", "symbol_amount_unit":"WICC:100:WI"}]", "Hello, WaykiChain!")"));
+                           R"("wLKf2NqwtHk3BfzK5wMDfbKYN1SC3weyR4",  "[{"to_uid":"0-1", "symbol_amount_unit":"WICC:100:WI"}]", "Hello, nchain!")"));
 
     EnsureWalletIsUnlocked();
 

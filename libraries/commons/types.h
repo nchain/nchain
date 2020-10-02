@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,7 @@
 using namespace std;
 
 typedef std::string TokenSymbol;     //8 chars max, E.g. WICC, WCNY, WICC-01D
-typedef std::string TokenName;       //32 chars max, E.g. WaykiChain Coins
+typedef std::string TokenName;       //32 chars max, E.g. nchain Coins
 typedef std::string CoinUnitName;    //defined in coin unit type table
 
 typedef std::pair<TokenSymbol, TokenSymbol> TradingPair;

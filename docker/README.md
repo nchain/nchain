@@ -5,7 +5,7 @@
 * 2020-07-16
 
 # Run in docker
-Run waykichain coind inside a docker container!
+Run nchain ncd inside a docker container!
 
 ## Install Dependencies
   * Docker 17.05 or higher is required
@@ -15,22 +15,22 @@ Run waykichain coind inside a docker container!
 
 ## Build waykicoind docker image
 ### method-1: build from Dockerfile
-1. ```git clone https://github.com/WaykiChain/WaykiChain.git```
-1. ```cd WaykiChain/Docker && sh ./bin/build-waykicoind.sh```
+1. ```git clone https://github.com/nchain/nchain.git```
+1. ```cd nchain/Docker && sh ./bin/build-waykicoind.sh```
 
 ### method-2: pull from Docker Hub without build
 ``` docker pull wicc/waykicoind ```
 
-## Run WaykiChain Docker container
+## Run nchain Docker container
 1. create a host dir to keep container data (you are free to choose your own preferred dir path)
    * For mainnet: ``` sudo mkdir -p /opt/docker-instances/waykicoind-main ```
    * For testnet: ``` sudo mkdir -p /opt/docker-instances/waykicoind-test ```
 1. first, cd into the above created node host dir and create ```data``` and ```conf``` subdirs:
    * ``` sudo mkdir data conf ```
-1. copy the entire docker/bin dir from WaykiChain repository:
-   * ``` sudo cp -r ${your_path_of_WaykiChain}/docker/bin ./ ```
-1. copy WaykiCoind.conf into ```conf``` dir from WaykiChain repository:
-   * ``` sudo cp -r ${your_path_of_WaykiChain}/docker/WaykiChain.conf ./conf/ ```
+1. copy the entire docker/bin dir from nchain repository:
+   * ``` sudo cp -r ${your_path_of_nchain}/docker/bin ./ ```
+1. copy WaykiCoind.conf into ```conf``` dir from nchain repository:
+   * ``` sudo cp -r ${your_path_of_nchain}/docker/nchain.conf ./conf/ ```
 1. modify content of ```WaykiCoind.conf``` accordingly
    * For mainnet, please make sure ```nettype=main``` is set
    * For testnet, please make sure only ```nettype=test``` is set
@@ -54,7 +54,7 @@ Run waykichain coind inside a docker container!
 
 |Q | A|
 |--|--|
-|How to modify JSON RPC port | Two options: <br> <li>modify [WaykiChain.conf](https://github.com/WaykiChain/WaykiChain/wiki/WaykiChain.conf) (```rpcport=6968```)<li>modify docker container mapping port |
-|How to run a testnet | modify WaykiChain.conf by adding ```testnet=test```,  |
-|How to run a regtest | modify WaykiChain.conf by adding ```regtest=regtest```, |
-|How to run a mainnet | modify WaykiChain.conf by adding ```regtest=main```,  |
+|How to modify JSON RPC port | Two options: <br> <li>modify [nchain.conf](https://github.com/nchain/nchain/wiki/nchain.conf) (```rpcport=6968```)<li>modify docker container mapping port |
+|How to run a testnet | modify nchain.conf by adding ```testnet=test```,  |
+|How to run a regtest | modify nchain.conf by adding ```regtest=regtest```, |
+|How to run a mainnet | modify nchain.conf by adding ```regtest=main```,  |

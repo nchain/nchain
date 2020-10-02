@@ -1,5 +1,5 @@
 // Copyright (c) 2010 Satoshi Nakamoto
-// Copyright (c) 2017-2018 WaykiChain Developers
+// Copyright (c) 2017-2018 nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -191,10 +191,10 @@ Value submitluacontractdeploytx(const Array& params, bool fHelp) {
             "\"txid\":              (string)\n"
             "\nExamples:\n"
             + HelpExampleCli("submitluacontractdeploytx",
-                "\"WiZx6rrsBn9sHjwpvdwtMNNX2o31s3DEHH\" \"/tmp/lua/myapp.lua\" 100000000 10000 \"Hello, WaykiChain!\"") +
+                "\"WiZx6rrsBn9sHjwpvdwtMNNX2o31s3DEHH\" \"/tmp/lua/myapp.lua\" 100000000 10000 \"Hello, nchain!\"") +
                 "\nAs json rpc call\n"
             + HelpExampleRpc("submitluacontractdeploytx",
-                "WiZx6rrsBn9sHjwpvdwtMNNX2o31s3DEHH, \"/tmp/lua/myapp.lua\", 100000000, 10000, \"Hello, WaykiChain!\""));
+                "WiZx6rrsBn9sHjwpvdwtMNNX2o31s3DEHH, \"/tmp/lua/myapp.lua\", 100000000, 10000, \"Hello, nchain!\""));
     }
 
     RPCTypeCheck(params, list_of(str_type)(str_type)(str_type)(int_type)(str_type));
@@ -390,11 +390,11 @@ Value submitucontractdeploytx(const Array& params, bool fHelp) {
             "\nExamples:\n" +
             HelpExampleCli("submitucontractdeploytx",
                            "\"WiZx6rrsBn9sHjwpvdwtMNNX2o31s3DEHH\" \"/tmp/lua/myapp.lua\" \"WICC:100000000:sawi\" "
-                           "10000 \"Hello, WaykiChain!\"") +
+                           "10000 \"Hello, nchain!\"") +
             "\nAs json rpc call\n" +
             HelpExampleRpc("submitucontractdeploytx",
                            "WiZx6rrsBn9sHjwpvdwtMNNX2o31s3DEHH, \"/tmp/lua/myapp.lua\", \"WICC:100000000:sawi\", "
-                           "10000, \"Hello, WaykiChain!\""));
+                           "10000, \"Hello, nchain!\""));
     }
 
     RPCTypeCheck(params, list_of(str_type)(str_type)(str_type)(int_type)(str_type));

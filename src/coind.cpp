@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -19,7 +19,7 @@
  * \section intro_sec Introduction
  *
  * This is the developer documentation of the reference client for a new crypto currency called WICC
- * (http://www.waykichain.com), which enables instant payments to anyone, anywhere in the world. WICC uses peer-to-peer
+ * (http://www.nchain.com), which enables instant payments to anyone, anywhere in the world. WICC uses peer-to-peer
  * technology to operate with no central authority: managing transactions and issuing money are carried out collectively
  * by the network.
  *
@@ -64,7 +64,7 @@ bool AppInit(int argc, char* argv[], boost::thread_group& threadGroup) {
 
         if (SysCfg().IsArgCount("-?") || SysCfg().IsArgCount("--help")) {
             // First part of help message is specific to coind / RPC client
-            std::string strUsage = _("WaykiChain Coin Daemon") + " " + _("version") + " " + FormatFullVersion() +
+            std::string strUsage = _("nchain Coin Daemon") + " " + _("version") + " " + FormatFullVersion() +
                                    "\n\n" + _("Usage:") + "\n" + "  coind [options]                     " +
                                    _("Start Coin Core Daemon") + "\n" + _("Usage (deprecated, use Coin-cli):") + "\n" +
                                    "  coin [options] <command> [params]  " + _("Send command to Coin Core") + "\n" +

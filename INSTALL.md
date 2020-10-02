@@ -2,4 +2,4 @@ Building Waykicoind
 ================
 
 See docs/build-*.md for instructions on building the various
-elements of the WaykiChain Core reference implementation of WaykiChain.
+elements of the nchain Core reference implementation of nchain.

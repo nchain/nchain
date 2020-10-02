@@ -76,7 +76,7 @@ config/build.h: FORCE
 config/version.o: config/build.h
 
 .PHONY: FORCE
-# waykichain core #
+# nchain core #
 coin_CORE_H = \
   chain/blockdelegates.h \
   chain/chain.h \

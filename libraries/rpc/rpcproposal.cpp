@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2017-2019 The WaykiChain Developers
+// Copyright (c) 2017-2019 The nchain Developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -746,13 +746,13 @@ Value submitaxcinproposal(const Array& params, bool fHelp) {
         throw runtime_error(
                 "submitaxcinproposal \"sender\" \"peer_chain_type\" \"peer_chain_token_symbol\" \"self_chain_token_symbol\" \"peer_chain_addr\""
                 " \"peer_chain_txid\" \"self_chain_uid\" \"swap_amount\" [\"fee\"]\n"
-                "create proposal about transfer coin from other chain to waykichain \n"
+                "create proposal about transfer coin from other chain to nchain \n"
                 "\nArguments:\n"
                 "1.\"sender\":                      (string, required) the tx sender's address\n"
                 "2.\"peer_chain_token_symbol\":     (string, required) the coin symbol that swap from, such as BTC,ETH,EOS \n"
                 "3.\"peer_chain_addr\":             (string, required) initiator's address at peer chain \n"
                 "4.\"peer_chain_txid\":             (string, required) a proof from the peer chain (non-HTLC version), such as wisvisof932wq392wospal230ewopdsxl\n"
-                "5.\"self_chain_uid\":              (string, required) initiator's uid at waykichain \n"
+                "5.\"self_chain_uid\":              (string, required) initiator's uid at nchain \n"
                 "6.\"swap_amount\":                 (numberic, required) the coin amount that swap in, the unit is sa(0.00000001), \n"
                 "7.\"fee\":                         (combomoney, optional) the tx fee \n"
                 "\nExamples:\n"
@@ -795,7 +795,7 @@ Value submitaxcoutproposal(const Array& params, bool fHelp) {
 
         throw runtime_error(
                 "submitaxcoutproposal \"sender\" \"self_chain_token_symbol\" \"peer_chain_addr\" \"swap_amount\" [\"fee\"]\n"
-                "create proposal about transfer coins from waykichain to other chain\n"
+                "create proposal about transfer coins from nchain to other chain\n"
                 "\nArguments:\n"
                 "1.\"sender\":                  (string,   required) the tx sender's address\n"
                 "2.\"self_chain_token_symbol\": (string, required) the coin symbol that swap out, such as WBTC,WETC,WEOS \n"
