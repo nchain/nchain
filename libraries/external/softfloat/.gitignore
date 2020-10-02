@@ -1,0 +1,5 @@
+build/*/*.o
+build/*/*.a
+*.o
+*.deps
+*.dirstamp
