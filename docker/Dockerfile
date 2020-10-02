@@ -1,5 +1,5 @@
 FROM phusion/baseimage:18.04-1.0.0
-MAINTAINER coredev@nchainhk.com
+MAINTAINER coredev@nchain.io
 ENV SOURCE_BRANCH "rel/v3.0.0"
 ARG debug='-debug'
 
