@@ -1,4 +1,5 @@
 add_subdirectory( crypto )
+add_subdirectory( persistence )
 
 ## commons
 
@@ -126,7 +127,7 @@ add_library( commons
              ${SOURCES}
              ${HEADERS} )
 
-target_link_libraries( commons Boost::filesystem secp256k1)
+target_link_libraries( commons Boost::filesystem secp256k1 leveldb)
 #target_link_libraries( commons Boost::filesystem Threads::Threads )
 target_include_directories( commons
     PUBLIC
