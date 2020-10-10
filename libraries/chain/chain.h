@@ -61,4 +61,8 @@ public:
     inline CBlock *TipBlock() { return &tip_block; }
 };
 
+void AddTimeData(const CNetAddr& ip, int64_t nTime);
+int64_t GetAdjustedTime();
+int64_t GetTimeOffset();
+
 #endif //CHAIN_CHAIN_H

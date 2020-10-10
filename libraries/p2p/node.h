@@ -58,7 +58,8 @@ struct CNodeSignals {
 inline uint32_t SendBufferSize() { return 1000 * SysCfg().GetArg("-maxsendbuffer", 1 * 1000); }
 inline uint32_t MaxPbftMsgSize() { return SysCfg().GetArg("-maxpbftmsgsize", 11 * 1000); }
 
-
+/** Increase a node's misbehavior score. */
+void Misbehaving(NodeId nodeid, int32_t howmuch);
 
 CAddress GetLocalAddress(const CNetAddr* paddrPeer = nullptr);
 bool GetLocal(CService& addr, const CNetAddr* paddrPeer = nullptr);

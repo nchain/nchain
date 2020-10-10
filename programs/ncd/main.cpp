@@ -475,26 +475,6 @@ void CheckForkWarningConditionsOnNewFork(CBlockIndex *pindexNewForkTip) {
     CheckForkWarningConditions();
 }
 
-void Misbehaving(NodeId pNode, int32_t howmuch) {
-    if (howmuch == 0)
-        return;
-
-    LOCK(cs_mapNodeState);
-    CNodeState *state = State(pNode);
-    if (state == nullptr)
-        return;
-
-    state->nMisbehavior += howmuch;
-    if (state->nMisbehavior >= SysCfg().GetArg("-banscore", 100)) {
-        LogPrint(BCLog::INFO, "Misbehaving: %s (%d -> %d) BAN THRESHOLD EXCEEDED\n", state->name,
-                 state->nMisbehavior - howmuch, state->nMisbehavior);
-        state->fShouldBan = true;
-    } else {
-        LogPrint(BCLog::INFO, "Misbehaving: %s (%d -> %d)\n", state->name, state->nMisbehavior - howmuch,
-                 state->nMisbehavior);
-    }
-}
-
 void static InvalidChainFound(CBlockIndex *pIndexNew) {
     if (pIndexBestInvalid == nullptr || pIndexNew->height > pIndexBestInvalid->height) {
         pIndexBestInvalid = pIndexNew;

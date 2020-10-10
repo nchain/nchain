@@ -91,8 +91,6 @@ int32_t GetTxConfirmHeight(const uint256 &hash, CBlockDBCache &blockCache);
 bool AbortNode(const string &msg);
 /** Get statistics from node state */
 bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
-/** Increase a node's misbehavior score. */
-void Misbehaving(NodeId nodeid, int32_t howmuch);
 
 bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
 

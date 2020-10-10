@@ -82,6 +82,8 @@ struct CProposal {
 
     CProposal() {}
     CProposal(ProposalType proposalTypeIn) : proposal_type(proposalTypeIn) {}
+    ~CProposal() {}
+
     virtual std::shared_ptr<CProposal> GetNewInstance() = 0;
     virtual bool CheckProposal(CTxExecuteContext& context, CBaseTx& tx) = 0;
     virtual bool ExecuteProposal(CTxExecuteContext& context, CBaseTx& tx) = 0;

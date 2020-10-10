@@ -20,14 +20,6 @@
 #include <utility>
 #include <vector>
 
-class CKeyID;
-class CRegID;
-class CAccount;
-class CContractDB;
-class CCacheWrapper;
-
-struct CDiskTxPos;
-
 typedef dbk::CDBTailKey<MAX_CONTRACT_KEY_SIZE> CDBContractKey;
 
 /*  CCompositeKVCache     prefixType                       key                       value         variable           */

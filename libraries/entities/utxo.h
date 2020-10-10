@@ -29,7 +29,7 @@ enum UtxoCondType : uint8_t {
     ORECLAIM_LOCK      = 115,
 };
 
-class CUtxoCondStorageBean;
+struct CUtxoCondStorageBean;
 
 struct CUtxoCond {
     UtxoCondType cond_type = NULL_UTXOCOND_TYPE;

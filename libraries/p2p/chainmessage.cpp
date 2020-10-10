@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "chainmessage.h"
+#include "config/errorcode.h"
 #include "commons/uint256.h"
 #include "commons/util/util.h"
 #include "net.h"
@@ -29,6 +30,7 @@ extern map<uint256, CBlockIndex *> mapBlockIndex;
 extern map<uint256, tuple<NodeId, list<QueuedBlock>::iterator, int64_t>> mapBlocksInFlight;  // downloading blocks
 extern map<uint256, tuple<NodeId, list<uint256>::iterator, int64_t>> mapBlocksToDownload;    // blocks to be downloaded
 
+extern bool IsInitialBlockDownload();
 
 // Sources of received blocks, to be able to send them reject messages or ban
 // them, if processing happens afterwards. Protected by cs_main.

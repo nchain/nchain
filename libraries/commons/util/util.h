@@ -147,12 +147,9 @@ uint64_t GetRand(uint64_t nMax);
 uint256 GetRandHash();
 int64_t GetTime();
 void SetMockTime(int64_t nMockTimeIn);
-int64_t GetAdjustedTime();
-int64_t GetTimeOffset();
 string FormatFullVersion();
 string FormatSubVersion(const string& name, int nClientVersion, const vector<string>& comments);
 void StringReplace(string& strBase, string strSrc, string strDes);
-// void AddTimeData(const CNetAddr& ip, int64_t nTime);
 void runCommand(string strCommand);
 
 inline string i64tostr(int64_t n) { return strprintf("%d", n); }
