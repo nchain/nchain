@@ -8,8 +8,10 @@
 #ifndef COIN_NODEINFO_H
 #define COIN_NODEINFO_H
 
-#include "main.h"
+#include "entities/id.h"
 #include "commons/util/util.h"
+#include "persistence/cachewrapper.h"
+#include "chain/chain.h"
 
 #include <string>
 
@@ -17,6 +19,7 @@ using namespace std;
 
 extern CCacheDBManager *pCdMan;
 extern int32_t nSyncTipHeight;
+extern CChainActive chainActive;
 
 extern bool mining;
 extern CKeyID minerKeyId;

@@ -10,6 +10,7 @@
 #include "entities/key.h"
 #include "net.h"
 #include "p2p/node.h"
+#include "p2p/addrman.h"
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/replace.hpp>

@@ -2636,3 +2636,42 @@ bool IsInitialBlockDownload() {
 
     return (GetTime() - nLastUpdate < 10 && chainActive.Tip()->GetBlockTime() < GetTime() - 24 * 60 * 60);
 }
+
+bool OnReceiveTx(CNode *pFrom, const string &command, const CInv &inv, CBaseTx *pTx) {
+    LOCK(cs_main);
+    CValidationState state;
+    if (AcceptToMemoryPool(mempool, state, pTx, true)) {
+        RelayTransaction(pTx, inv.hash);
+        mapAlreadyAskedFor.erase(inv);
+
+        LogPrint(BCLog::NET, "[%d]~ %s %s : accepted %s (poolsz %u)\n", pTx->valid_height, pFrom->addr.ToString(),
+                 pFrom->cleanSubVer, pTx->GetHash().ToString(), mempool.memPoolTxs.size());
+    }
+
+    int32_t nDoS = 0;
+    if (state.IsInvalid(nDoS)) {
+        LogPrint(BCLog::NET, "[%d]~ %s from %s %s not accepted into mempool: %s\n",
+                pTx->GetHash().ToString(), pTx->valid_height,
+                pFrom->addr.ToString(), pFrom->cleanSubVer, state.GetRejectReason());
+
+        pFrom->PushMessage(NetMsgType::REJECT, command, state.GetRejectCode(), state.GetRejectReason(), inv.hash);
+        // if (nDoS > 0) {
+        //     LogPrint(BCLog::INFO, "Misebehaving, add to tx hash %s mempool error, Misbehavior add %d",
+        //     pBaseTx->GetHash().GetHex(), nDoS); Misbehaving(pFrom->GetId(), nDoS);
+        // }
+    }
+
+    return true;
+}
+
+bool OnReceiveBlock(CNode *pFrom, CBlock *block) {
+    LOCK(cs_main);
+    CValidationState state;
+
+    if (!pbftMan.IsBlockReversible(*block)) {
+        LogPrint(BCLog::NET,"this inbound block=%s is irrreversible, fin_block=%s\n",
+                            block->GetIdStr(), pbftMan.GetGlobalFinIndex()->GetIdString());
+    } else {
+        ProcessBlock(state, pFrom, block);
+    }
+}

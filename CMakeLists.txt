@@ -105,7 +105,7 @@ find_package(Boost 1.67 REQUIRED COMPONENTS thread system program_options filesy
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -DMAC_OS" )
 else()
     # Linux Specific Options Here
     message( STATUS "Configuring NCHAIN on Linux" )

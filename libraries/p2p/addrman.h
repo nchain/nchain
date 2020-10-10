@@ -18,6 +18,10 @@
 
 #include <openssl/rand.h>
 
+void AddTimeData(const CNetAddr& ip, int64_t nTime);
+int64_t GetAdjustedTime();
+int64_t GetTimeOffset();
+
 /** Extended statistics about a CAddress */
 class CAddrInfo : public CAddress
 {

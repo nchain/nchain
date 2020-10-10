@@ -9,6 +9,71 @@
 
 using namespace std;
 
+//
+// "Never go to sea with two chronometers; take one or three."
+// Our three time sources are:
+//  - System clock
+//  - Median of other nodes clocks
+//  - The user (asking the user to fix the system clock if the first two disagree)
+//
+
+static CCriticalSection cs_nTimeOffset;
+static int64_t nTimeOffset = 0;
+
+int64_t GetTimeOffset() {
+    LOCK(cs_nTimeOffset);
+    return nTimeOffset;
+}
+
+int64_t GetAdjustedTime() { return GetTime() + GetTimeOffset(); }
+
+void AddTimeData(const CNetAddr& ip, int64_t nTime) {
+    int64_t nOffsetSample = nTime - GetTime();
+
+    LOCK(cs_nTimeOffset);
+    // Ignore duplicates
+    static set<CNetAddr> setKnown;
+    if (!setKnown.insert(ip).second)
+        return;
+
+    // Add data
+    static CMedianFilter<int64_t> vTimeOffsets(200, 0);
+    vTimeOffsets.input(nOffsetSample);
+    LogPrint(BCLog::INFO, "samples size=%d, offset=%+d (%+d minutes)\n", vTimeOffsets.size(),
+             nOffsetSample, nOffsetSample / 60);
+
+    if (vTimeOffsets.size() >= 5 && vTimeOffsets.size() % 2 == 1) {
+        int64_t nMedian         = vTimeOffsets.median();
+        vector<int64_t> vSorted = vTimeOffsets.sorted();
+
+        // As block interval is so short, i.e., 10 seconds or 3 seconds. It's not necessary to adjust
+        // out timestamp depending on other peers.
+        // Every block producer should make sure it's timestamp is exactly precise. Of course, if nobody
+        // has a time different than ours but within 1 seconds of ours, give a warning.
+
+        if (abs64(nMedian) > 1) {
+            static bool fDone;
+            if (!fDone) {
+                bool fMatch = false;
+                for (int64_t nOffset : vSorted)
+                    if (abs64(nOffset) <= 1)
+                        fMatch = true;
+
+                if (!fMatch) {
+                    fDone = true;
+                    string strMessage =
+                        _("Warning: Please check that your computer's date and time "
+                        "are correct! If your clock is wrong Coin will not work properly.");
+                    strMiscWarning = strMessage;
+                    LogPrint(BCLog::INFO, "*** %s\n", strMessage);
+                }
+            }
+        }
+
+        LogPrint(BCLog::INFO, "nTimeOffset = %+d  (%+d minutes)\n", nTimeOffset, nTimeOffset / 60);
+    }
+}
+
 int CAddrInfo::GetTriedBucket(const vector<unsigned char> &nKey) const
 {
     CDataStream ss1(SER_GETHASH, 0);

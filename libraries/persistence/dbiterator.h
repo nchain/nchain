@@ -25,6 +25,7 @@ public:
           sp_key(make_shared<KeyType>()),
           sp_value(make_shared<ValueType>()),
           is_valid(false) {}
+    virtual ~CDBBaseIterator() {}
 
     virtual bool First() = 0;
 
@@ -301,9 +302,9 @@ public:
     typedef typename CacheType::KeyType KeyType;
     typedef typename CacheType::ValueType ValueType;
 
-    CDbIterator(CacheType &dbCacheIn): sp_it_Impl(IteratorImpl::Create(dbCacheIn)){
+    CDbIterator(CacheType &dbCacheIn): sp_it_Impl(IteratorImpl::Create(dbCacheIn)) {}
+    virtual ~CDbIterator() {}
 
-    }
     virtual bool First() {
         return sp_it_Impl->First();
     }

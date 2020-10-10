@@ -31,6 +31,9 @@ extern map<uint256, tuple<NodeId, list<QueuedBlock>::iterator, int64_t>> mapBloc
 extern map<uint256, tuple<NodeId, list<uint256>::iterator, int64_t>> mapBlocksToDownload;    // blocks to be downloaded
 
 extern bool IsInitialBlockDownload();
+extern bool OnReceiveTx(CNode *pFrom, const string &command, const CInv &inv, CBaseTx *pTx);
+extern bool OnReceiveBlock(CNode *pFrom, CBlock *block);
+extern void PushGetBlocksOnCondition(CNode *pNode, CBlockIndex *pIndexBegin, uint256 hashEnd);
 
 // Sources of received blocks, to be able to send them reject messages or ban
 // them, if processing happens afterwards. Protected by cs_main.
@@ -490,30 +493,7 @@ bool ProcessTxMessage(CNode *pFrom, string strCommand, CDataStream &vRecv) {
         return true;
     }
 
-    LOCK(cs_main);
-    CValidationState state;
-    if (AcceptToMemoryPool(mempool, state, pBaseTx.get(), true)) {
-        RelayTransaction(pBaseTx.get(), inv.hash);
-        mapAlreadyAskedFor.erase(inv);
-
-        LogPrint(BCLog::NET, "[%d]~ %s %s : accepted %s (poolsz %u)\n", pBaseTx->valid_height, pFrom->addr.ToString(),
-                 pFrom->cleanSubVer, pBaseTx->GetHash().ToString(), mempool.memPoolTxs.size());
-    }
-
-    int32_t nDoS = 0;
-    if (state.IsInvalid(nDoS)) {
-        LogPrint(BCLog::NET, "[%d]~ %s from %s %s not accepted into mempool: %s\n",
-                pBaseTx->GetHash().ToString(), pBaseTx->valid_height,
-                pFrom->addr.ToString(), pFrom->cleanSubVer, state.GetRejectReason());
-
-        pFrom->PushMessage(NetMsgType::REJECT, strCommand, state.GetRejectCode(), state.GetRejectReason(), inv.hash);
-        // if (nDoS > 0) {
-        //     LogPrint(BCLog::INFO, "Misebehaving, add to tx hash %s mempool error, Misbehavior add %d",
-        //     pBaseTx->GetHash().GetHex(), nDoS); Misbehaving(pFrom->GetId(), nDoS);
-        // }
-    }
-
-    return true;
+    return OnReceiveTx(pFrom, strCommand, inv, pBaseTx.get());
 }
 
 bool ProcessGetHeadersMessage(CNode *pFrom, CDataStream &vRecv) {
@@ -719,16 +699,7 @@ void ProcessBlockMessage(CNode *pFrom, CDataStream &vRecv) {
         MarkBlockAsReceived(inv.hash, pFrom->GetId());
     }
 
-    LOCK(cs_main);
-    CValidationState state;
-
-    if (!pbftMan.IsBlockReversible(block)) {
-        LogPrint(BCLog::NET,"this inbound block=%s is irrreversible, fin_block=%s\n",
-                            block.GetIdStr(), pbftMan.GetGlobalFinIndex()->GetIdString());
-    } else {
-        ProcessBlock(state, pFrom, &block);
-    }
-
+    OnReceiveBlock(pFrom, &block);
 }
 
 void ProcessMempoolMessage(CNode *pFrom, CDataStream &vRecv) {

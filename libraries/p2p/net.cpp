@@ -30,7 +30,9 @@
 #endif
 
 #include <sys/statvfs.h>
+#ifndef MAC_OS
 #include <sys/sysinfo.h>
+#endif// !MAC_OS
 #include <sys/utsname.h>
 
 #include <fstream>
@@ -239,8 +241,10 @@ bool IsReachable(const CNetAddr& addr) {
 }
 
 static string GetSystemInfo() {
+#ifndef MAC_OS
     struct sysinfo info;
     sysinfo(&info);
+#endif// !MAC_OS
 
     struct statvfs fsinfo;
     statvfs("/", &fsinfo);
@@ -252,7 +256,9 @@ static string GetSystemInfo() {
     getnodeinfo(&nodeinfo);
 
     string vcpus    = std::to_string(std::thread::hardware_concurrency());
+#ifndef MAC_OS
     string memory   = std::to_string(info.totalram * info.mem_unit / 1024 / 1024);      // Unit: MB
+#endif// !MAC_OS
     string totalHDD = std::to_string(fsinfo.f_frsize * fsinfo.f_blocks / 1024 / 1024);  // Unit: MB
     string freeHDD  = std::to_string(fsinfo.f_bsize * fsinfo.f_bfree / 1024 / 1024);    // Unit: MB
     string osType   = string(utsName.sysname);
@@ -267,7 +273,9 @@ static string GetSystemInfo() {
 
     json += "{";
     json += "\"vcpus\":"    + vcpus     + ",";
+#ifdef UNIX
     json += "\"mem\":"      + memory    + ",";
+#endif// UNIX
     json += "\"diskt\":"    + totalHDD  + ",";
     json += "\"diskf\":"    + freeHDD   + ",";
     json += "\"ost\":\""    + osType    + "\",";
