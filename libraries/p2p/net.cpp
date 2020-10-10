@@ -52,6 +52,8 @@
 using namespace std;
 using namespace boost;
 
+extern string publicIp;
+
 static const int32_t MAX_OUTBOUND_CONNECTIONS = 8;
 
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant* grantOutbound = nullptr,

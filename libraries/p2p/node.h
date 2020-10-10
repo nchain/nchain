@@ -10,6 +10,7 @@
 #include <boost/signals2/signal.hpp>
 #include "commons/serialize.h"
 #include "sync.h"
+#include "addrman.h"
 #include "commons/compat/compat.h"
 #include "p2p/protocol.h"
 #include "commons/limitedmap.h"
