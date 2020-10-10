@@ -10,7 +10,7 @@
 #include "entities/key.h"
 #include "commons/util/util.h"
 #include "configuration.h"
-#include "main.h"
+#include "persistence/block.h"
 #include "net.h"
 #include "p2p/node.h"
 #include "tx/blockrewardtx.h"
