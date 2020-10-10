@@ -10,7 +10,7 @@
 #include "config/coin-config.h"
 #endif
 
-#include "logging.h"
+#include "commons/logging.h"
 #include "config/const.h"
 #include "commons/serialize.h"
 #include "commons/tinyformat.h"
@@ -152,7 +152,7 @@ int64_t GetTimeOffset();
 string FormatFullVersion();
 string FormatSubVersion(const string& name, int nClientVersion, const vector<string>& comments);
 void StringReplace(string& strBase, string strSrc, string strDes);
-void AddTimeData(const CNetAddr& ip, int64_t nTime);
+// void AddTimeData(const CNetAddr& ip, int64_t nTime);
 void runCommand(string strCommand);
 
 inline string i64tostr(int64_t n) { return strprintf("%d", n); }

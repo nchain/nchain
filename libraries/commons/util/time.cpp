@@ -15,6 +15,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
 #include <ctime>
+#include <chrono>
+#include <thread>
 
 
 static std::atomic<int64_t> nMockTime(0); //!< For unit testing
@@ -87,8 +89,7 @@ void MilliSleep(int64_t n)
 #elif defined(HAVE_WORKING_BOOST_SLEEP)
     boost::this_thread::sleep(boost::posix_time::milliseconds(n));
 #else
-//should never get here
-#error missing boost sleep implementation
+    std::this_thread::sleep_for(std::chrono::milliseconds(n));
 #endif
 }
 

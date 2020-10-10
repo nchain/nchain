@@ -161,7 +161,7 @@ static evutil_socket_t bind_socket_ai(struct evutil_addrinfo* ai, int reuse) {
 #endif
 
     if (ai != NULL) {
-        r = bind(fd, ai->ai_addr, (ev_socklen_t)ai->ai_addrlen);
+        r = ::bind(fd, ai->ai_addr, (ev_socklen_t)ai->ai_addrlen);
         if (r == -1) {
             int serrno = EVUTIL_SOCKET_ERROR();
             LogPrint(BCLog::ERROR, "bind_socket_ai bind failed, err: %s\n",
