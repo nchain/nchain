@@ -135,7 +135,7 @@ inline uint32_t GetForkHeightByVersion(FeatureForkVersionEnum ver) {
     if (ver == FeatureForkVersionEnum::MAJOR_VER_R2) return SysCfg().GetVer2ForkHeight();
     if (ver == FeatureForkVersionEnum::MAJOR_VER_R3) return SysCfg().GetVer3ForkHeight();
 
-    throw runtime_error("FeatureForkVersionEnum is invalid: " + ver);
+    throw runtime_error("FeatureForkVersionEnum is invalid: " + std::to_string((int32_t)ver));
 }
 
 inline uint32_t GetBlockInterval(const int32_t currBlockHeight) {

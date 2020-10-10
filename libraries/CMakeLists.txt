@@ -88,6 +88,7 @@ file( GLOB P2P_HEADERS "p2p/*.h" "p2p/*.hpp" )
 
 set(P2P_SOURCES
     p2p/addrman.cpp
+    p2p/alert.cpp
     p2p/chainmessage.cpp
     p2p/net.cpp
     p2p/netbase.cpp
@@ -97,7 +98,7 @@ set(P2P_SOURCES
 )
 
 
-## p2p
+## persistence
 file( GLOB PERSISTENCE_HEADERS "persistence/*.h" "persistence/*.hpp" )
 
 set(PERSISTENCE_SOURCES

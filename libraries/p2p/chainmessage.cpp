@@ -6,11 +6,12 @@
 #include "chainmessage.h"
 #include "commons/uint256.h"
 #include "commons/util/util.h"
-#include "main.h"
 #include "net.h"
 #include "node.h"
 #include "miner/pbftcontext.h"
 #include "miner/pbftmanager.h"
+#include "chain/merkletree.h"
+#include "tx/txmempool.h"
 
 #include <string>
 #include <tuple>
@@ -18,9 +19,13 @@
 
 using namespace std;
 
+extern CCriticalSection cs_main;
 extern CCriticalSection cs_mapNodeState;
 extern CNodeState *State(NodeId pNode);
+extern CChainActive chainActive;
+extern CTxMemPool mempool;
 
+extern map<uint256, CBlockIndex *> mapBlockIndex;
 extern map<uint256, tuple<NodeId, list<QueuedBlock>::iterator, int64_t>> mapBlocksInFlight;  // downloading blocks
 extern map<uint256, tuple<NodeId, list<uint256>::iterator, int64_t>> mapBlocksToDownload;    // blocks to be downloaded
 

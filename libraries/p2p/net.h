@@ -11,7 +11,7 @@
 #include "crypto/hash.h"
 #include "sync.h"
 #include "netbase.h"
-
+#include "protocol.h"
 
 #include <stdint.h>
 #include <deque>
@@ -27,7 +27,7 @@
 class CAddrMan;
 class CBlockIndex;
 class CNode;
-class LocalServiceInfo;
+struct LocalServiceInfo;
 class CInv;
 
 //p2p_xiaoyu_20191126
@@ -39,7 +39,6 @@ static const int TIMEOUT_INTERVAL = 20 * 60;
 /** -peertimeout default */
 static const int64_t DEFAULT_PEER_CONNECT_TIMEOUT = 60;
 
-inline uint32_t ReceiveFloodSize() { return 1000 * SysCfg().GetArg("-maxreceivebuffer", 5 * 1000); }
 void AddOneShot(string strDest);
 bool RecvLine(SOCKET hSocket, string& strLine);
 bool GetMyPublicIP(CNetAddr& ipRet);

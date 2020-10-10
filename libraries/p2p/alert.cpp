@@ -8,7 +8,6 @@
 #include "logging.h"
 #include "commons/util/util.h"
 #include "entities/key.h"
-#include "main.h"
 #include "net.h"
 #include "p2p/node.h"
 

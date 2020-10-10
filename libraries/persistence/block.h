@@ -25,7 +25,7 @@
 #include <memory>
 
 class CBlockDBCache;
-class CDiskBlockPos;
+struct CDiskBlockPos;
 class CNode;
 
 enum BlockStatus {
@@ -465,8 +465,9 @@ bool ReadTxFromDisk(const CTxCord txCord, std::shared_ptr<TxType> &pTx) {
     assert(pBaseTx);
     pTx = dynamic_pointer_cast<TxType>(pBaseTx);
     if (!pTx) {
+        auto &tx = *pBaseTx;
         return ERRORMSG("The expected tx(%s) type is %s, but read tx type is %s",
-            txCord.ToString(), typeid(TxType).name(), typeid(*pBaseTx).name());
+            txCord.ToString(), typeid(TxType).name(), typeid(tx).name());
     }
     return true;
 }

@@ -7,7 +7,6 @@
 
 #include "commons/arith_uint256.h"
 #include "commons/uint256.h"
-#include "main.h"
 #include "commons/util/util.h"
 
 #include <stdint.h>

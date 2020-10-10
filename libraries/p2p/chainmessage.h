@@ -9,7 +9,7 @@
 #include "alert.h"
 #include "commons/uint256.h"
 #include "commons/util/util.h"
-#include "main.h"
+#include "node.h"
 #include "addrman.h"
 #include "net.h"
 #include "miner/pbftcontext.h"
@@ -29,7 +29,7 @@ static const int64_t WITNESS_NODE_BLOCKS_IN_FLIGHT_TIMEOUT   = 10;  // 10 second
 class CNode;
 class CDataStream;
 class CInv;
-class COrphanBlock;
+struct COrphanBlock;
 class CBlockConfirmMessage;
 
 extern CPBFTMan pbftMan;

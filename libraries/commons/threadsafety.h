@@ -7,7 +7,8 @@
 #ifndef COIN_THREADSAFETY_H
 #define COIN_THREADSAFETY_H
 
-#ifdef __clang__
+// #ifdef __clang__
+#if defined(__GNUC__) && defined(__SUPPORT_TS_ANNOTATION__)
 // TL;DR Add GUARDED_BY(mutex) to member variables. The others are
 // rarely necessary. Ex: int nFoo GUARDED_BY(cs_foo);
 //

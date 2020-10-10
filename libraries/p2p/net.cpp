@@ -101,6 +101,7 @@ void AddOneShot(string strDest) {
 
 uint16_t GetListenPort() { return (uint16_t)(SysCfg().GetArg("-port", SysCfg().GetDefaultPort())); }
 
+inline uint32_t ReceiveFloodSize() { return 1000 * SysCfg().GetArg("-maxreceivebuffer", 5 * 1000); }
 
 bool RecvLine(SOCKET hSocket, string& strLine) {
     strLine = "";

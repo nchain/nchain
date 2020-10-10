@@ -37,7 +37,6 @@ class CBloomFilter;
 class CChain;
 class CInv;
 
-extern CCriticalSection cs_main;
 /** The currently-connected chain of blocks. */
 extern CChainActive chainActive;
 extern CSignatureCache signatureCache;
@@ -57,8 +56,6 @@ class CWalletInterface;
 
 struct CNodeStateStats;
 struct CNodeSignals;
-
-typedef int32_t NodeId;
 
 /** Register a wallet to receive updates from core */
 void RegisterWallet(CWalletInterface *pWalletIn);
