@@ -101,7 +101,6 @@ namespace dbk {
         /**** contract db                                                                      */ \
         DEFINE( CONTRACT_DEF,         "ucon",   CONTRACT )      /* ucon{$ContractRegId} --> $CUniversalContractStore */ \
         DEFINE( CONTRACT_DATA,        "cdat",   CONTRACT )      /* cdat{$RegId}{$DataKey} --> $Data */ \
-        DEFINE( CONTRACT_ACCOUNT,     "cacc",   CONTRACT )      /* cacc{$ContractRegId}{$AccUserId} --> appUserAccount */ \
         DEFINE( CONTRACT_TRACES,      "ctrs",   CONTRACT )      /* [prefix]{$txid} --> contract_traces */ \
         DEFINE( CONTRACT_LOGS,        "clgs",   CONTRACT )      /* [prefix]{$txid} --> contract_logs */ \
         /**** delegate db                                                                      */ \

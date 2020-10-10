@@ -18,21 +18,6 @@
 
 using namespace std;
 
-/************************ contract account ******************************/
-bool CContractDBCache::GetContractAccount(const CRegID &contractRegId, const string &accountKey,
-                                          CAppUserAccount &appAccOut) {
-    auto key = std::make_pair(CRegIDKey(contractRegId), accountKey);
-    return contractAccountCache.GetData(key, appAccOut);
-}
-
-bool CContractDBCache::SetContractAccount(const CRegID &contractRegId, const CAppUserAccount &appAccIn) {
-    if (appAccIn.IsEmpty()) {
-        return false;
-    }
-    auto key = std::make_pair(CRegIDKey(contractRegId), appAccIn.GetAccUserId());
-    return contractAccountCache.SetData(key, appAccIn);
-}
-
 /************************ contract in cache ******************************/
 bool CContractDBCache::GetContract(const CRegID &contractRegId, CUniversalContractStore &contractStore) {
     return contractCache.GetData(CRegIDKey(contractRegId), contractStore);
@@ -91,7 +76,6 @@ bool CContractDBCache::SetContractLogs(const uint256 &txid, const string &contra
 bool CContractDBCache::Flush() {
     contractCache.Flush();
     contractDataCache.Flush();
-    contractAccountCache.Flush();
     contractTracesCache.Flush();
     contractLogsCache.Flush();
 

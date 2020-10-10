@@ -180,7 +180,7 @@ Value getfinblockcount (const Array& params, bool fHelp) {
             "getfinblockcount\n"
             "\nReturn the height of the finality block.\n"
             "\nResult:\n"
-          
+
             "\n  (numeric) The height of the finality block\n"
 
             "\nExamples:\n" +
@@ -254,7 +254,6 @@ Value verifymessage(const Array& params, bool fHelp) {
     /**** contract db                                                                      */ \
     DEFINE( CONTRACT_DEF,         pContractCache,  contractCache ) \
     DEFINE( CONTRACT_DATA,        pContractCache,  contractDataCache) \
-    DEFINE( CONTRACT_ACCOUNT,     pContractCache,  contractAccountCache) \
     DEFINE( CONTRACT_TRACES,      pContractCache,  contractTracesCache) \
     DEFINE( CONTRACT_LOGS,        pContractCache,  contractLogsCache) \
     /**** delegate db                                                                      */ \

@@ -78,9 +78,6 @@ static CUserID nullId;
     DEFINE(CONTRACT_TOKEN_OPERATE_SUB,          603, "sub operate on contract-managed tokens") \
     DEFINE(CONTRACT_TOKEN_OPERATE_TAG_ADD,      604, "add operate on contract-managed tag tokens") \
     DEFINE(CONTRACT_TOKEN_OPERATE_TAG_SUB,      605, "sub operate on contract-managed tag tokens") \
-    DEFINE(CONTRACT_ACCOUNT_OPERATE_ADD,        606, "add operate on account in contract") \
-    DEFINE(CONTRACT_ACCOUNT_OPERATE_SUB,        607, "sub operate on account in contract") \
-    DEFINE(CONTRACT_ACCOUNT_TRANSFER_ASSET,     608, "transfer account asset in contract") \
     /**** asset */ \
     DEFINE(ASSET_ISSUED_FEE_TO_RESERVE,         701, "asset issued fee to risk reserve") \
     DEFINE(ASSET_UPDATED_FEE_TO_RESERVE,        702, "asset updated fee to risk reserve") \

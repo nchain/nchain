@@ -14,7 +14,6 @@
 #include "dbcache.h"
 #include "dbiterator.h"
 #include "persistence/disk.h"
-#include "vm/luavm/appaccount.h"
 
 #include <map>
 #include <string>
@@ -66,7 +65,6 @@ public:
     CContractDBCache(CDBAccess *pDbAccess):
         contractCache(pDbAccess),
         contractDataCache(pDbAccess),
-        contractAccountCache(pDbAccess),
         contractTracesCache(pDbAccess),
         contractLogsCache(pDbAccess) {
         assert(pDbAccess->GetDbNameType() == DBNameType::CONTRACT);
@@ -75,12 +73,8 @@ public:
     CContractDBCache(CContractDBCache *pBaseIn):
         contractCache(pBaseIn->contractCache),
         contractDataCache(pBaseIn->contractDataCache),
-        contractAccountCache(pBaseIn->contractAccountCache),
         contractTracesCache(pBaseIn->contractTracesCache),
         contractLogsCache(pBaseIn->contractLogsCache) {};
-
-    bool GetContractAccount(const CRegID &contractRegId, const string &accountKey, CAppUserAccount &appAccOut);
-    bool SetContractAccount(const CRegID &contractRegId, const CAppUserAccount &appAccIn);
 
     bool GetContract(const CRegID &contractRegId, CUniversalContractStore &contractStore);
     bool SaveContract(const CRegID &contractRegId, const CUniversalContractStore &contractStore);
@@ -104,7 +98,6 @@ public:
     void SetBaseViewPtr(CContractDBCache *pBaseIn) {
         contractCache.SetBase(&pBaseIn->contractCache);
         contractDataCache.SetBase(&pBaseIn->contractDataCache);
-        contractAccountCache.SetBase(&pBaseIn->contractAccountCache);
         contractTracesCache.SetBase(&pBaseIn->contractTracesCache);
         contractLogsCache.SetBase(&pBaseIn->contractLogsCache);
     };
@@ -112,7 +105,6 @@ public:
     void SetDbOpLogMap(CDBOpLogMap *pDbOpLogMapIn) {
         contractCache.SetDbOpLogMap(pDbOpLogMapIn);
         contractDataCache.SetDbOpLogMap(pDbOpLogMapIn);
-        contractAccountCache.SetDbOpLogMap(pDbOpLogMapIn);
         contractTracesCache.SetDbOpLogMap(pDbOpLogMapIn);
         contractLogsCache.SetDbOpLogMap(pDbOpLogMapIn);
     }
@@ -120,7 +112,6 @@ public:
     void RegisterUndoFunc(UndoDataFuncMap &undoDataFuncMap) {
         contractCache.RegisterUndoFunc(undoDataFuncMap);
         contractDataCache.RegisterUndoFunc(undoDataFuncMap);
-        contractAccountCache.RegisterUndoFunc(undoDataFuncMap);
         contractTracesCache.RegisterUndoFunc(undoDataFuncMap);
         contractLogsCache.RegisterUndoFunc(undoDataFuncMap);
     }
@@ -137,9 +128,6 @@ public:
 
     // pair<contractRegId, contractKey> -> contractData
     DBContractDataCache contractDataCache;
-
-    // pair<contractRegId, accountKey> -> appUserAccount
-    CCompositeKVCache< dbk::CONTRACT_ACCOUNT,     pair<CRegIDKey, string>,     CAppUserAccount >           contractAccountCache;
 
     // txid -> contract_traces
     CCompositeKVCache< dbk::CONTRACT_TRACES,     uint256,                      string >                    contractTracesCache;
