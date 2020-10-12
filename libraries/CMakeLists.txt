@@ -1,5 +1,6 @@
 add_subdirectory( crypto )
 add_subdirectory( persistence )
+add_subdirectory( softfloat )
 
 ## commons
 
@@ -156,7 +157,7 @@ add_library( commons STATIC
 
 target_link_libraries( commons
     PRIVATE
-        Boost::filesystem secp256k1 leveldb  Oracle::BerkeleyDB
+        Boost::filesystem secp256k1 leveldb  Oracle::BerkeleyDB softfloat
 )
 
 #target_link_libraries( commons Boost::filesystem Threads::Threads )
