@@ -12,6 +12,3 @@
 [submodule "libraries/fc"]
 	path = libraries/fc
 	url = https://github.com/EOSIO/fc
-[submodule "libraries/eos-vm"]
-	path = libraries/eos-vm
-	url = https://github.com/EOSIO/eos-vm

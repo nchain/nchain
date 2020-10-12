@@ -100,7 +100,7 @@ set(P2P_SOURCES
 
 
 ## persistence
-file( GLOB PERSISTENCE_HEADERS "persistence/*.h" "persistence/*.hpp" )
+file( GLOB_RECURSE PERSISTENCE_HEADERS "persistence/*.h" "persistence/*.hpp" )
 
 set(PERSISTENCE_SOURCES
     persistence/accountdb.cpp
@@ -122,8 +122,33 @@ set(PERSISTENCE_SOURCES
     persistence/txutxodb.cpp
 )
 
-set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} )
-set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} )
+## persistence
+file( GLOB WASM_HEADERS "wasm/*.h" "wasm/*.hpp" )
+
+set(WASM_SOURCES
+    wasm/wasm_interface.cpp
+    wasm/wasm_runtime.cpp
+    wasm/types/uint128.cpp
+    wasm/compiler_builtins/fixdfti.c
+    wasm/compiler_builtins/fixsfti.c
+    wasm/compiler_builtins/fixtfti.c
+    wasm/compiler_builtins/fixunsdfti.c
+    wasm/compiler_builtins/fixunssfti.c
+    wasm/compiler_builtins/fixunstfti.c
+    wasm/compiler_builtins/floattidf.c
+    wasm/compiler_builtins/floatuntidf.c
+)
+
+set (WASM_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/wasm/
+    ${CMAKE_CURRENT_SOURCE_DIR}/wasm/types
+    ${CMAKE_CURRENT_SOURCE_DIR}/wasm/eos-vm/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/wasm/compiler_builtins
+    # ${CMAKE_CURRENT_SOURCE_DIR}/wasm/external/outcome/single-header
+)
+
+set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} ${WASM_HEADERS} )
+set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} ${WASM_SOURCES} )
 
 add_library( commons STATIC
              ${SOURCES}
@@ -145,4 +170,5 @@ target_include_directories( commons
         ${CMAKE_CURRENT_SOURCE_DIR}/p2p
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence/leveldb/helpers/memenv
+        ${WASM_INCLUDES}
 )
