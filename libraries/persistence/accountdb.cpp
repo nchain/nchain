@@ -7,7 +7,7 @@
 #include "entities/key.h"
 #include "commons/uint256.h"
 #include "commons/util/util.h"
-#include "main.h"
+#include "dbiterator.h"
 
 #include <stdint.h>
 

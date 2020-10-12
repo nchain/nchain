@@ -6,11 +6,13 @@
 #include "dexdb.h"
 #include "entities/account.h"
 #include "entities/asset.h"
-#include "main.h"
+#include "chain/chain.h"
 #include <optional>
 #include <functional>
 
 using namespace dex;
+
+extern CChainActive chainActive;
 
 ///////////////////////////////////////////////////////////////////////////////
 // class DEX_DB
@@ -96,7 +98,7 @@ bool CDexDBCache::IncDexID(DexID &id) {
     decltype(operator_last_id_cache)::ValueType idVariant;
     operator_last_id_cache.GetData(idVariant);
     DexID &newId = idVariant.get();
-    if (newId == ULONG_MAX)
+    if (newId == UINT_MAX)
         return ERRORMSG("dex operator id is inc to max! last_id=%ul\n", newId);
     newId++;
 

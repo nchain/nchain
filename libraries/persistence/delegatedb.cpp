@@ -7,9 +7,6 @@
 
 #include "config/configuration.h"
 
-
-static const int BP_DELEGATE_VOTE_MIN = 21000;
-
 inline static CFixedUInt64 DelegateVoteToKey(uint64_t votes) {
     static_assert(ULONG_MAX == 0xFFFFFFFFFFFFFFFF, "ULONG_MAX == 0xFFFFFFFFFFFFFFFF");
     return CFixedUInt64(ULONG_MAX - votes);

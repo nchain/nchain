@@ -4,7 +4,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "blockundo.h"
-#include "main.h"
+
+extern bool IsInitialBlockDownload();
 
 /** Open an undo file (rev?????.dat) */
 FILE *OpenUndoFile(const CDiskBlockPos &pos, bool fReadOnly) {

@@ -4,11 +4,15 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "block.h"
-
+#include "chain.h"
 #include "entities/account.h"
 #include "tx/blockpricemediantx.h"
-#include "main.h"
-#include "net.h"
+#include "persistence/cachewrapper.h"
+
+extern CChainActive chainActive;
+extern CCacheDBManager *pCdMan;
+
+extern bool IsInitialBlockDownload();
 
 bool IsGenesisBlock(const CBlock &block) {
     return block.GetHeight() == 0 && block.GetHash() == SysCfg().GetGenesisBlockHash();

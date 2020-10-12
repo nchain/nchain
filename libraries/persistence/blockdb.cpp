@@ -7,12 +7,12 @@
 #include "entities/key.h"
 #include "commons/uint256.h"
 #include "commons/util/util.h"
-#include "main.h"
 
 #include <stdint.h>
 
 using namespace std;
 
+extern map<uint256, CBlockIndex *> mapBlockIndex;
 
 /********************** CBlockIndexDB ********************************/
 

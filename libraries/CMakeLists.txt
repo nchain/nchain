@@ -81,6 +81,7 @@ set(CHAIN_SOURCES
     chain/blockdelegates.cpp
     chain/chain.cpp
     chain/merkletree.cpp
+    chain/validation.cpp
 )
 
 ## p2p
@@ -139,4 +140,5 @@ target_include_directories( commons
         ${CMAKE_CURRENT_SOURCE_DIR}/chain
         ${CMAKE_CURRENT_SOURCE_DIR}/p2p
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence
+        ${CMAKE_CURRENT_SOURCE_DIR}/persistence/leveldb/helpers/memenv
 )

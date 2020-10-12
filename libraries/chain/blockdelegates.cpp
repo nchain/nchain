@@ -6,7 +6,7 @@
 #include "blockdelegates.h"
 #include <memory>
 
-#include "main.h"
+#include "chain/validation.h"
 
 using namespace std;
 
