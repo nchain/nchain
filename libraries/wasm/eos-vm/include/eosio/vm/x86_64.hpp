@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+// #pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
 #include <eosio/vm/allocator.hpp>
 #include <eosio/vm/exceptions.hpp>
 #include <eosio/vm/signals.hpp>

@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+// #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <eosio/vm/utils.hpp>
 
 #include <cstdint>

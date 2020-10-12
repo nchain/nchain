@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+// #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 // temporarily use exceptions
 #include <eosio/vm/exceptions.hpp>
 

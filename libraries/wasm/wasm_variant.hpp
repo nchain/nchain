@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+// #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 
 #include <chrono>
 
@@ -202,7 +202,7 @@ namespace wasm {
     static inline void to_variant( const wasm::time_point& t, wasm::variant& v ) {
       v = wasm::variant(t.to_iso_string());
     }
-    
+
     static inline void to_variant( const wasm::time_point_sec& t, wasm::variant& v ) {
       v = wasm::variant(t.to_iso_string());
     }
@@ -536,8 +536,8 @@ namespace wasm {
 
         T t;
         from_variant(v, t);
-        opt = t; 
-        //opt = std::optional<T>(t);   
+        opt = t;
+        //opt = std::optional<T>(t);
     }
 
     // static inline void from_variant( const wasm::variant &v, std::time_point_sec &t ) {

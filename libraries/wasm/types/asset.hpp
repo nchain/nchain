@@ -378,7 +378,7 @@ namespace wasm {
                 change /= 10;
             }
             char str[256 + 32];
-            snprintf(str, sizeof(str), "%ld%s%s %s",
+            snprintf(str, sizeof(str), "%lld%s%s %s",
                      (int64_t)(amount / p10),
                      (fraction[0]) ? "." : "",
                      fraction,

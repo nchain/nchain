@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
+// #pragma GCC diagnostic ignored "-Wunused-but-set-parameter"
 #include <eosio/vm/allocator.hpp>
 #include <eosio/vm/wasm_stack.hpp>
 #include <eosio/vm/utils.hpp>
@@ -35,7 +35,7 @@ namespace eosio { namespace vm {
    struct construct_derived<Derived, nullptr_t> {
       static nullptr_t value(nullptr_t) { return nullptr; }
    };
-   
+
    // Workaround for compiler bug handling C++g17 auto template parameters.
    // The parameter is not treated as being type-dependent in all contexts,
    // causing early evaluation of the containing expression.
@@ -592,7 +592,7 @@ namespace eosio { namespace vm {
       void operator()(Cls* host, Execution_Context& ctx, uint32_t index) {
          const auto& _func = get_mappings<wasm_allocator>().functions[index];
          std::invoke(_func, host, ctx.get_wasm_allocator(), ctx.get_operand_stack());
-         // std::cout << "host:" << (uint64_t)host 
+         // std::cout << "host:" << (uint64_t)host
          //           << std::endl;
       }
    };

@@ -1,5 +1,5 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wint-in-bool-context"
+// #pragma GCC diagnostic ignored "-Wint-in-bool-context"
 #include <chrono>
 #include <functional>
 #include <thread>
@@ -15,6 +15,8 @@ namespace eosio { namespace vm {
    /// \brief Triggers a callback after a given time elapses.
    ///
 
+   typedef void (*sighandler_t)(int);
+
    //class eosio::vm::guard;
    sighandler_t old_signal_handler = NULL;
    std::function<void()> guard_callback;
@@ -25,7 +27,7 @@ namespace eosio { namespace vm {
               //if (guard_run_state == guard::state_t::running) {
                  //_run_state = interrupted;
                  guard_callback();
-              //}     
+              //}
               break;
        }
    }
@@ -66,6 +68,7 @@ namespace eosio { namespace vm {
             guard_callback  = _callback;
             old_signal_handler = signal(SIGALRM, signal_handler);
 
+            struct itimerval new_value;
             new_value.it_value.tv_sec     = 0;
             new_value.it_value.tv_usec    = _duration.count();
             new_value.it_interval.tv_sec  = 0;
@@ -93,7 +96,7 @@ namespace eosio { namespace vm {
          duration_type         _duration;
          time_point_type       _start;
 
-         struct itimerval new_value,old_value;
+         struct itimerval old_value;
 
       };
       std::chrono::steady_clock::duration _duration;
@@ -171,8 +174,6 @@ namespace eosio { namespace vm {
          bool                  _run_state = stopped;
          duration_type         _duration;
          time_point_type       _start;
-
-         struct itimerval new_value,old_value;
 
       };
       std::chrono::steady_clock::duration _duration;
