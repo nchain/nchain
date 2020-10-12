@@ -8,7 +8,7 @@ if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
    message(WARNING "CMAKE_INSTALL_PREFIX is set to /usr/local. This is not recommended.")
 endif()
 
-#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
 # if (UNIX AND APPLE)
 #    list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/gettext")

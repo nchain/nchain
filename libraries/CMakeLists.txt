@@ -125,11 +125,17 @@ set(PERSISTENCE_SOURCES
 set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} )
 set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} )
 
-add_library( commons
+find_package(BerkeleyDB)
+
+add_library( commons STATIC
              ${SOURCES}
              ${HEADERS} )
 
-target_link_libraries( commons Boost::filesystem secp256k1 leveldb)
+target_link_libraries( commons
+    PRIVATE
+        Boost::filesystem secp256k1 leveldb  BerkeleyDB
+)
+
 #target_link_libraries( commons Boost::filesystem Threads::Threads )
 target_include_directories( commons
     PUBLIC
