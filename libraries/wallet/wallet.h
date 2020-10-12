@@ -21,7 +21,6 @@
 #include "entities/keystore.h"
 #include "commons/util/util.h"
 #include "walletdb.h"
-#include "main.h"
 #include "commons/serialize.h"
 #include "tx/cointransfertx.h"
 #include "tx/blockrewardtx.h"

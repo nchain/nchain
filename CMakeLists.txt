@@ -102,6 +102,8 @@ set( Boost_USE_STATIC_LIBS ON CACHE STRING "ON or OFF" )
 # the pthread dependency through fc.
 find_package(Boost 1.67 REQUIRED COMPONENTS thread system program_options filesystem unit_test_framework)
 
+find_package(BerkeleyDB)
+
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
