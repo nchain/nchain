@@ -31,7 +31,7 @@
 #include "sigcache.h"
 #include "tx/tx.h"
 #include "tx/txmempool.h"
-//#include "tx/txserializer.h"
+#include "p2p/node.h"
 
 class CBloomFilter;
 class CChain;

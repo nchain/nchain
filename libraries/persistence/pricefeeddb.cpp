@@ -6,7 +6,7 @@
 #include "pricefeeddb.h"
 
 #include "config/scoin.h"
-#include "main.h"
+#include "cachewrapper.h"
 #include "tx/pricefeedtx.h"
 #include "commons/types.h"
 
