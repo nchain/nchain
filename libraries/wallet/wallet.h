@@ -27,6 +27,14 @@
 #include "tx/contracttx.h"
 #include "tx/delegatetx.h"
 #include "tx/accountregtx.h"
+#include "persistence/block.h"
+
+class CWalletInterface {
+    virtual void SyncTransaction(const uint256 &hash, CBaseTx *pBaseTx, const CBlock *pBlock) = 0;
+    virtual void EraseTransaction(const uint256 &hash)                                        = 0;
+    virtual void SetBestChain(const CBlockLocator &locator)                                   = 0;
+    virtual void ResendWalletTransactions()                                                   = 0;
+};
 
 enum WalletFeature {
     FEATURE_BASE        = 0,      // initialize version

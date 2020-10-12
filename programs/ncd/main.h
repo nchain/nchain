@@ -118,17 +118,6 @@ extern string publicIp;
 
 bool EraseBlockIndexFromSet(CBlockIndex *pIndex);
 
-class CWalletInterface {
-protected:
-    virtual void SyncTransaction(const uint256 &hash, CBaseTx *pBaseTx, const CBlock *pBlock) = 0;
-    virtual void EraseTransaction(const uint256 &hash)                                        = 0;
-    virtual void SetBestChain(const CBlockLocator &locator)                                   = 0;
-    virtual void ResendWalletTransactions()                                                   = 0;
-    friend void ::RegisterWallet(CWalletInterface *);
-    friend void ::UnregisterWallet(CWalletInterface *);
-    friend void ::UnregisterAllWallets();
-};
-
 /** Functions for validating blocks and updating the block tree */
 
 /** Undo the effects of this block (with given index) on the UTXO set represented by coins.

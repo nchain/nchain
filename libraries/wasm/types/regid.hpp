@@ -103,7 +103,7 @@ namespace wasm {
             uint64_t index  = value & 0xFFFFF;
 
             char buffer[64];
-            sprintf(buffer, "%ld-%ld", height, index);
+            sprintf(buffer, "%llu-%llu", height, index);
             return std::string(buffer);
         }
 

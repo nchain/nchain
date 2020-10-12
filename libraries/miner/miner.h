@@ -16,14 +16,6 @@
 #include "entities/key.h"
 #include "commons/uint256.h"
 #include "tx/tx.h"
-
-class CBlock;
-class CBlockIndex;
-class CWallet;
-class CBaseTx;
-class CAccountDBCache;
-class CAccount;
-
 #include <cmath>
 
 using namespace std;
