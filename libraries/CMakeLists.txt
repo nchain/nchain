@@ -2,6 +2,8 @@ add_subdirectory( crypto )
 add_subdirectory( persistence )
 add_subdirectory( softfloat )
 
+target_compile_options(softfloat PRIVATE -Wno-unused-label )
+
 ## commons
 
 file( GLOB_RECURSE COMMONS_HEADERS "commons/*.h" "commons/*.hpp"
@@ -222,7 +224,7 @@ set(RPC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/rpc ${CMAKE_CURRENT_SOURCE_DIR}/rpc
 set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS}
     ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} ${RPC_HEADERS} ${ENTITIES_HEADERS} )
 set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES}
-    ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_HEADERS} ${ENTITIES_HEADERS} )
+    ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_SOURCES} ${ENTITIES_SOURCES} )
 
 add_library( commons STATIC
              ${SOURCES}
