@@ -10,7 +10,6 @@
 #include "commons/compat/endian.h"
 #include <commons/util/util.h>
 #include <netbase.h>
-#include <init.h>
 #include <sync.h>
 
 #include <memory>
@@ -40,6 +39,8 @@
 #include <arpa/inet.h>
 #endif
 #endif
+
+extern bool ShutdownRequested();
 
 /** Maximum size of http request (request line + headers) */
 static const size_t MAX_HEADERS_SIZE = 8192;

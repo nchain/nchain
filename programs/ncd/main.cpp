@@ -2184,7 +2184,7 @@ bool ProcessBlock(CValidationState &state, CNode *pFrom, CBlock *pBlock, CDiskBl
 bool AbortNode(const string &strMessage) {
     strMiscWarning = strMessage;
     LogPrint(BCLog::ERROR, "Detect abort ERROR! *** %s\n", strMessage);
-    StartShutdown();
+    RequestShutdown(__func__);
 
     return false;
 }

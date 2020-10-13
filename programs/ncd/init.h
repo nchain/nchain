@@ -15,12 +15,7 @@ class CWallet;
 
 extern CWallet* pWalletMain;
 
-void RequestShutdown();
-#define StartShutdown()                                                                            \
-    {                                                                                              \
-        LogPrint(BCLog::INFO, "Request shutdown by %s()\n", __func__);                             \
-        RequestShutdown();                                                                         \
-    }
+void RequestShutdown(const string &reason);
 
 bool ShutdownRequested();
 void Shutdown();

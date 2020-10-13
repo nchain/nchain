@@ -100,7 +100,7 @@ enum BindFlags {
 // The network-processing threads are all part of a thread group
 // created by AppInit() or the Qt main() function.
 //
-// A clean exit happens when StartShutdown() or the SIGTERM
+// A clean exit happens when RequestShutdown() or the SIGTERM
 // signal handler sets fRequestShutdown, which triggers
 // the DetectShutdownThread(), which interrupts the main thread group.
 // DetectShutdownThread() then exits, which causes AppInit() to
@@ -121,7 +121,10 @@ enum BindFlags {
 
 volatile bool fRequestShutdown = false;
 
-void RequestShutdown() { fRequestShutdown = true; }
+void RequestShutdown(const string &reason) {
+    LogPrint(BCLog::INFO, "Request shutdown by %s\n", reason);
+    fRequestShutdown = true;
+}
 
 bool ShutdownRequested() { return fRequestShutdown; }
 
@@ -179,7 +182,7 @@ void Shutdown() {
 // Signal handlers are very limited in what they are allowed to do, so:
 //
 void HandleSIGTERM(int32_t) {
-    StartShutdown();
+    RequestShutdown(__func__);
 }
 
 void HandleSIGHUP(int32_t) {

@@ -648,7 +648,7 @@ Value encryptwallet(const Array& params, bool fHelp) {
     //BDB seems to have a bad habit of writing old data into
     //slack space in .dat files; that is bad if the old data is
     //unencrypted private keys. So:
-    StartShutdown();
+    RequestShutdown(__func__);
 
     // string defaultFileName = SysCfg().GetArg("-wallet", "wallet.dat");
     // string strFileCopy     = defaultFileName + ".rewrite";

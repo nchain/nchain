@@ -9,8 +9,6 @@
 #include "logging.h"
 #include "commons/base58.h"
 #include "commons/util/util.h"
-#include "init.h"
-#include "main.h"
 
 #include <boost/algorithm/string.hpp>
 #include <memory>
@@ -20,6 +18,11 @@
 
 using namespace std;
 using namespace json_spirit;
+
+extern CWallet *pWalletMain;
+extern CCriticalSection cs_main;
+
+extern void RequestShutdown(const string &reason);
 
 /** Simple one-shot callback timer to be used by the RPC mechanism to e.g.
  * re-lock the wallet.
@@ -223,7 +226,7 @@ Value stop(const Array& params, bool fHelp) {
             "stop\n"
             "\nStop coin server.");
     // Shutdown will take long enough that the response should get back
-    StartShutdown();
+    RequestShutdown(__func__);
     return "coin daemon being stopped...";
 }
 
@@ -307,7 +310,7 @@ static bool InitRPCAuthentication() {
                 strWhatAmI, GetConfigFile().string(),
                 EncodeBase58(&rand_pwd[0], &rand_pwd[0] + 32));
 
-        StartShutdown();
+        RequestShutdown(__func__);
         return false;
     }
 
