@@ -9,7 +9,6 @@
 #include "commons/util/util.h"
 #include "config/chainparams.h"  // for Params().RPCPort()
 #include "config/configuration.h"
-#include "main.h"
 #include "rpcprotocol.h"
 #include "tx/tx.h"
 
@@ -36,7 +35,8 @@ Object CallRPC(const string& strMethod, const Array& params) {
     // Connect to localhost
     bool fUseSSL = SysCfg().GetBoolArg("-rpcssl", false);
     asio::io_service io_service;
-    ssl::context context(io_service, ssl::context::sslv23);
+    // ssl::context context(io_service, ssl::context::sslv23); // this constructor removed in boost v1.72.0
+    ssl::context context(ssl::context::sslv23);
     context.set_options(ssl::context::no_sslv2);
     asio::ssl::stream<asio::ip::tcp::socket> sslStream(io_service, context);
     SSLIOStreamDevice<asio::ip::tcp> d(sslStream, fUseSSL);
@@ -44,7 +44,7 @@ Object CallRPC(const string& strMethod, const Array& params) {
 
     bool fWait = SysCfg().GetBoolArg("-rpcwait", false); // -rpcwait means try until server has started
     do {
-        bool fConnected = d.connect(SysCfg().GetArg("-rpcconnect", "127.0.0.1"),
+        bool fConnected = d.connect(io_service, SysCfg().GetArg("-rpcconnect", "127.0.0.1"),
             SysCfg().GetArg("-rpcport", itostr(SysCfg().RPCPort())));
         if (fConnected) break;
         if (fWait)

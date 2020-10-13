@@ -121,9 +121,9 @@ public:
         if (fUseSSL) return boost::asio::write(stream, boost::asio::buffer(s, n));
         return boost::asio::write(stream.next_layer(), boost::asio::buffer(s, n));
     }
-    bool connect(const string& server, const string& port)
+    bool connect(boost::asio::io_service &io_service, const string& server, const string& port)
     {
-        boost::asio::ip::tcp::resolver resolver(stream.get_io_service());
+        boost::asio::ip::tcp::resolver resolver(io_service);
         boost::asio::ip::tcp::resolver::query query(server.c_str(), port.c_str());
         boost::asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
         boost::asio::ip::tcp::resolver::iterator end;
