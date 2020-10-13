@@ -6,7 +6,6 @@
 #include "commons/base58.h"
 #include "rpc/core/rpcserver.h"
 #include "rpc/core/rpccommons.h"
-#include "init.h"
 #include "net.h"
 #include "netbase.h"
 #include "wallet/wallet.h"
@@ -15,8 +14,7 @@
 #include "persistence/txdb.h"
 #include "config/configuration.h"
 #include "miner/miner.h"
-#include "main.h"
-//#include "vm/vmrunenv.h"
+#include "rpc/core/rpccommons.h"
 #include <stdint.h>
 #include <chrono>
 
@@ -219,7 +217,6 @@ Value submitsetcodertx( const Array &params, bool fHelp ) {
     RESPONSE_RPC_HELP( fHelp || params.size() < 3 || params.size() > 4, wasm::rpc::submit_setcoder_tx_rpc_help_message)
     RPCTypeCheck(params, list_of(str_type)(str_type)(str_type)(str_type));
 
-    const ComboMoney& fee         = RPC_PARAM::GetFee(params, 4, TxType::UNIVERSAL_TX);
      try{
         auto database = pCdMan->pAccountCache;
         auto wallet   = pWalletMain;

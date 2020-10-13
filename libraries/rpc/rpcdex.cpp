@@ -9,21 +9,11 @@
 #include "rpc/rpcapi.h"
 #include "net.h"
 #include "commons/util/util.h"
-#include "persistence/cachewrapper.h"
-#include "chain/chain.h"
-#include "chain/validation.h"
-#include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #include "tx/dextx.h"
 #include "tx/dexoperatortx.h"
-#include "tx/txmempool.h"
 
 using namespace dex;
-
-extern CCacheDBManager *pCdMan;
-extern CChainActive chainActive;
-extern CTxMemPool mempool;
-extern CWallet *pWalletMain;
 
 // TODO: move to json.h
 namespace json {

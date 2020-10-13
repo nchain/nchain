@@ -6,20 +6,13 @@
 #include "commons/base58.h"
 #include "net.h"
 #include "netbase.h"
-#include "miner/pbftmanager.h"
 #include "rpc/core/rpccommons.h"
 #include "rpc/core/rpcserver.h"
 #include "commons/util/util.h"
 
-#include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #include "persistence/blockundo.h"
-#include "persistence/cachewrapper.h"
-#include "chain/chain.h"
-#include "chain/validation.h"
 #include "chain/sigcache.h"
-#include "tx/txmempool.h"
-#include "miner/pbftmanager.h"
 #include "p2p/addrman.h"
 
 #include <stdint.h>
@@ -34,12 +27,6 @@ using namespace boost;
 using namespace boost::assign;
 using namespace json_spirit;
 
-extern CWallet *pWalletMain;
-extern CCacheDBManager *pCdMan;
-extern CChainActive chainActive;
-extern CTxMemPool mempool;
-extern map<uint256, CBlockIndex *> mapBlockIndex;
-extern CPBFTMan pbftMan;
 extern int32_t nSyncTipHeight;
 extern string publicIp;
 extern const string strMessageMagic;

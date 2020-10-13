@@ -9,19 +9,31 @@
 #include <tuple>
 #include <vector>
 
+#include "config/errorcode.h"
 #include "entities/id.h"
 #include "commons/json/json_spirit.h"
 #include "entities/asset.h"
 #include "entities/account.h"
 #include "entities/cdp.h"
+#include "wallet/wallet.h"
+#include "persistence/cachewrapper.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
 #include "tx/tx.h"
-#include "persistence/dexdb.h"
-#include "persistence/pricefeeddb.h"
-#include "persistence/contractdb.h"
+#include "tx/txmempool.h"
+#include "miner/pbftmanager.h"
 
 using namespace std;
 using namespace json_spirit;
 class CBlockHeader;
+
+extern CWallet *pWalletMain;
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CTxMemPool mempool;
+extern map<uint256, CBlockIndex *> mapBlockIndex;
+extern CPBFTMan pbftMan;
 
 #define JSON_RPC_ASSERT(expr, code, ...)                                                           \
     if (!(expr)) {                                                                                 \

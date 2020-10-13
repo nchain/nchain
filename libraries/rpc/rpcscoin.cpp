@@ -7,11 +7,9 @@
 #include "config/const.h"
 #include "rpc/core/rpcserver.h"
 #include "rpc/core/rpccommons.h"
-#include "init.h"
 #include "net.h"
 #include "miner/miner.h"
 #include "commons/util/util.h"
-#include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #include "persistence/assetdb.h"
 #include "tx/cdptx.h"
@@ -793,7 +791,7 @@ extern Value listassets(const Array& params, bool fHelp) {
     }
 
     Object obj;
-    obj.push_back(Pair("count",     arrAssets.size()));
+    obj.push_back(Pair("count",     (int64_t)arrAssets.size()));
     obj.push_back(Pair("assets",    arrAssets));
     return obj;
 }

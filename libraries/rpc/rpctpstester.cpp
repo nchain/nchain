@@ -4,8 +4,6 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "commons/messagequeue.h"
-#include "init.h"
-#include "main.h"
 #include "rpc/core/rpcserver.h"
 #include "rpc/core/rpccommons.h"
 #include "tx/tx.h"

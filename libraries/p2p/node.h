@@ -611,4 +611,8 @@ public:
     static uint64_t GetTotalBytesSent();
 };
 
+struct CNodeStateStats {
+    int32_t nMisbehavior;
+};
+
 #endif //P2P_NODE_H

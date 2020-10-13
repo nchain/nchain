@@ -202,7 +202,6 @@ set(RPC_SOURCES
     rpc/rpctx.cpp
     rpc/rpctxserializer.cpp
     rpc/rpcutxo.cpp
-    rpc/rpcvm.cpp
     rpc/rpcwallet.cpp
 )
 

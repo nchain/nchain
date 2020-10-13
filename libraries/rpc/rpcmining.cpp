@@ -14,12 +14,8 @@
 #include "miner/miner.h"
 #include "rpc/core/rpcprotocol.h"
 #include "rpc/core/rpcserver.h"
+#include "rpc/core/rpccommons.h"
 #include "sync.h"
-#include "tx/txmempool.h"
-#include "wallet/wallet.h"
-#include "persistence/cachewrapper.h"
-#include "chain/chain.h"
-#include "chain/validation.h"
 
 #include <algorithm>
 #include <cassert>
@@ -31,10 +27,6 @@
 using namespace json_spirit;
 using namespace std;
 
-extern CWallet *pWalletMain;
-extern CCacheDBManager *pCdMan;
-extern CChainActive chainActive;
-extern CTxMemPool mempool;
 extern uint64_t nLastBlockTx;
 extern uint64_t nLastBlockSize;
 

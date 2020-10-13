@@ -3,7 +3,6 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "main.h"
 #include "tx/proposaltx.h"
 #include "rpc/core/rpcserver.h"
 #include "rpc/core/rpccommons.h"
@@ -231,14 +230,14 @@ Value submitcdpparamgovernproposal(const Array& params, bool fHelp){
             throw JSONRPCError(RPC_INVALID_PARAMETER, strprintf("cdp param type(%s) can't be the same", name));
 
         typeSet.insert(type);
-        
+
         string errMsg;
         if (!CheckCdpParamValue(type, paramValue, errMsg))
             throw JSONRPCError(RPC_INVALID_PARAMETER, errMsg);
 
         proposal.param_values.push_back(std::make_pair(type, CVarIntValue<uint64_t>(paramValue)));
     }
-    
+
     proposal.coin_pair = CCdpCoinPair(bcoinSymbol, scoinSymbol);
 
     CProposalRequestTx tx;
@@ -1006,7 +1005,7 @@ Value getsysparam(const Array& params, bool fHelp){
         );
     }
 
-    
+
     string paramName = params[0].get_str();
     SysParamType st;
     auto itr = paramNameToSysParamTypeMap.find(paramName);

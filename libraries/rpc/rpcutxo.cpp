@@ -10,7 +10,6 @@
 #include "entities/utxo.h"
 #include "rpc/core/rpcserver.h"
 #include "rpc/core/rpccommons.h"
-#include "main.h"
 #include "wallet/wallet.h"
 using namespace std;
 

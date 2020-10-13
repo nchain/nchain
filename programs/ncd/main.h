@@ -101,10 +101,6 @@ bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signatu
 bool AcceptToMemoryPool(CTxMemPool &pool, CValidationState &state, CBaseTx *pBaseTx,
                         bool fLimitFree, bool fRejectInsaneFee = false);
 
-struct CNodeStateStats {
-    int32_t nMisbehavior;
-};
-
 /** Check for standard transaction types
     @return True if all outputs (scriptPubKeys) use only standard transaction forms
 */

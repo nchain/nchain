@@ -5,7 +5,6 @@
 
 #include "rpc/core/rpcserver.h"
 
-#include "main.h"
 #include "net.h"
 #include "netbase.h"
 #include "p2p/protocol.h"
@@ -13,6 +12,7 @@
 #include "sync.h"
 #include "commons/util/util.h"
 #include "tx/blockrewardtx.h"
+#include "rpc/core/rpccommons.h"
 
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
@@ -21,6 +21,8 @@
 using namespace boost::assign;
 using namespace json_spirit;
 using namespace std;
+
+extern bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 
 class CNodeMemoryStat {
 public:
