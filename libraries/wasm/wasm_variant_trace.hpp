@@ -1,5 +1,4 @@
 #pragma once
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 
 #include "wasm/wasm_context.hpp"
 #include "wasm/types/name.hpp"

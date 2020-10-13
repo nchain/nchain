@@ -4,16 +4,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "universaltx.h"
-
-#include "commons/util/util.h"
-#include "commons/serialize.h"
-#include "crypto/hash.h"
-#include "main.h"
-#include "miner/miner.h"
-#include "persistence/contractdb.h"
-#include "persistence/txdb.h"
-#include "config/version.h"
-
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 #include "wasm/wasm_context.hpp"
 #include "wasm/types/name.hpp"
 #include "wasm/abi_def.hpp"
@@ -24,6 +17,9 @@
 #include "wasm/modules/wasm_router.hpp"
 
 #include <sstream>
+
+extern bool mining;        // could change from time to time due to vote change
+extern bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
 
 ///////////////////////////////////////////////////////////////////////////////
 // class CUniversalTx

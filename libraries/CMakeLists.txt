@@ -123,7 +123,7 @@ set(PERSISTENCE_SOURCES
     persistence/txutxodb.cpp
 )
 
-## persistence
+## WASM
 file( GLOB WASM_HEADERS "wasm/*.h" "wasm/*.hpp" )
 
 set(WASM_SOURCES
@@ -141,15 +141,42 @@ set(WASM_SOURCES
 )
 
 set (WASM_INCLUDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/wasm/
+    ${CMAKE_CURRENT_SOURCE_DIR}/wasm
     ${CMAKE_CURRENT_SOURCE_DIR}/wasm/types
     ${CMAKE_CURRENT_SOURCE_DIR}/wasm/eos-vm/include
     ${CMAKE_CURRENT_SOURCE_DIR}/wasm/compiler_builtins
     # ${CMAKE_CURRENT_SOURCE_DIR}/wasm/external/outcome/single-header
 )
 
-set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} ${WASM_HEADERS} )
-set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} ${WASM_SOURCES} )
+## tx
+file( GLOB TX_HEADERS "tx/*.h" "tx/*.hpp" )
+
+set(TX_SOURCES
+    tx/accountpermscleartx.cpp
+    tx/accountregtx.cpp
+    tx/assettx.cpp
+    tx/blockpricemediantx.cpp
+    tx/blockrewardtx.cpp
+    tx/cdptx.cpp
+    tx/coinminttx.cpp
+    tx/coinstaketx.cpp
+    tx/cointransfertx.cpp
+    tx/coinutxotx.cpp
+    # tx/contracttx.cpp
+    tx/delegatetx.cpp
+    tx/dexoperatortx.cpp
+    tx/dextx.cpp
+    tx/pricefeedtx.cpp
+    tx/proposaltx.cpp
+    tx/tx.cpp
+    tx/txmempool.cpp
+    tx/universaltx.cpp
+)
+
+set(TX_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tx)
+
+set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} )
+set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} )
 
 add_library( commons STATIC
              ${SOURCES}
@@ -172,4 +199,5 @@ target_include_directories( commons
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence/leveldb/helpers/memenv
         ${WASM_INCLUDES}
+        ${TX_INCLUDES}
 )

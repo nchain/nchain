@@ -3,16 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
-
 #include "accountpermscleartx.h"
-
-#include "commons/serialize.h"
-#include "tx.h"
-#include "crypto/hash.h"
-#include "commons/util/util.h"
-#include "config/version.h"
-#include "main.h"
 
 bool CAccountPermsClearTx::CheckTx(CTxExecuteContext &context) {
     return true;

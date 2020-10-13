@@ -5,8 +5,9 @@
 
 
 #include "cointransfertx.h"
-
-#include "main.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 /**################################ Base Coin (WICC) Transfer ########################################**/
 bool CBaseCoinTransferTx::CheckTx(CTxExecuteContext &context) {

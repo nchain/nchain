@@ -227,7 +227,7 @@ namespace wasm {
         uint32_t recursion_depth;
     };
 
-    class dag_manager;
+    struct dag_manager;
 
     struct dag {
         dag_manager* manager = nullptr;

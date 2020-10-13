@@ -5,9 +5,9 @@
 
 
 #include "blockrewardtx.h"
-
-#include "entities/receipt.h"
-#include "main.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 bool CBlockRewardTx::CheckTx(CTxExecuteContext &context) { return true; }
 

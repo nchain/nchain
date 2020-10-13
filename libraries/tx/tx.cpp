@@ -3,30 +3,20 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-
-#include <boost/assign/list_of.hpp>
-#include <boost/foreach.hpp>
-#include <algorithm>
-
 #include "tx.h"
-#include "persistence/accountdb.h"
-#include "persistence/contractdb.h"
-#include "persistence/txdb.h"
+#include <algorithm>
 #include "entities/account.h"
-#include "commons/json/json_spirit_value.h"
-#include "commons/json/json_spirit_writer_template.h"
-#include "commons/json/json_spirit_utils.h"
-#include "commons/serialize.h"
-#include "crypto/hash.h"
+#include "commons/json/json_spirit.h"
 #include "commons/util/util.h"
-#include "main.h"
-#include "vm/luavm/luavmrunenv.h"
-#include "miner/miner.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 #include "config/version.h"
 
 using namespace json_spirit;
-extern CCacheDBManager *pCdMan;
 
+extern CCacheDBManager *pCdMan;
+extern bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
 
 #define ERROR_TITLE(msg) (std::string(__FUNCTION__) + "(), " + msg)
 #define BASE_TX_TITLE ERROR_TITLE(GetTxTypeName())

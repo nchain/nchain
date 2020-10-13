@@ -5,12 +5,19 @@
 
 #include "txmempool.h"
 #include "commons/uint256.h"
-#include "main.h"
-#include "persistence/txdb.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
 #include "tx/tx.h"
-#include "miner/miner.h"
+#include "wallet/wallet.h"
 
 using namespace std;
+
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern void EraseTransactionFromWallet(const uint256 &hash);
+extern uint32_t GetElementForBurn(CBlockIndex *pIndex);
 
 CTxMemPoolEntry::CTxMemPoolEntry() {
     nTxSize   = 0;

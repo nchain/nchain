@@ -4,14 +4,14 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "dextx.h"
-
-#include "config/configuration.h"
-#include "entities/receipt.h"
-#include "main.h"
-
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 #include <algorithm>
 
 using namespace dex;
+
+extern bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
 
 namespace dex {
 

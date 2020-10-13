@@ -5,15 +5,9 @@
 
 
 #include "delegatetx.h"
-
-#include "commons/serialize.h"
-#include "tx.h"
-#include "crypto/hash.h"
-#include "commons/util/util.h"
-#include "main.h"
-#include "vm/luavm/luavmrunenv.h"
-#include "miner/miner.h"
-#include "config/version.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 bool CDelegateVoteTx::CheckTx(CTxExecuteContext &context) {
     CValidationState &state = *context.pState;

@@ -6,9 +6,10 @@
 #include "cdptx.h"
 
 #include "config/const.h"
-#include "main.h"
-#include "persistence/cdpdb.h"
 #include "blockpricemediantx.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 #include <cmath>
 

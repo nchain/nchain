@@ -6,9 +6,9 @@
 #include "assettx.h"
 
 #include "config/const.h"
-#include "main.h"
-#include "entities/receipt.h"
-#include "persistence/assetdb.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 static const string ASSET_ACTION_ISSUE = "issue";
 static const string ASSET_ACTION_UPDATE = "update";

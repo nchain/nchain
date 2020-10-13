@@ -5,16 +5,8 @@
 
 
 #include "accountregtx.h"
-
-#include "commons/serialize.h"
-#include "tx.h"
-#include "crypto/hash.h"
-#include "commons/util/util.h"
-#include "config/version.h"
-#include "main.h"
-#include "persistence/contractdb.h"
-#include "vm/luavm/luavmrunenv.h"
-#include "miner/miner.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 bool CAccountRegisterTx::CheckTx(CTxExecuteContext &context) {
     CValidationState &state = *context.pState;

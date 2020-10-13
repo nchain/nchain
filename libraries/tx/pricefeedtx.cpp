@@ -4,15 +4,9 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "pricefeedtx.h"
-
-#include "commons/serialize.h"
-#include "crypto/hash.h"
-#include "main.h"
-#include "miner/miner.h"
-#include "persistence/pricefeeddb.h"
-#include "tx.h"
-#include "commons/util/util.h"
-#include "config/version.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 
 string CoinPricePairToString(const PriceCoinPair &coinPricePair) {

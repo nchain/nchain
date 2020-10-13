@@ -5,8 +5,10 @@
 
 #include "dexoperatortx.h"
 
-#include "config/configuration.h"
-#include "main.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
+
 #include <regex>
 #include <algorithm>
 

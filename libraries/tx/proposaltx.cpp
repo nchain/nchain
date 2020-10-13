@@ -5,8 +5,10 @@
 
 
 #include "tx/proposaltx.h"
-#include "main.h"
 #include "entities/proposal.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 #include <algorithm>
 
 bool CheckIsGovernor(CRegID account, ProposalType proposalType, CCacheWrapper& cw ){

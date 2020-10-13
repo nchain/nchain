@@ -5,8 +5,9 @@
 
 
 #include "coinminttx.h"
-
-#include "main.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 
 bool CCoinMintTx::CheckTx(CTxExecuteContext &context) {
     // Only used in stable coin genesis.

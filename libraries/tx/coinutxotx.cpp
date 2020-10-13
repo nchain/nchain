@@ -5,9 +5,15 @@
 
 
 #include "coinutxotx.h"
-#include "main.h"
+#include "persistence/cachewrapper.h"
+#include "config/errorcode.h"
+#include "chain/validation.h"
 #include <string>
 #include <cstdarg>
+
+extern CCriticalSection cs_main;
+
+extern bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
 
 static bool GetUtxoTxFromChain(CCacheWrapper &cw, TxID &txid, std::shared_ptr<CCoinUtxoTransferTx>& pPrevUtxoTx ) {
     if (!SysCfg().IsTxIndex())
@@ -28,8 +34,9 @@ static bool GetUtxoTxFromChain(CCacheWrapper &cw, TxID &txid, std::shared_ptr<CC
             assert(pBaseTx);
             pPrevUtxoTx = dynamic_pointer_cast<CCoinUtxoTransferTx>(pBaseTx);
             if (!pPrevUtxoTx) {
+                auto &tx = *pBaseTx;
                 return ERRORMSG("The expected tx(%s) type is CCoinUtxoTransferTx, but read tx type is %s",
-                                txid.ToString(), typeid(*pBaseTx).name());
+                                txid.ToString(), typeid(tx).name());
             }
 
         } catch (std::exception &e) {
