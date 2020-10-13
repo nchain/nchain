@@ -27,6 +27,7 @@
 #include "tx/tx.h"
 #include "commons/util/util.h"
 #include "commons/util/time.h"
+#include "chain/validation.h"
 #ifdef USE_UPNP
 #include <miniupnpc/miniupnpc.h>
 #include <miniupnpc/miniwget.h>
@@ -63,8 +64,7 @@
 using namespace std;
 using namespace boost::assign;
 using namespace boost;
-
-#define USE_LUA 1
+namespace file_system = boost::filesystem;
 
 CWallet *pWalletMain;
 
@@ -160,7 +160,7 @@ void Shutdown() {
         }
     }
 
-    boost::filesystem::remove(GetPidFile());
+    file_system::remove(GetPidFile());
     UnregisterAllWallets();
 
     delete pWalletMain;
@@ -341,7 +341,7 @@ struct CImportingNow {
     }
 };
 
-void ThreadImport(vector<boost::filesystem::path> vImportFiles) {
+void ThreadImport(vector<file_system::path> vImportFiles) {
     RenameThread("coin-loadblk");
 
     // -reindex
@@ -368,12 +368,12 @@ void ThreadImport(vector<boost::filesystem::path> vImportFiles) {
     }
 
     // hardcoded $DATADIR/bootstrap.dat
-    filesystem::path pathBootstrap = GetDataDir() / "bootstrap.dat";
-    if (filesystem::exists(pathBootstrap)) {
+    file_system::path pathBootstrap = GetDataDir() / "bootstrap.dat";
+    if (file_system::exists(pathBootstrap)) {
         FILE *file = fopen(pathBootstrap.string().c_str(), "rb");
         if (file) {
             CImportingNow imp;
-            filesystem::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
+            file_system::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
             LogPrint(BCLog::INFO, "Importing bootstrap.dat...\n");
             LoadExternalBlockFile(file);
             RenameOver(pathBootstrap, pathBootstrapOld);
@@ -548,7 +548,7 @@ bool AppInit(boost::thread_group &threadGroup) {
     string strDataDir = GetDataDir().string();
 
     // Make sure only a single Coin process is using the data directory.
-    boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
+    file_system::path pathLockFile = GetDataDir() / ".lock";
     FILE *file                           = fopen(pathLockFile.string().c_str(), "a");  // empty lock file; created if it doesn't exist.
     if (file) {
         fclose(file);
@@ -563,9 +563,6 @@ bool AppInit(boost::thread_group &threadGroup) {
 
     LogPrint(BCLog::INFO, "%s version %s (%s)\n", IniCfg().GetCoinName().c_str(), FormatFullVersion().c_str(), CLIENT_DATE);
     LogPrint(BCLog::INFO, "Using OpenSSL version %s\n", SSLeay_version(SSLEAY_VERSION));
-#ifdef USE_LUA
-    LogPrint(BCLog::INFO, "Using Lua version %s\n", LUA_RELEASE);
-#endif
     string boost_version = BOOST_LIB_VERSION;
     StringReplace(boost_version, "_", ".");
     LogPrint(BCLog::INFO, "Using Boost version %s\n", boost_version);
@@ -696,9 +693,9 @@ bool AppInit(boost::thread_group &threadGroup) {
 
     SysCfg().SetGenReceipt(SysCfg().GetBoolArg("-genreceipt", false));
 
-    filesystem::path blocksDir = GetDataDir() / "blocks";
-    if (!filesystem::exists(blocksDir)) {
-        filesystem::create_directories(blocksDir);
+    file_system::path blocksDir = GetDataDir() / "blocks";
+    if (!file_system::exists(blocksDir)) {
+        file_system::create_directories(blocksDir);
     }
 
     try {
@@ -838,7 +835,7 @@ bool AppInit(boost::thread_group &threadGroup) {
         return InitError("Init prices of PriceFeedMemCache failed");
     }
 
-    vector<boost::filesystem::path> vImportFiles;
+    vector<file_system::path> vImportFiles;
     if (SysCfg().IsArgCount("-loadblock")) {
         vector<string> tmp = SysCfg().GetMultiArgs("-loadblock");
         for (auto strFile : tmp) {

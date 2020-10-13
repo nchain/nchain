@@ -41,6 +41,8 @@ class CInv;
 extern CChainActive chainActive;
 extern CSignatureCache signatureCache;
 
+extern CCriticalSection cs_main;
+
 extern CTxMemPool mempool;
 extern map<uint256, CBlockIndex *> mapBlockIndex;
 extern uint64_t nLastBlockTx;
