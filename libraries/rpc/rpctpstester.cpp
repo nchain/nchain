@@ -17,6 +17,9 @@
 using namespace json_spirit;
 using namespace std;
 
+extern bool AcceptToMemoryPool(CTxMemPool &pool, CValidationState &state, CBaseTx *pBaseTx,
+                        bool fLimitFree, bool fRejectInsaneFee = false);
+
 class TpsTester {
 public:
     typedef MsgQueue<std::shared_ptr<CBaseTx>> GenTxQueue;
