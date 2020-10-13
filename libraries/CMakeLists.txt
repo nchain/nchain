@@ -31,20 +31,6 @@ set(COMMONS_SOURCES
     commons/json/json_spirit_reader.cpp
     commons/json/json_spirit_value.cpp
     commons/json/json_spirit_writer.cpp
-    crypto/aes.cpp
-    crypto/chacha20.cpp
-    crypto/hash.cpp
-    crypto/hmac_sha256.cpp
-    crypto/hmac_sha512.cpp
-    crypto/ripemd160.cpp
-    crypto/sha1.cpp
-    crypto/sha256.cpp
-    crypto/sha256_avx2.cpp
-    crypto/sha256_shani.cpp
-    crypto/sha256_sse4.cpp
-    crypto/sha256_sse41.cpp
-    crypto/sha512.cpp
-    # crypto/siphash.cpp
 )
 
 ## config
@@ -100,6 +86,7 @@ set(CHAIN_SOURCES
     chain/blockdelegates.cpp
     chain/chain.cpp
     chain/merkletree.cpp
+    chain/sigcache.cpp
     chain/validation.cpp
 )
 

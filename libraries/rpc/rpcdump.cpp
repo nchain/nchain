@@ -6,10 +6,12 @@
 #include "commons/base58.h"
 #include "rpc/core/rpccommons.h"
 #include "rpc/core/rpcserver.h"
-#include "init.h"
-#include "main.h"
 #include "sync.h"
 #include "wallet/wallet.h"
+#include "persistence/cachewrapper.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
+#include "tx/txmempool.h"
 
 #include <fstream>
 #include <cstdint>
@@ -26,6 +28,12 @@
 
 using namespace json_spirit;
 using namespace std;
+
+extern CWallet *pWalletMain;
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CTxMemPool mempool;
 
 void EnsureWalletIsUnlocked();
 

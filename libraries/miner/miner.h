@@ -15,6 +15,7 @@
 
 #include "entities/key.h"
 #include "commons/uint256.h"
+#include "wallet/wallet.h"
 #include "tx/tx.h"
 #include <cmath>
 

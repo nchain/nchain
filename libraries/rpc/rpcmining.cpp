@@ -10,14 +10,16 @@
 #include "commons/util/util.h"
 #include "config/chainparams.h"
 #include "config/version.h"
-#include "init.h"
-#include "main.h"
+
 #include "miner/miner.h"
 #include "rpc/core/rpcprotocol.h"
 #include "rpc/core/rpcserver.h"
 #include "sync.h"
 #include "tx/txmempool.h"
 #include "wallet/wallet.h"
+#include "persistence/cachewrapper.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
 
 #include <algorithm>
 #include <cassert>
@@ -28,6 +30,16 @@
 
 using namespace json_spirit;
 using namespace std;
+
+extern CWallet *pWalletMain;
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CTxMemPool mempool;
+extern uint64_t nLastBlockTx;
+extern uint64_t nLastBlockSize;
+
+extern string GetWarnings(string strFor);
+extern bool ProcessBlock(CValidationState &state, CNode *pFrom, CBlock *pBlock, CDiskBlockPos *dbp = nullptr);
 
 static bool fMining = false;
 
