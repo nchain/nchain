@@ -177,6 +177,8 @@ Value submitaccountpermscleartx(const Array& params, bool fHelp) {
 
 }
 
+#ifdef LUA_VM
+
 Value submitluacontractdeploytx(const Array& params, bool fHelp) {
     if (fHelp || params.size() < 3 || params.size() > 5) {
         throw runtime_error("submitluacontractdeploytx \"addr\" \"filepath\" \"fee\" [\"height\"] [\"contract_memo\"]\n"
@@ -293,6 +295,8 @@ Value submitluacontractcalltx(const Array& params, bool fHelp) {
     return SubmitTx(account.keyid, tx);
 }
 
+#endif // LUA_VM
+
 Value submitdelegatevotetx(const Array& params, bool fHelp) {
     if (fHelp || params.size() < 3 || params.size() > 4) {
         throw runtime_error(
@@ -372,6 +376,7 @@ Value submitdelegatevotetx(const Array& params, bool fHelp) {
     return SubmitTx(account.keyid, delegateVoteTx);
 }
 
+#ifdef LUA_VM
 
 Value submitucontractdeploytx(const Array& params, bool fHelp) {
     if (fHelp || params.size() < 3 || params.size() > 5) {
@@ -494,6 +499,8 @@ Value submitucontractcalltx(const Array& params, bool fHelp) {
 
     return SubmitTx(account.keyid, tx);
 }
+
+#endif //LUA_VM
 
 Value listaddr(const Array& params, bool fHelp) {
     if (fHelp || params.size() != 0) {

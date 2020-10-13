@@ -90,7 +90,10 @@ namespace RPC_PARAM {
     CUserID GetRegId(const Value &jsonValue);
     CRegID  GetRegId(const Array& params, const size_t index, const CRegID &defaultRegId);
 
+#ifdef LUA_VM
     string GetLuaContractScript(const Value &jsonValue);
+#endif //LUA_VM
+
     CKeyID GetKeyId(const Value &jsonValue);
 
     uint64_t GetPrice(const Value &jsonValue);
@@ -127,7 +130,7 @@ namespace RPC_PARAM {
     CUniversalContractStore GetWasmContract(CContractDBCache &contractCache, const CRegID &regid);
 
     CBlock ReadBlock(CBlockIndex* pBlockIndex);
-    
+
 }
 
 /*

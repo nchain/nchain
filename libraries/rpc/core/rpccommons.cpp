@@ -5,10 +5,7 @@
 #include "rpccommons.h"
 
 #include "entities/key.h"
-#include "init.h"
-#include "main.h"
 #include "rpcserver.h"
-#include "vm/luavm/luavmrunenv.h"
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 
@@ -17,11 +14,23 @@
 #include "wasm_context.hpp"
 #include "wasm_variant_trace.hpp"
 #include "wasm/exception/exceptions.hpp"
+#include "config/errorcode.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
+#include "persistence/cachewrapper.h"
+#include "tx/txmempool.h"
 
 #include <regex>
 #include <fstream>
 
 using namespace std;
+
+extern CWallet *pWalletMain;
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CTxMemPool mempool;
+extern map<uint256, CBlockIndex *> mapBlockIndex;
 
 /*
 std::string split implementation by using delimeter as a character.
@@ -596,6 +605,8 @@ CRegID RPC_PARAM::GetRegId(const Array& params, const size_t index, const CRegID
     return regid;
 }
 
+#ifdef LUA_VM
+
 string RPC_PARAM::GetLuaContractScript(const Value &jsonValue) {
     string filePath = GetAbsolutePath(jsonValue.get_str()).string();
     if (filePath.empty())
@@ -642,6 +653,8 @@ string RPC_PARAM::GetLuaContractScript(const Value &jsonValue) {
 
     return contractScript;
 }
+
+#endif //LUA_VM
 
 uint64_t RPC_PARAM::GetPrice(const Value &jsonValue) {
     // TODO: check price range??
