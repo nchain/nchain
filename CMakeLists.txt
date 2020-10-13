@@ -57,10 +57,18 @@ set(BUILD_DOXYGEN FALSE CACHE BOOL "Build doxygen documentation on every make")
 # set(BUILD_MONGO_DB_PLUGIN FALSE CACHE BOOL "Build mongo database plugin")
 # set(ENABLE_MULTIVERSION_PROTOCOL_TEST FALSE CACHE BOOL "Enable nodeos multiversion protocol test")
 
+IF(NOT "$ENV{OPENSSL_ROOT_DIR}" STREQUAL "")
+  set(OPENSSL_ROOT_DIR $ENV{OPENSSL_ROOT_DIR} )
+  set(OPENSSL_INCLUDE_DIR ${OPENSSL_ROOT_DIR}/include)
+  message(STATUS "Setting up OpenSSL root and include vars to ${OPENSSL_ROOT_DIR}, ${OPENSSL_INCLUDE_DIR}")
+ENDIF()
+
 # add defaults for openssl
 if(APPLE AND UNIX AND "${OPENSSL_ROOT_DIR}" STREQUAL "")
    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl@1.1")
 endif()
+
+find_package(OpenSSL REQUIRED)
 
 # WASM runtimes to enable. Each runtime in this list will have:
 #  * definition NCHAIN_<RUNTIME>_RUNTIME_ENABLED defined in public libchain interface
@@ -102,7 +110,7 @@ set( Boost_USE_STATIC_LIBS ON CACHE STRING "ON or OFF" )
 # the pthread dependency through fc.
 find_package(Boost 1.67 REQUIRED COMPONENTS thread system program_options filesystem unit_test_framework)
 
-find_package(BerkeleyDB)
+find_package(BerkeleyDB REQUIRED)
 
 if( APPLE AND UNIX )
 # Apple Specific Options Here

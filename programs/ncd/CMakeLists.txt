@@ -57,7 +57,7 @@ else()
 endif()
 
 target_link_libraries( ${NODE_EXECUTABLE_NAME}
-        PRIVATE commons secp256k1 Boost::filesystem Boost::thread leveldb Oracle::BerkeleyDB
+        PRIVATE commons secp256k1 Boost::filesystem Boost::thread leveldb Oracle::BerkeleyDB OpenSSL::Crypto
 )
 
 # target_link_libraries( ${NODE_EXECUTABLE_NAME}
