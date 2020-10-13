@@ -6,8 +6,6 @@
 #ifndef PROCESSMESSAGE_HPP
 #define PROCESSMESSAGE_HPP
 
-#include "main.h"
-
 bool static ProcessMessage(CNode *pFrom, string strCommand, CDataStream &vRecv) {
     LogPrint(BCLog::NET, "received: %s (%u bytes) from peer %s\n", strCommand, vRecv.size(), pFrom->addr.ToString());
     // RandAddSeedPerfmon();

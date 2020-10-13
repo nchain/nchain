@@ -5,7 +5,7 @@ file(GLOB SOURCES "*.cpp")
 
 add_executable( ${NODE_EXECUTABLE_NAME} ${SOURCES} ${HEADERS}  )
 
-target_compile_definitions(${NODE_EXECUTABLE_NAME} PUBLIC PACKAGE_NAME="\"${NODE_EXECUTABLE_NAME}\"" )
+target_compile_definitions(${NODE_EXECUTABLE_NAME} PUBLIC PACKAGE_NAME="${NODE_EXECUTABLE_NAME}" )
 
 if( UNIX AND NOT APPLE )
   set(rt_library rt )

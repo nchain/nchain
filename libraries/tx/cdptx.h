@@ -8,8 +8,7 @@
 
 #include "entities/receipt.h"
 #include "tx.h"
-
-class CUserCDP;
+#include "entities/cdp.h"
 
 // CDPStakeAssetMap: symbol -> amount
 // support to stake multi token

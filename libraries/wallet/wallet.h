@@ -30,6 +30,7 @@
 #include "persistence/block.h"
 
 class CWalletInterface {
+public:
     virtual void SyncTransaction(const uint256 &hash, CBaseTx *pBaseTx, const CBlock *pBlock) = 0;
     virtual void EraseTransaction(const uint256 &hash)                                        = 0;
     virtual void SetBestChain(const CBlockLocator &locator)                                   = 0;

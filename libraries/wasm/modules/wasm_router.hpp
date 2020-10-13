@@ -19,9 +19,9 @@ namespace wasm {
 			}
 	};
 
-    
+
 	using action_handler_t = std::function<void(wasm_context &,  uint64_t)>;
-    typedef router<action_handler_t> action_router; 
+    typedef router<action_handler_t> action_router;
 
     using abi_handler_t = std::function<std::vector<char>()>;
     typedef router<abi_handler_t> abi_router;
@@ -29,13 +29,13 @@ namespace wasm {
 	class native_module {
 		public:
 	        native_module()  {}
-	        ~native_module() {}	
-	        
-	    public:	
+	        virtual ~native_module() {}
+
+	    public:
 	    	virtual void register_routes(abi_router& abi_r, action_router& act_r) = 0;
 	};
 
   using transfer_data_t = std::tuple<uint64_t, uint64_t, wasm::asset, string >;
-  using setcode_data_t  = std::tuple<uint64_t, string, string, string>;	
+  using setcode_data_t  = std::tuple<uint64_t, string, string, string>;
 
 }

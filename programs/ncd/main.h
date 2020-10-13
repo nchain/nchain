@@ -27,6 +27,7 @@
 #include "config/errorcode.h"
 #include "chain/chain.h"
 #include "chain/merkletree.h"
+#include "chain/validation.h"
 #include "persistence/cachewrapper.h"
 #include "sigcache.h"
 #include "tx/tx.h"

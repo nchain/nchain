@@ -28,6 +28,7 @@
 #include "chain/blockdelegates.h"
 #include "persistence/blockundo.h"
 #include "tx/txserializer.h"
+#include "wallet/wallet.h"
 
 #include <sstream>
 #include <algorithm>

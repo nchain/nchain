@@ -6,7 +6,6 @@
 #ifndef SENDMESSAGE_HPP
 #define SENDMESSAGE_HPP
 
-#include "main.h"
 #include "chainmessage.h"
 
 namespace {
