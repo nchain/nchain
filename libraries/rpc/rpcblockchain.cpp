@@ -5,25 +5,37 @@
 
 
 #include <stdint.h>
-#include <boost/assign/list_of.hpp>
 
 #include "commons/uint256.h"
 #include "commons/util/util.h"
 #include "config/configuration.h"
-#include "init.h"
-#include "main.h"
+#include "persistence/cachewrapper.h"
 #include "rpc/core/rpcserver.h"
 #include "rpc/core/rpccommons.h"
 #include "sync.h"
 #include "tx/tx.h"
 #include "tx/coinminttx.h"
+#include "tx/txmempool.h"
+#include "chain/validation.h"
 #include "miner/pbftmanager.h"
+
+#include <boost/assign/list_of.hpp>
 
 using namespace json_spirit;
 using namespace std;
 
 extern CPBFTMan pbftMan;
-class CBaseCoinTransferTx;
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CTxMemPool mempool;
+extern map<uint256, CBlockIndex *> mapBlockIndex;
+
+extern bool VerifyDB(int32_t nCheckLevel, int32_t nCheckDepth);
+extern int32_t GetTxConfirmHeight(const uint256 &hash, CBlockDBCache &blockCache);
+extern bool ActivateBestChain(CValidationState &state, CBlockIndex* pNewIndex = nullptr);
+extern bool ReconsiderBlock(CValidationState &state, CBlockIndex *pIndex, bool children);
+extern bool InvalidateBlock(CValidationState &state, CBlockIndex *pIndex);
 
 Object BlockToJSON(const CBlock& block, const CBlockIndex* pBlockIndex) {
     Object result;

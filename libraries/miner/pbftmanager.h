@@ -9,10 +9,7 @@
 
 #include "chain/chain.h"
 #include "miner/pbftcontext.h"
-
-class CBlockConfirmMessage;
-class CBlockFinalityMessage;
-class CPBFTMessage;
+#include "p2p/protocol.h"
 
 class CPBFTMan {
 

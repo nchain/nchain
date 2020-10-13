@@ -14,11 +14,8 @@
 #include "miner/pbftlimitmap.h"
 #include "commons/mruset.h"
 #include "entities/vote.h"
+#include "entities/id.h"
 #include "commons/lrucache.hpp"
-
-class CRegID;
-class CBlockConfirmMessage;
-class CBlockFinalityMessage;
 
 template <typename MsgType>
 class CPBFTMessageMan {
