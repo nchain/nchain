@@ -40,6 +40,7 @@
 using namespace json_spirit;
 using namespace std;
 using namespace boost;
+namespace file_system = boost::filesystem;
 
 #if defined(NDEBUG)
 #error "Coin cannot be compiled without assertions."
@@ -2189,7 +2190,7 @@ bool AbortNode(const string &strMessage) {
 }
 
 bool CheckDiskSpace(uint64_t nAdditionalBytes) {
-    uint64_t nFreeBytesAvailable = filesystem::space(GetDataDir()).available;
+    uint64_t nFreeBytesAvailable = file_system::space(GetDataDir()).available;
 
     // Check for mininum disk space bytes (currently 50MB)
     if (nFreeBytesAvailable < MIN_DISK_SPACE + nAdditionalBytes)
@@ -2665,7 +2666,7 @@ bool OnReceiveTx(CNode *pFrom, const string &command, const CInv &inv, CBaseTx *
     return true;
 }
 
-bool OnReceiveBlock(CNode *pFrom, CBlock *block) {
+void OnReceiveBlock(CNode *pFrom, CBlock *block) {
     LOCK(cs_main);
     CValidationState state;
 

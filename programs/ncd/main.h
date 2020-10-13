@@ -177,6 +177,6 @@ bool ReconsiderBlock(CValidationState &state, CBlockIndex *pIndex, bool children
 
 
 bool OnReceiveTx(CNode *pFrom, const string &command, const CInv &inv, CBaseTx *pTx);
-bool OnReceiveBlock(CNode *pFrom, CBlock *block);
+void OnReceiveBlock(CNode *pFrom, CBlock *block);
 
 #endif

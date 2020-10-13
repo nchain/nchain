@@ -175,7 +175,7 @@ public:
 
     template <typename Stream>
     void Unserialize(Stream &s, int serializedType, int nVersion) {
-        int32_t dexValue;
+        uint32_t dexValue = 0;
         s >> VARINT(dexValue);
         dexId = dexValue;
 
