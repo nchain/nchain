@@ -75,6 +75,22 @@ set(CRYPTO_SOURCES
     # crypto/siphash.cpp
 )
 
+## entities
+file( GLOB ENTITIES_HEADERS "entities/*.h" "entities/*.hpp" )
+
+set(ENTITIES_SOURCES
+    entities/account.cpp
+    entities/cdp.cpp
+    entities/contract.cpp
+    entities/dexorder.cpp
+    entities/id.cpp
+    entities/key.cpp
+    entities/keystore.cpp
+    entities/proposal.cpp
+)
+
+set(ENTITIES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/entities)
+
 ## chain
 file( GLOB CHAIN_HEADERS "chain/*.h" "chain/*.hpp" )
 
@@ -203,8 +219,10 @@ set(RPC_SOURCES
 
 set(RPC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/rpc ${CMAKE_CURRENT_SOURCE_DIR}/rpc/core)
 
-set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} ${RPC_HEADERS} )
-set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_HEADERS} )
+set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS}
+    ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} ${RPC_HEADERS} ${ENTITIES_HEADERS} )
+set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES}
+    ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_HEADERS} ${ENTITIES_HEADERS} )
 
 add_library( commons STATIC
              ${SOURCES}
@@ -221,7 +239,7 @@ target_include_directories( commons
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/commons
         ${CMAKE_CURRENT_SOURCE_DIR}/config
-        ${CMAKE_CURRENT_SOURCE_DIR}/entities
+        ${ENTITIES_INCLUDES}
         ${CMAKE_CURRENT_SOURCE_DIR}/chain
         ${CMAKE_CURRENT_SOURCE_DIR}/p2p
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence
