@@ -175,8 +175,36 @@ set(TX_SOURCES
 
 set(TX_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tx)
 
-set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} )
-set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} )
+## rpc
+file( GLOB RPC_HEADERS "rpc/*.h" "rpc/*.hpp" )
+
+set(RPC_SOURCES
+    rpc/core/httpserver.cpp
+    rpc/core/rpcclient.cpp
+    rpc/core/rpccommons.cpp
+    rpc/core/rpcprotocol.cpp
+    rpc/core/rpcserver.cpp
+    rpc/rpcblockchain.cpp
+    rpc/rpcdex.cpp
+    rpc/rpcdump.cpp
+    rpc/rpcmining.cpp
+    rpc/rpcmisc.cpp
+    rpc/rpcnet.cpp
+    rpc/rpcproposal.cpp
+    rpc/rpcscoin.cpp
+    rpc/rpcsubmittx.cpp
+    rpc/rpctpstester.cpp
+    rpc/rpctx.cpp
+    rpc/rpctxserializer.cpp
+    rpc/rpcutxo.cpp
+    rpc/rpcvm.cpp
+    rpc/rpcwallet.cpp
+)
+
+set(RPC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/rpc ${CMAKE_CURRENT_SOURCE_DIR}/rpc/core)
+
+set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS} ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} ${RPC_HEADERS} )
+set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES} ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_HEADERS} )
 
 add_library( commons STATIC
              ${SOURCES}
@@ -200,4 +228,5 @@ target_include_directories( commons
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence/leveldb/helpers/memenv
         ${WASM_INCLUDES}
         ${TX_INCLUDES}
+        ${RPC_INCLUDES}
 )
