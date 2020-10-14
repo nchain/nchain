@@ -140,6 +140,7 @@ Array RPCConvertValues(const string &strMethod, const vector<string> &strParams)
     if (strMethod == "submitdelegatevotetx"         && n > 1) ConvertTo<Array>(params[1]);
     if (strMethod == "submitdelegatevotetx"         && n > 3) ConvertTo<int32_t>(params[3]);
 
+#ifdef LUA_VM
     if (strMethod == "submitluacontractdeploytx"       && n > 3) ConvertTo<int32_t>(params[3]);
 
     if (strMethod == "submitluacontractcalltx"         && n > 3) ConvertTo<int64_t>(params[3]);
@@ -148,6 +149,7 @@ Array RPCConvertValues(const string &strMethod, const vector<string> &strParams)
     if (strMethod == "submitucontractdeploytx"  && n > 3) ConvertTo<int32_t>(params[3]);
 
     if (strMethod == "submitucontractcalltx"    && n > 5) ConvertTo<int32_t>(params[5]);
+#endif//LUA_VM
 
     if (strMethod == "listaddr"               && n > 1) ConvertTo<bool>(params[1]);
     if (strMethod == "disconnectblock"        && n > 0) ConvertTo<int32_t>(params[0]);
@@ -269,8 +271,10 @@ Array RPCConvertValues(const string &strMethod, const vector<string> &strParams)
 
     if (strMethod == "getpeerinfo"              && n > 0) ConvertTo<bool>(params[0]);
 
+#ifdef LUA_VM
     /* vm functions work in vm simulator */
     if (strMethod == "luavm_executescript"          && n > 3) ConvertTo<int64_t>(params[3]);
+#endif//LUA_VM
 
 
     return params;

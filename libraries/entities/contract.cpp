@@ -6,6 +6,8 @@
 #include "contract.h"
 #include "config/const.h"
 
+#ifdef LUA_VM
+
 bool CLuaContract::IsValid() {
     if (code.size() > MAX_CONTRACT_CODE_SIZE)
         return false;
@@ -36,6 +38,8 @@ bool CUniversalContract::IsValid() {
 
     return true;
 }
+
+#endif//LUA_VM
 
 json_spirit::Object CUniversalContractStore::ToJson() const {
     using namespace json_spirit;

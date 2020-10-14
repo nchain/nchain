@@ -199,6 +199,8 @@ Value startcommontpstest(const Array& params, bool fHelp) {
     return obj;
 }
 
+#ifdef LUA_VM
+
 void static ContractTxGenerator(TpsTester *tpsTester, const string& regid) {
     RenameThread("coin-gentxlua");
     SetThreadPriority(THREAD_PRIORITY_NORMAL);
@@ -307,7 +309,7 @@ Value startcontracttpstest(const Array& params, bool fHelp) {
     return obj;
 }
 
-
+#endif//LUA_VM
 
 void static WasmTxGenerator(TpsTester *tpsTester, wasm::inline_transaction &inlineTx) {
     RenameThread("coin-gentxwasm");

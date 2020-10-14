@@ -80,9 +80,11 @@ static const CRPCCommand vRPCCommands[] =
     { "signmessage",                    &signmessage,                       false,     false,       true    },
     { "verifymessage",                  &verifymessage,                     true,      false,       false   },
     { "getcoinunitinfo",                &getcoinunitinfo,                   true,      false,       false   },
+#ifdef LUA_VM
     { "getcontractassets",              &getcontractassets,                 true,      false,       true    },
     { "listcontractassets",             &listcontractassets,                true,      false,       true    },
     { "getcontractaccountinfo",         &getcontractaccountinfo,            true,      false,       true    },
+#endif//LUA_VM
     { "getsignature",                   &getsignature,                      true,      false,       true    },
     { "listdelegates",                  &listdelegates,                     true,      false,       true    },
     { "decodetxraw",                    &decodetxraw,                       true,       false,      false   },
@@ -98,11 +100,13 @@ static const CRPCCommand vRPCCommands[] =
     { "submitaccountregistertx",        &submitaccountregistertx,           false,      false,      true    },
     { "submitaccountpermscleartx",      &submitaccountpermscleartx,         false,      false,      true    },
 
+    { "submitdelegatevotetx",           &submitdelegatevotetx,              false,      false,      true    },
+#ifdef LUA_VM
     { "submitluacontractdeploytx",      &submitluacontractdeploytx,         false,      false,      true    }, //deprecated
     { "submitluacontractcalltx",        &submitluacontractcalltx,           false,      false,      true    },
-    { "submitdelegatevotetx",           &submitdelegatevotetx,              false,      false,      true    },
     { "submitucontractdeploytx",        &submitucontractdeploytx,           false,      false,      true    },
     { "submitucontractcalltx",          &submitucontractcalltx,             false,      false,      true    },
+#endif//LUA_VM
     { "submitparamgovernproposal",      &submitparamgovernproposal,         false,      false,      true    },
     { "submitcdpparamgovernproposal",   &submitcdpparamgovernproposal,      false,      false,      true    },
     { "submittotalbpssizeupdateproposal",&submittotalbpssizeupdateproposal, false,      false,      true    },
@@ -183,13 +187,17 @@ static const CRPCCommand vRPCCommands[] =
     { "saveblocktofile",                &saveblocktofile,                   true,       false,      true    },
     { "gethash",                        &gethash,                           true,       false,      true    },
     { "startcommontpstest",             &startcommontpstest,                true,       true,       false   },
+#ifdef LUA_VM
     { "startcontracttpstest",           &startcontracttpstest,              true,       true,       false   },
+#endif//LUA_VM
     { "startwasmtpstest",               &startwasmtpstest,                  true,       true,       false   },
 
     { "getblockfailures",               &getblockfailures,                  true,       false,      false   },
+#ifdef LUA_VM
     /* vm functions work in vm simulator */
     { "luavm_executescript",            &luavm_executescript,               true,       false,       true    },
     { "luavm_executecontract",          &luavm_executecontract,             true,       false,       true    },
+#endif//LUA_VM
 
     /* debug */
     { "dumpdb",                         &dumpdb,                            true,       false,       false    },

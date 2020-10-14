@@ -17,7 +17,9 @@
 #include "tx/coinminttx.h"
 #include "tx/cointransfertx.h"
 #include "tx/coinutxotx.h"
+#ifdef LUA_VM
 #include "tx/contracttx.h"
+#endif//LUA_VM
 #include "tx/delegatetx.h"
 #include "tx/dextx.h"
 #include "tx/coinstaketx.h"
@@ -46,10 +48,17 @@ void CBaseTx::SerializePtr(Stream& os, const std::shared_ptr<CBaseTx> &pBaseTx, 
             ::Serialize(os, (const CAccountRegisterTx&)tx, serType, version); break;
         case BCOIN_TRANSFER_TX:
             ::Serialize(os, (const CBaseCoinTransferTx&)tx, serType, version); break;
+#ifdef LUA_VM
         case LCONTRACT_INVOKE_TX:
             ::Serialize(os, (const CLuaContractInvokeTx&)tx, serType, version); break;
         case LCONTRACT_DEPLOY_TX:
             ::Serialize(os, (const CLuaContractDeployTx&)tx, serType, version); break;
+
+        case UCONTRACT_DEPLOY_TX:
+            ::Serialize(os, (const CUniversalContractDeployTx&)tx, serType, version); break;
+        case UCONTRACT_INVOKE_TX:
+            ::Serialize(os, (const CUniversalContractInvokeTx&)tx, serType, version); break;
+#endif//LUA_VM
         case DELEGATE_VOTE_TX:
             ::Serialize(os, (const CDelegateVoteTx&)tx, serType, version); break;
 
@@ -71,10 +80,6 @@ void CBaseTx::SerializePtr(Stream& os, const std::shared_ptr<CBaseTx> &pBaseTx, 
             ::Serialize(os, (const CCoinMintTx&)tx, serType, version); break;
         case UCOIN_BLOCK_REWARD_TX:
             ::Serialize(os, (const CUCoinBlockRewardTx&)tx, serType, version); break;
-        case UCONTRACT_DEPLOY_TX:
-            ::Serialize(os, (const CUniversalContractDeployTx&)tx, serType, version); break;
-        case UCONTRACT_INVOKE_TX:
-            ::Serialize(os, (const CUniversalContractInvokeTx&)tx, serType, version); break;
         case PRICE_FEED_TX:
             ::Serialize(os, (const CPriceFeedTx&)tx, serType, version); break;
         case PRICE_MEDIAN_TX:
@@ -148,6 +153,8 @@ void CBaseTx::UnserializePtr(Stream& is, std::shared_ptr<CBaseTx> &pBaseTx, int 
             ::Unserialize(is, *((CBaseCoinTransferTx *)(pBaseTx.get())), serType, version);
             break;
         }
+
+#ifdef LUA_VM
         case LCONTRACT_INVOKE_TX: {
             pBaseTx = std::make_shared<CLuaContractInvokeTx>();
             ::Unserialize(is, *((CLuaContractInvokeTx *)(pBaseTx.get())), serType, version);
@@ -158,6 +165,17 @@ void CBaseTx::UnserializePtr(Stream& is, std::shared_ptr<CBaseTx> &pBaseTx, int 
             ::Unserialize(is, *((CLuaContractDeployTx *)(pBaseTx.get())), serType, version);
             break;
         }
+        case UCONTRACT_DEPLOY_TX: {
+            pBaseTx = std::make_shared<CUniversalContractDeployTx>();
+            ::Unserialize(is, *((CUniversalContractDeployTx *)(pBaseTx.get())), serType, version);
+            break;
+        }
+        case UCONTRACT_INVOKE_TX: {
+            pBaseTx = std::make_shared<CUniversalContractInvokeTx>();
+            ::Unserialize(is, *((CUniversalContractInvokeTx *)(pBaseTx.get())), serType, version);
+            break;
+        }
+#endif//LUA_VM
         case DELEGATE_VOTE_TX: {
             pBaseTx = std::make_shared<CDelegateVoteTx>();
             ::Unserialize(is, *((CDelegateVoteTx *)(pBaseTx.get())), serType, version);
@@ -208,16 +226,6 @@ void CBaseTx::UnserializePtr(Stream& is, std::shared_ptr<CBaseTx> &pBaseTx, int 
         case UCOIN_BLOCK_REWARD_TX: {
             pBaseTx = std::make_shared<CUCoinBlockRewardTx>();
             ::Unserialize(is, *((CUCoinBlockRewardTx *)(pBaseTx.get())), serType, version);
-            break;
-        }
-        case UCONTRACT_DEPLOY_TX: {
-            pBaseTx = std::make_shared<CUniversalContractDeployTx>();
-            ::Unserialize(is, *((CUniversalContractDeployTx *)(pBaseTx.get())), serType, version);
-            break;
-        }
-        case UCONTRACT_INVOKE_TX: {
-            pBaseTx = std::make_shared<CUniversalContractInvokeTx>();
-            ::Unserialize(is, *((CUniversalContractInvokeTx *)(pBaseTx.get())), serType, version);
             break;
         }
         case PRICE_FEED_TX: {

@@ -18,7 +18,9 @@
 #include "tx/tx.h"
 #include "tx/accountpermscleartx.h"
 #include "tx/proposaltx.h"
+#ifdef LUA_VM
 #include "tx/contracttx.h"
+#endif//LUA_VM
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #include "persistence/blockdb.h"
@@ -103,6 +105,8 @@ std::shared_ptr<CBaseTx> genAccountPermsClearTx(json_spirit::Value param_json) {
     return pBaseTx;
 }
 
+#ifdef LUA_VM
+
 /****
  *
  *
@@ -136,6 +140,8 @@ std::shared_ptr<CBaseTx> genContractCalltx(json_spirit::Value param_json) {
     pBaseTx->valid_height = height;
     return pBaseTx;
 }
+
+#endif//LUA_VM
 
 /**
  *
@@ -310,7 +316,9 @@ const char *gen_rawtx_rpc_help_message = R"=====(
 unordered_map <string, std::shared_ptr<CBaseTx> (*)(json_spirit::Value)> nameToFuncMap = {
     { "submitsendtx",                &genSendTx                 },
     { "submitaccountpermscleartx",   &genAccountPermsClearTx    },
+#ifdef LUA_VM
     { "submitucontractcalltx",       &genContractCalltx         },
+#endif//LUA_VM
     { "submitwasmcontractcalltx",    &genWasmContractCallTx     },
     { "submitdelegatevotetx",    &genDelegateVotetx     }
 };

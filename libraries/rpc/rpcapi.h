@@ -23,12 +23,13 @@ extern Value submitsetcodetx(const Array& params, bool fHelp);
 
 extern Value submitaccountregistertx(const Array& params, bool fHelp);
 extern Value submitaccountpermscleartx(const Array& params, bool fHelp);
+extern Value submitdelegatevotetx(const Array& params, bool fHelp);
+#ifdef LUA_VM
 extern Value submitluacontractdeploytx(const Array& params, bool fHelp);
 extern Value submitluacontractcalltx(const Array& params, bool fHelp);
-extern Value submitdelegatevotetx(const Array& params, bool fHelp);
 extern Value submitucontractdeploytx(const Array& params, bool fHelp);
 extern Value submitucontractcalltx(const Array& params, bool fHelp);
-
+#endif//LUA_VM
 extern Value gettxdetail(const Array& params, bool fHelp);
 extern Value getclosedcdp(const Array& params, bool fHelp);
 extern Value sign(const Array& params, bool fHelp);
@@ -142,7 +143,10 @@ extern Value droptxfrommempool(const Array& params, bool fHelp);
 extern Value decodetxraw(const Array& params, bool fHelp);
 extern Value submitsendtx(const Array& params, bool fHelp);
 extern Value signmessage(const Array& params, bool fHelp);
+
+#ifdef LUA_VM
 extern Value getcontractassets(const  Array& params, bool fHelp);
+#endif//LUA_VM
 
 extern Value getfcoingenesistxinfo(const Array& params, bool fHelp);
 extern Value getblockcount(const Array& params, bool fHelp);
@@ -157,10 +161,11 @@ extern Value getblockfailures(const Array& params, bool fHelp);
 extern Value getblockundo(const Array& params, bool fHelp);
 extern Value getpbftinfo(const Array& params, bool fHelp);
 
+#ifdef LUA_VM
 /******************************  Lua VM *********************************/
 extern Value luavm_executescript(const Array& params, bool fHelp);
 extern Value luavm_executecontract(const Array& params, bool fHelp);
-
+#endif//LUA_VM
 
 /******************************  WASM & General Module Access *********************************/
 extern Value wasm_gettable(const Array& params, bool fHelp);
@@ -220,7 +225,9 @@ extern Value dumpdb(const Array& params, bool fHelp);
 extern Value getmemstat(const Array& params, bool fHelp);
 
 extern Value startcommontpstest(const Array& params, bool fHelp);
+#ifdef LUA_VM
 extern Value startcontracttpstest(const Array& params, bool fHelp);
+#endif//LUA_VM
 extern Value startwasmtpstest(const Array& params, bool fHelp);
 
 

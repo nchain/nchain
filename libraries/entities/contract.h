@@ -23,6 +23,7 @@ enum VMType : uint8_t {
     EVM         = 3
 };
 
+#ifdef LUA_VM
 /**
  *  lua contract - for blockchain tx serialization/deserialization purpose
  *      - This is a backward compability implentation,
@@ -129,6 +130,8 @@ public:
                 strprintf("abi=%d", abi);
     }
 };
+
+#endif//LUA_VM
 
 class CUniversalContractStore  {
 public:

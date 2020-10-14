@@ -26,6 +26,8 @@ void FinalLogging();
 void Interrupt();
 string HelpMessage();
 void StartCommonGeneration(const int64_t period, const int64_t batchSize);
+#ifdef LUA_VM
 void StartContractGeneration(const string &regid, const int64_t period, const int64_t batchSize);
+#endif//LUA_VM
 
 #endif
