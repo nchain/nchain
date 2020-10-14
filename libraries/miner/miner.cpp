@@ -6,8 +6,6 @@
 #include "miner.h"
 
 #include "pbftcontext.h"
-#include "init.h"
-#include "main.h"
 #include "net.h"
 #include "wallet/wallet.h"
 #include "tx/tx.h"
@@ -18,12 +16,27 @@
 #include "persistence/contractdb.h"
 #include "persistence/cachewrapper.h"
 #include "p2p/protocol.h"
+#include "p2p/addrman.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
+#include "tx/txmempool.h"
+#include "miner/pbftmanager.h"
 
 #include <algorithm>
 #include <boost/circular_buffer.hpp>
 
 extern CWallet *pWalletMain;
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CTxMemPool mempool;
+extern map<uint256, CBlockIndex *> mapBlockIndex;
+extern CPBFTMan pbftMan;
+extern bool mining;        // could change from time to time due to vote change
+
 extern void SetMinerStatus(bool bStatus);
+extern bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
+extern bool ProcessBlock(CValidationState &state, CNode *pFrom, CBlock *pBlock, CDiskBlockPos *dbp = nullptr);
 
 
 uint64_t nLastBlockTx   = 0;

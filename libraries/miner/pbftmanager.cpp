@@ -12,10 +12,18 @@
 #include "wallet/wallet.h"
 #include "net.h"
 #include "p2p/node.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
 
 CPBFTMan pbftMan;
 extern CWallet *pWalletMain;
 extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CPBFTMan pbftMan;
+
+extern bool IsInitialBlockDownload();
+extern bool VerifySignature(const uint256 &sigHash, const std::vector<uint8_t> &signature, const CPubKey &pubKey);
 
 static inline const VoteDelegateVector& GetBpListByHeight(ActiveDelegatesStore &activeDelegatesStore, HeightType height) {
     // make sure the height > tip height - 100
