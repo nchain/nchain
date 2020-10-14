@@ -96,13 +96,6 @@ string CRegID::ToString() const {
     return strprintf("%d-%d", height, index);
 }
 
-CKeyID CRegID::GetKeyId(const CAccountDBCache &accountCache) const {
-    CKeyID retKeyId;
-    accountCache.GetKeyId(*this, retKeyId);
-
-    return retKeyId;
-}
-
 bool CRegID::IsMature(uint32_t curHeight) const {
     return ((height == 0) && (index != 0)) || ((height != 0) && curHeight > height + REG_ID_MATURITY);
 }

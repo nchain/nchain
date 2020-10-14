@@ -6,19 +6,23 @@ if (UNIX AND APPLE)
    #list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/gettext")
 endif()
 
-file(GLOB HEADERS "src/*.h")
+file(GLOB HEADERS "src/*.h" "contrib/*.h")
 
 find_package(GMP REQUIRED)
 
 add_library(secp256k1 STATIC
     src/secp256k1.c
+    contrib/lax_der_parsing.c
+    contrib/lax_der_privatekey_parsing.c
     ${HEADERS}
 )
 
 target_include_directories(secp256k1
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/contrib
+
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${GMP_INCLUDE_DIR}

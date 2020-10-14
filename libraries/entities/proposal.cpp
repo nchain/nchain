@@ -6,12 +6,13 @@
 
 #include "config/txbase.h"
 #include "config/const.h"
+#include "config/errorcode.h"
 #include "entities/asset.h"
 #include "entities/dexorder.h"
 #include "entities/proposal.h"
 #include "persistence/cachewrapper.h"
-#include "main.h"
 #include "tx/proposaltx.h"
+#include "chain/validation.h"
 
 #include <algorithm>
 #include <set>
