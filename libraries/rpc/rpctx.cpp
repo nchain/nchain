@@ -26,7 +26,7 @@
 #include "commons/json/json_spirit_utils.h"
 #include "commons/json/json_spirit_value.h"
 #include "commons/json/json_spirit_reader.h"
-#include "vm/wasm/types/name.hpp"
+#include "wasm/types/name.hpp"
 
 #define revert(height) ((height<<24) | (height << 8 & 0xff0000) |  (height>>8 & 0xff00) | (height >> 24))
 
@@ -35,7 +35,10 @@ using namespace boost;
 using namespace boost::assign;
 using namespace json_spirit;
 
-extern CPBFTMan pbftMan;
+extern CChain chainMostWork;
+extern bool DisconnectTip(CValidationState &state);
+extern bool EraseBlockIndexFromSet(CBlockIndex *pIndex);
+
 
 namespace RPC_PARAM {
     vector<uint8_t> GetSignature(const Value &jsonValue) {
@@ -800,7 +803,7 @@ Value listcontracts(const Array& params, bool fHelp) {
         contractArray.push_back(contractObject);
     }
 
-    obj.push_back(Pair("count",     contractArray.size()));
+    obj.push_back(Pair("count",     (int64_t)contractArray.size()));
     obj.push_back(Pair("contracts", contractArray));
 
     return obj;
@@ -1201,6 +1204,8 @@ Value decodetxraw(const Array& params, bool fHelp) {
     return obj;
 }
 
+#ifdef LUA_VM
+
 Value getcontractaccountinfo(const Array& params, bool fHelp) {
     if (fHelp || (params.size() != 2 && params.size() != 3)) {
         throw runtime_error(
@@ -1293,6 +1298,7 @@ Value listcontractassets(const Array& params, bool fHelp) {
     return retArray;
 }
 
+#endif //LUA_VM
 
 Value gethash(const Array& params, bool fHelp) {
     if (fHelp || params.size() != 1) {

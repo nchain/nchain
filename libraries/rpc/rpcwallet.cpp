@@ -10,21 +10,21 @@
 #include "miner/miner.h"
 #include "net.h"
 #include "netbase.h"
-#include "persistence/contractdb.h"
 #include "rpc/core/rpccommons.h"
 #include "rpc/core/rpcserver.h"
-#include "vm/luavm/appaccount.h"
-#include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 
 #include <stdint.h>
 #include <boost/assign/list_of.hpp>
 
-
 using namespace std;
 using namespace boost;
 using namespace boost::assign;
 using namespace json_spirit;
+
+extern const string strMessageMagic;
+
+extern void RequestShutdown(const string &reason);
 
 int64_t nWalletUnlockTime;
 static CCriticalSection cs_nWalletUnlockTime;
@@ -407,6 +407,8 @@ Value submitsendmultitx(const Array& params, bool fHelp) {
     return SubmitTx(account.keyid, *pBaseTx);
 }
 
+#ifdef LUA_VM
+
 Value getcontractassets(const Array& params, bool fHelp) {
     if (fHelp || params.size() < 1) {
         throw runtime_error("getcontractassets \"contract_regid\"\n"
@@ -471,6 +473,8 @@ Value getcontractassets(const Array& params, bool fHelp) {
 
     return retObj;
 }
+
+#endif //LUA_VM
 
 Value backupwallet(const Array& params, bool fHelp) {
     if (fHelp || params.size() != 1)

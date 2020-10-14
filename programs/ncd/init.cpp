@@ -34,7 +34,7 @@
 #include <miniupnpc/upnpcommands.h>
 #include <miniupnpc/upnperrors.h>
 
-//#include "vm/wasm/wasm_interface.hpp"
+//#include "wasm/wasm_interface.hpp"
 
 #ifndef MINIUPNPC_VERSION
 #define MINIUPNPC_VERSION "1.9"

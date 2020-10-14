@@ -18,7 +18,6 @@
 #include "commons/types.h"
 #include "commons/leb128.h"
 
-class CAccountDBCache;
 class CUserID;
 class CRegID;
 
@@ -61,7 +60,6 @@ public:
     void Set(uint64_t regIdIntValue);
     vector<uint8_t> GetRegIdRaw() const;
 
-    CKeyID GetKeyId(const CAccountDBCache &accountCache) const;
     uint32_t GetHeight() const { return height; }
     uint16_t GetIndex() const { return index; }
     uint64_t GetIntValue() const { return (((uint64_t)height) << 20) + index; }

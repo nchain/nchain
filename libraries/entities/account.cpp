@@ -5,11 +5,14 @@
 
 
 #include "account.h"
-#include "../logging.h"
+#include "commons/logging.h"
 #include "config/configuration.h"
 #include "config/const.h"
-#include "main.h"
+#include "persistence/cachewrapper.h"
+#include "chain/chain.h"
 
+extern CChainActive chainActive;
+extern CCacheDBManager *pCdMan;
 
 bool CAccount::GetBalance(const TokenSymbol &tokenSymbol, const BalanceType balanceType, uint64_t &value) {
     const auto iter = tokens.find(tokenSymbol);

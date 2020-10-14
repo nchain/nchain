@@ -4,12 +4,8 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "id.h"
-#include "persistence/accountdb.h"
-#include "main.h"
-#include "vm/wasm/types/name.hpp"
-#include "vm/wasm/exception/exceptions.hpp"
-
-extern CCacheDBManager *pCdMan;
+#include "wasm/types/name.hpp"
+#include "wasm/exception/exceptions.hpp"
 
 CRegID::CRegID(const string &strRegID) { SetRegID(strRegID); }
 
@@ -74,15 +70,6 @@ bool CRegID::SetRegID(const vector<uint8_t> &vIn) {
 void CRegID::Set(uint64_t regIdIntValue) {
     height = regIdIntValue >> 20;
     index  = regIdIntValue & 0xFFFFF;
-}
-
-bool CRegID::GetKeyId(const string &str, CKeyID &keyId) {
-    CRegID regId(str);
-    if (regId.IsEmpty())
-        return false;
-
-    keyId = regId.GetKeyId(*pCdMan->pAccountCache);
-    return !keyId.IsEmpty();
 }
 
 bool CRegID::IsRegIdStr(const string & str) {
