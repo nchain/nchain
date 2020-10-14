@@ -19,10 +19,15 @@
 #include "commons/json/json_spirit_value.h"
 #include "commons/json/json_spirit_writer_template.h"
 #include "net.h"
-#include "persistence/accountdb.h"
-#include "persistence/contractdb.h"
-#include "../logging.h"
+#include "config/errorcode.h"
+#include "commons/logging.h"
 #include "tx/txserializer.h"
+#include "persistence/cachewrapper.h"
+#include "chain/chain.h"
+#include "chain/validation.h"
+#include "tx/tx.h"
+#include "tx/txmempool.h"
+#include "miner/pbftmanager.h"
 
 using namespace json_spirit;
 using namespace boost::assign;
@@ -30,6 +35,17 @@ using namespace std;
 using namespace boost;
 
 namespace fs = boost::filesystem;
+
+extern CCacheDBManager *pCdMan;
+extern CChainActive chainActive;
+extern CCriticalSection cs_main;
+extern CTxMemPool mempool;
+extern map<uint256, CBlockIndex *> mapBlockIndex;
+extern CPBFTMan pbftMan;
+
+extern bool AcceptToMemoryPool(CTxMemPool &pool, CValidationState &state, CBaseTx *pBaseTx,
+                        bool fLimitFree, bool fRejectInsaneFee = false);
+
 string CWallet::defaultFileName("");
 
 bool CWallet::Unlock(const SecureString &strWalletPassphrase) {
@@ -419,7 +435,7 @@ bool CWallet::StartUp(string &strWalletFile) {
             return false;
     }
 
-    if (filesystem::exists(GetDataDir() / strWalletFile)) {
+    if (fs::exists(GetDataDir() / strWalletFile)) {
         CDBEnv::VerifyResult r = bitdb.Verify(strWalletFile, CWalletDB::Recover);
         if (r == CDBEnv::RECOVER_OK) {
             string msg = strprintf(_("Warning: wallet.dat corrupt, data salvaged!"
