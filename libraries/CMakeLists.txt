@@ -144,9 +144,16 @@ set(WALLET_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tx)
 file( GLOB WASM_HEADERS "wasm/*.h" "wasm/*.hpp" )
 
 set(WASM_SOURCES
+    wasm/abi_serializer.cpp
+    wasm/wasm_context.cpp
+    wasm/wasm_context_rpc.cpp
+    wasm/wasm_control_rpc.cpp
+    wasm/exception/exception.cpp
+    wasm/exception/log_message.cpp
     wasm/wasm_interface.cpp
     wasm/wasm_runtime.cpp
     wasm/types/uint128.cpp
+    wasm/types/time.cpp
     wasm/compiler_builtins/fixdfti.c
     wasm/compiler_builtins/fixsfti.c
     wasm/compiler_builtins/fixtfti.c

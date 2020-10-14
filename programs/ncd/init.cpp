@@ -143,7 +143,9 @@ void Shutdown() {
 
     GenerateProduceBlockThread(false, nullptr, 0);
     StartCommonGeneration(0, 0);
+#ifdef LUA_VM
     StartContractGeneration("", 0, 0);
+#endif//LUA_VM
 
     StopNode();
     UnregisterNodeSignals(GetNodeSignals());

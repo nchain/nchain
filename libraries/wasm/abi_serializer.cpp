@@ -1,5 +1,4 @@
 #include <chrono>
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 
 //#include <wasm/exceptions.hpp>
 #include <wasm/abi_serializer.hpp>
@@ -304,7 +303,7 @@ namespace wasm {
                 ds >> size;
             }CHAIN_RETHROW_EXCEPTIONS(wasm_chain::unpack_exception, "Unable to unpack size of array '%s' ", rtype)
 
-            CHAIN_ASSERT( size < max_abi_array_size,
+            CHAIN_ASSERT( size < (uint32_t)max_abi_array_size,
                           wasm_chain::array_size_exceeds_exception,
                           "Array size %u must be smaller than max %d", size.value,
                           max_abi_array_size);
