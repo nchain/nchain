@@ -56,8 +56,10 @@ else()
   set(build_id_flag "")
 endif()
 
+message("${NODE_EXECUTABLE_NAME} linked libs: commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}" )
+
 target_link_libraries( ${NODE_EXECUTABLE_NAME}
-        PRIVATE commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto
+        PRIVATE commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
 )
 
 # target_link_libraries( ${NODE_EXECUTABLE_NAME}

@@ -128,6 +128,18 @@ set(PERSISTENCE_SOURCES
     persistence/txutxodb.cpp
 )
 
+## tx
+file( GLOB WALLET_HEADERS "wallet/*.h" "wallet/*.hpp" )
+
+set(WALLET_SOURCES
+    wallet/crypter.cpp
+    wallet/db.cpp
+    wallet/wallet.cpp
+    wallet/walletdb.cpp
+)
+
+set(WALLET_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/tx)
+
 ## WASM
 file( GLOB WASM_HEADERS "wasm/*.h" "wasm/*.hpp" )
 
@@ -208,9 +220,9 @@ set(RPC_SOURCES
 set(RPC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/rpc ${CMAKE_CURRENT_SOURCE_DIR}/rpc/core)
 
 set(HEADERS ${CONFIG_HEADERS} ${COMMONS_HEADERS} ${CRYPTO_HEADERS} ${P2P_HEADERS} ${CHAIN_HEADERS}
-    ${PERSISTENCE_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} ${RPC_HEADERS} ${ENTITIES_HEADERS} )
+    ${PERSISTENCE_HEADERS} ${WALLET_HEADERS} ${WASM_HEADERS} ${TX_HEADERS} ${RPC_HEADERS} ${ENTITIES_HEADERS} )
 set(SOURCES ${CONFIG_SOURCES} ${COMMONS_SOURCES} ${CRYPTO_SOURCES} ${P2P_SOURCES} ${CHAIN_SOURCES}
-    ${PERSISTENCE_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_SOURCES} ${ENTITIES_SOURCES} )
+    ${PERSISTENCE_SOURCES} ${WALLET_SOURCES} ${WASM_SOURCES} ${TX_SOURCES} ${RPC_SOURCES} ${ENTITIES_SOURCES} )
 
 add_library( commons STATIC
              ${SOURCES}
@@ -232,6 +244,7 @@ target_include_directories( commons
         ${CMAKE_CURRENT_SOURCE_DIR}/p2p
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence
         ${CMAKE_CURRENT_SOURCE_DIR}/persistence/leveldb/helpers/memenv
+        ${WALLET_INCLUDES}
         ${WASM_INCLUDES}
         ${TX_INCLUDES}
         ${RPC_INCLUDES}

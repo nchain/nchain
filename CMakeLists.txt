@@ -112,6 +112,8 @@ find_package(Boost 1.67 REQUIRED COMPONENTS thread system program_options filesy
 
 find_package(BerkeleyDB REQUIRED)
 
+find_package(Event 2.0.22 REQUIRED COMPONENTS event)
+
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
