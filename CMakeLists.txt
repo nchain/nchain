@@ -4,6 +4,11 @@ project( NCHAIN )
 include(CTest) # suppresses DartConfiguration.tcl error
 enable_testing()
 
+## fix the link warning "... different visibility settings"
+## @see https://stackoverflow.com/questions/9894961/strange-warnings-from-the-linker-ld
+## @ see https://stackoverflow.com/questions/17080869/what-is-the-cmake-equivalent-to-gcc-fvisibility-hidden-when-controlling-the-e
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+
 if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
    message(WARNING "CMAKE_INSTALL_PREFIX is set to /usr/local. This is not recommended.")
 endif()

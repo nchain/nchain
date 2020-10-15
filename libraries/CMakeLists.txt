@@ -247,11 +247,14 @@ add_library( commons STATIC
              ${HEADERS} )
 
 target_link_libraries( commons
+    PUBLIC
+        Boost::filesystem secp256k1
     PRIVATE
-        Boost::filesystem secp256k1 leveldb  Oracle::BerkeleyDB softfloat
+         leveldb  Oracle::BerkeleyDB softfloat
 )
 
-#target_link_libraries( commons Boost::filesystem Threads::Threads )
+# set_target_properties(commons PROPERTIES CXX_VISIBILITY_PRESET hidden)
+
 target_include_directories( commons
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}

@@ -58,8 +58,12 @@ endif()
 
 message("${NODE_EXECUTABLE_NAME} linked libs: commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}" )
 
+# set_target_properties(${NODE_EXECUTABLE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+
 target_link_libraries( ${NODE_EXECUTABLE_NAME}
-        PRIVATE commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
+  PUBLIC
+    Boost::thread;Boost::system;Boost::program_options;Boost::unit_test_framework
+  PRIVATE commons secp256k1  leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
 )
 
 # target_link_libraries( ${NODE_EXECUTABLE_NAME}
