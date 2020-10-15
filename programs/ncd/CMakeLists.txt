@@ -56,7 +56,7 @@ else()
   set(build_id_flag "")
 endif()
 
-message("${NODE_EXECUTABLE_NAME} linked libs: commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}" )
+#message("${NODE_EXECUTABLE_NAME} linked libs: commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}" )
 
 # set_target_properties(${NODE_EXECUTABLE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
 

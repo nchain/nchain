@@ -4,6 +4,9 @@ project( NCHAIN )
 include(CTest) # suppresses DartConfiguration.tcl error
 enable_testing()
 
+include(CheckIncludeFiles)
+include(CheckSymbolExists)
+
 ## fix the link warning "... different visibility settings"
 ## @see https://stackoverflow.com/questions/9894961/strange-warnings-from-the-linker-ld
 ## @ see https://stackoverflow.com/questions/17080869/what-is-the-cmake-equivalent-to-gcc-fvisibility-hidden-when-controlling-the-e
@@ -57,6 +60,32 @@ if ("${CMAKE_GENERATOR}" STREQUAL "Ninja")
    add_compile_options(-fdiagnostics-color=always)
 endif()
 
+# Endianness
+CHECK_INCLUDE_FILES("endian.h" HAVE_ENDIAN_H)
+check_include_files("sys/endian.h" HAVE_SYS_ENDIAN_H)
+
+if(HAVE_ENDIAN_H)
+	set(ENDIAN_FILE "endian.h")
+elseif(HAVE_SYS_ENDIAN_H)
+	set(ENDIAN_FILE "sys/endian.h")
+else()
+endif()
+
+if(ENDIAN_FILE)
+	check_symbol_exists(htole16 ${ENDIAN_FILE} HAVE_DECL_HTOLE16)
+	check_symbol_exists(htobe16 ${ENDIAN_FILE} HAVE_DECL_HTOBE16)
+	check_symbol_exists(be16toh ${ENDIAN_FILE} HAVE_DECL_BE16TOH)
+	check_symbol_exists(le16toh ${ENDIAN_FILE} HAVE_DECL_LE16TOH)
+	check_symbol_exists(htobe32 ${ENDIAN_FILE} HAVE_DECL_HTOBE32)
+	check_symbol_exists(htole32 ${ENDIAN_FILE} HAVE_DECL_HTOLE32)
+	check_symbol_exists(be32toh ${ENDIAN_FILE} HAVE_DECL_BE32TOH)
+	check_symbol_exists(le32toh ${ENDIAN_FILE} HAVE_DECL_LE32TOH)
+	check_symbol_exists(htobe64 ${ENDIAN_FILE} HAVE_DECL_HTOBE64)
+	check_symbol_exists(htole64 ${ENDIAN_FILE} HAVE_DECL_HTOLE64)
+	check_symbol_exists(be64toh ${ENDIAN_FILE} HAVE_DECL_BE64TOH)
+	check_symbol_exists(le64toh ${ENDIAN_FILE} HAVE_DECL_LE64TOH)
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 set(BUILD_DOXYGEN FALSE CACHE BOOL "Build doxygen documentation on every make")
 # set(BUILD_MONGO_DB_PLUGIN FALSE CACHE BOOL "Build mongo database plugin")
@@ -78,18 +107,18 @@ find_package(OpenSSL REQUIRED)
 # WASM runtimes to enable. Each runtime in this list will have:
 #  * definition NCHAIN_<RUNTIME>_RUNTIME_ENABLED defined in public libchain interface
 #  * ctest entries with --runtime
-list(APPEND NCHAIN_WASM_RUNTIMES wabt)   #always enable wabt; it works everywhere and parts of nchain still assume it's always available
-if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT WIN32)
-   if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
-      list(APPEND NCHAIN_WASM_RUNTIMES nchain-vm-oc)
-      # NCHAIN VM OC requires LLVM, but move the check up here to a central location so that the NchainTester.cmakes
-      # can be created with the exact version found
-      find_package(LLVM REQUIRED CONFIG)
-      if(LLVM_VERSION_MAJOR VERSION_LESS 7 OR LLVM_VERSION_MAJOR VERSION_GREATER 9)
-	      message(FATAL_ERROR "NCHAIN requires an LLVM version 7.0 to 9.0")
-      endif()
-   endif()
-endif()
+# list(APPEND NCHAIN_WASM_RUNTIMES wabt)   #always enable wabt; it works everywhere and parts of nchain still assume it's always available
+# if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT WIN32)
+#    if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
+#       list(APPEND NCHAIN_WASM_RUNTIMES nchain-vm-oc)
+#       # NCHAIN VM OC requires LLVM, but move the check up here to a central location so that the NchainTester.cmakes
+#       # can be created with the exact version found
+#       find_package(LLVM REQUIRED CONFIG)
+#       if(LLVM_VERSION_MAJOR VERSION_LESS 7 OR LLVM_VERSION_MAJOR VERSION_GREATER 9)
+# 	      message(FATAL_ERROR "NCHAIN requires an LLVM version 7.0 to 9.0")
+#       endif()
+#    endif()
+# endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT WIN32)
    if(CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
@@ -113,12 +142,13 @@ endif()
 set( Boost_USE_STATIC_LIBS ON CACHE STRING "ON or OFF" )
 # Most boost deps get implictly picked up via fc, as just about everything links to fc. In addition we pick up
 # the pthread dependency through fc.
-find_package(Boost 1.67 REQUIRED COMPONENTS thread system program_options filesystem unit_test_framework)
+find_package(Boost 1.65 REQUIRED COMPONENTS thread system program_options filesystem unit_test_framework)
 
 find_package(BerkeleyDB REQUIRED)
 
 find_package(Event 2.0.22 REQUIRED COMPONENTS event pthreads)
 
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
