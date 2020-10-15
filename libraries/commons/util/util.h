@@ -10,6 +10,7 @@
 #include "config/coin-config.h"
 #endif
 
+#include <cinttypes>
 #include "commons/logging.h"
 #include "config/const.h"
 #include "commons/serialize.h"
@@ -484,10 +485,11 @@ public:
 
     inline void log(const char *msgIn, const char *fileIn, int lineIn, const char *funcIn,
                     const Time &endTime) {
-        auto us = std::chrono::duration_cast<std::chrono::microseconds>(endTime - start);
-        fprintf(stdout, "%lld - %lld [%s:%i] %s [%s]%s, spent=%lld us\n",
-                endTime.time_since_epoch().count(), start.time_since_epoch().count(), fileIn,
-                lineIn, funcIn, "BENCHMARK", msgIn, us.count());
+        int64_t startUs =  start.time_since_epoch().count();
+        int64_t endUs =  endTime.time_since_epoch().count();
+        int64_t spentUs = endUs - startUs;
+        fprintf(stdout, "[BENCHMARK] %" PRIi64 "-%" PRIi64 "=%" PRIi64 " us [%s:%i] %s() %s\n",
+                endUs, startUs, spentUs, fileIn, lineIn, funcIn, msgIn);
     }
     inline void end() {
         if (!is_end) {

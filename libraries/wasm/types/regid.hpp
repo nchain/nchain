@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cinttypes>
 #include <string>
 #include <string_view>
 #include <sstream>
@@ -103,7 +104,7 @@ namespace wasm {
             uint64_t index  = value & 0xFFFFF;
 
             char buffer[64];
-            sprintf(buffer, "%llu-%llu", height, index);
+            sprintf(buffer, "%" PRIu64 "-%" PRIu64, height, index);
             return std::string(buffer);
         }
 

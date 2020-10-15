@@ -148,7 +148,6 @@ find_package(BerkeleyDB REQUIRED)
 
 find_package(Event 2.0.22 REQUIRED COMPONENTS event pthreads)
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11" )
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
