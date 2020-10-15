@@ -11,7 +11,6 @@
 #include "commons/base58.h"
 #include "commons/serialize.h"
 #include "p2p/protocol.h"
-#include "p2p/nodeinfo.h"
 #include "sync.h"
 #include "tx/tx.h"
 #include "tx/txmempool.h"
@@ -27,6 +26,7 @@
 using namespace boost;
 
 extern CTxMemPool mempool;
+extern CKeyID nodeKeyId;   // first keyId of the node
 
 //
 // CWalletDB

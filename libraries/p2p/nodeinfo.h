@@ -8,22 +8,9 @@
 #ifndef COIN_NODEINFO_H
 #define COIN_NODEINFO_H
 
-#include "entities/id.h"
-#include "commons/util/util.h"
-#include "persistence/cachewrapper.h"
-#include "chain/chain.h"
-
 #include <string>
 
 using namespace std;
-
-extern CCacheDBManager *pCdMan;
-extern int32_t nSyncTipHeight;
-extern CChainActive chainActive;
-
-extern bool mining;
-extern CKeyID minerKeyId;
-extern CKeyID nodeKeyId;
 
 struct NodeInfo {
     bool bp;        //is a current block producer or not
@@ -33,17 +20,5 @@ struct NodeInfo {
     uint32_t tiph;  //tip block height
     uint32_t finh;  //finalized block height
 };
-
-void getnodeinfo(NodeInfo *pNodeInfo) {
-    static const string fullVersion = strprintf("%s (%s)", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
-    pNodeInfo->nv = fullVersion;
-    pNodeInfo->bp = mining;
-    pNodeInfo->nfp = mining ? minerKeyId.ToString() : nodeKeyId.ToString();
-    pNodeInfo->synh = nSyncTipHeight;
-    pNodeInfo->tiph = chainActive.Height();
-    std::pair<HeightType, uint256> globalfinblock;
-    pCdMan->pBlockCache->GetGlobalFinBlock(globalfinblock);
-    pNodeInfo->finh = globalfinblock.first;
-}
 
 #endif

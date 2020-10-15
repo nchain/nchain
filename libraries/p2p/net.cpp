@@ -15,7 +15,8 @@
 #include "tx/tx.h"
 #include "commons/util/time.h"
 #include "p2p/node.h"
-
+#include "chain/chain.h"
+#include "miner/pbftmanager.h"
 #ifdef WIN32
 #include <string.h>
 #else
@@ -53,6 +54,13 @@ using namespace std;
 using namespace boost;
 
 extern string publicIp;
+extern int32_t nSyncTipHeight;
+extern CChainActive chainActive;
+
+extern bool mining;
+extern CKeyID minerKeyId;
+extern CKeyID nodeKeyId;
+extern CPBFTMan pbftMan;
 
 static const int32_t MAX_OUTBOUND_CONNECTIONS = 8;
 
@@ -240,6 +248,17 @@ bool IsReachable(const CNetAddr& addr) {
     LOCK(cs_mapLocalHost);
     enum Network net = addr.GetNetwork();
     return vfReachable[net] && !vfLimited[net];
+}
+
+
+static void getnodeinfo(NodeInfo *pNodeInfo) {
+    static const string fullVersion = strprintf("%s (%s)", FormatFullVersion().c_str(), CLIENT_DATE.c_str());
+    pNodeInfo->nv = fullVersion;
+    pNodeInfo->bp = mining;
+    pNodeInfo->nfp = mining ? minerKeyId.ToString() : nodeKeyId.ToString();
+    pNodeInfo->synh = nSyncTipHeight;
+    pNodeInfo->tiph = chainActive.Height();
+    pNodeInfo->finh = pbftMan.GetGlobalFinIndex()->height;
 }
 
 static string GetSystemInfo() {
