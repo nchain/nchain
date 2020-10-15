@@ -19,3 +19,6 @@
 #ifdef __x86_64__
   #define USE_ASM_X86_64 1
 #endif
+
+//enable recovery
+#define ENABLE_MODULE_RECOVERY
