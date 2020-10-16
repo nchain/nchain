@@ -7,10 +7,13 @@ enable_testing()
 include(CheckIncludeFiles)
 include(CheckSymbolExists)
 
+if( APPLE AND UNIX )
+# Apple MacOS
 ## fix the link warning "... different visibility settings"
 ## @see https://stackoverflow.com/questions/9894961/strange-warnings-from-the-linker-ld
 ## @ see https://stackoverflow.com/questions/17080869/what-is-the-cmake-equivalent-to-gcc-fvisibility-hidden-when-controlling-the-e
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+endif()
 
 if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
    message(WARNING "CMAKE_INSTALL_PREFIX is set to /usr/local. This is not recommended.")
@@ -148,6 +151,8 @@ find_package(BerkeleyDB REQUIRED)
 
 find_package(Event 2.0.22 REQUIRED COMPONENTS event pthreads)
 
+# set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -pie" )
+# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )

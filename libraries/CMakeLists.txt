@@ -247,13 +247,12 @@ add_library( commons STATIC
              ${HEADERS} )
 
 target_link_libraries( commons
-    PUBLIC
-        Boost::filesystem secp256k1
     PRIVATE
-         leveldb  Oracle::BerkeleyDB softfloat
+       secp256k1 leveldb  Oracle::BerkeleyDB softfloat
 )
 
 # set_target_properties(commons PROPERTIES CXX_VISIBILITY_PRESET hidden)
+#target_compile_options(commons PRIVATE -fPIC )
 
 target_include_directories( commons
     PUBLIC
@@ -270,4 +269,6 @@ target_include_directories( commons
         ${TX_INCLUDES}
         ${MINER_INCLUDES}
         ${RPC_INCLUDES}
+    PRIVATE
+        ${Boost_INCLUDE_DIRS}
 )

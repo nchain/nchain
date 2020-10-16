@@ -6,6 +6,7 @@ file(GLOB SOURCES "*.cpp")
 add_executable( ${NODE_EXECUTABLE_NAME} ${SOURCES} ${HEADERS}  )
 
 target_compile_definitions(${NODE_EXECUTABLE_NAME} PUBLIC PACKAGE_NAME="${NODE_EXECUTABLE_NAME}" )
+#target_compile_options(${NODE_EXECUTABLE_NAME} PRIVATE -fPIC )
 
 if( UNIX AND NOT APPLE )
   set(rt_library rt )
@@ -56,14 +57,12 @@ else()
   set(build_id_flag "")
 endif()
 
-#message("${NODE_EXECUTABLE_NAME} linked libs: commons secp256k1 ${Boost_LIBRARIES} leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}" )
+message("${NODE_EXECUTABLE_NAME} link libs: commons secp256k1  leveldb Oracle::BerkeleyDB ${Boost_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}" )
 
 # set_target_properties(${NODE_EXECUTABLE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries( ${NODE_EXECUTABLE_NAME}
-  PUBLIC
-    Boost::thread;Boost::system;Boost::program_options;Boost::unit_test_framework
-  PRIVATE commons secp256k1  leveldb Oracle::BerkeleyDB OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
+  PRIVATE commons secp256k1  leveldb Oracle::BerkeleyDB ${Boost_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
 )
 
 # target_link_libraries( ${NODE_EXECUTABLE_NAME}
