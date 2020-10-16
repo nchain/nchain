@@ -92,7 +92,7 @@ namespace eosio { namespace vm {
          using duration_type = std::chrono::steady_clock::duration;
          std::mutex            _mutex;
          std::function<void()> _callback;
-         bool                  _run_state = stopped;
+         state_t                  _run_state = stopped;
          duration_type         _duration;
          time_point_type       _start;
 
