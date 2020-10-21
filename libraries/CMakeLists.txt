@@ -4,6 +4,10 @@ add_subdirectory( softfloat )
 
 target_compile_options(softfloat PRIVATE -Wno-unused-label )
 
+## appbase
+
+add_subdirectory( appbase )
+
 ## commons
 
 file( GLOB_RECURSE COMMONS_HEADERS "commons/*.h" "commons/*.hpp"
