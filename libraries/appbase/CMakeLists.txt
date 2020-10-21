@@ -57,8 +57,6 @@ set_target_properties( appbase PROPERTIES PUBLIC_HEADER "${HEADERS}" )
 
 find_package(Git)
 if(EXISTS ${CMAKE_SOURCE_DIR}/.git AND GIT_FOUND)
-
-  message("11111111111 {CMAKE_CURRENT_SOURCE_DIR}: ${CMAKE_CURRENT_SOURCE_DIR}")
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/version.cmake @ONLY)
   add_custom_target(appbase_version ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/version.cmake BYPRODUCTS version.cpp)
   add_dependencies(appbase appbase_version)
