@@ -157,17 +157,17 @@ void application::startup() {
 
 void application::start_sighup_handler( std::shared_ptr<boost::asio::signal_set> sighup_set ) {
 #ifdef SIGHUP
-   sighup_set->async_wait([sighup_set, this](const boost::system::error_code& err, int /*num*/) {
-      if( err ) return;
-      app().post(priority::medium, [sighup_set, this]() {
-         sighup_callback();
-         for( auto plugin : initialized_plugins ) {
-            if( is_quiting() ) return;
-            plugin->handle_sighup();
-         }
-      });
-      start_sighup_handler( sighup_set );
-   });
+   // sighup_set->async_wait([sighup_set, this](const boost::system::error_code& err, int /*num*/) {
+   //    if( err ) return;
+   //    app().post(priority::medium, [sighup_set, this]() {
+   //       sighup_callback();
+   //       for( auto plugin : initialized_plugins ) {
+   //          if( is_quiting() ) return;
+   //          plugin->handle_sighup();
+   //       }
+   //    });
+   //    start_sighup_handler( sighup_set );
+   // });
 #endif
 }
 
@@ -415,7 +415,7 @@ void application::exec() {
       while( more || io_serv->run_one() ) {
          while( io_serv->poll_one() ) {}
          // execute the highest priority item
-         more = pri_queue.execute_highest();
+         //more = pri_queue.execute_highest();
       }
 
       shutdown(); /// perform synchronous shutdown

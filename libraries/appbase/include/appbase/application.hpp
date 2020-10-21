@@ -2,7 +2,7 @@
 #include <appbase/plugin.hpp>
 #include <appbase/channel.hpp>
 #include <appbase/method.hpp>
-#include <appbase/execution_priority_queue.hpp>
+// #include <appbase/execution_priority_queue.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/core/demangle.hpp>
 #include <typeindex>
@@ -211,10 +211,10 @@ namespace appbase {
           * @param func function to run on io_service
           * @return result of boost::asio::post
           */
-         template <typename Func>
-         auto post( int priority, Func&& func ) {
-            return boost::asio::post(*io_serv, pri_queue.wrap(priority, std::forward<Func>(func)));
-         }
+         // template <typename Func>
+         // auto post( int priority, Func&& func ) {
+         //    return boost::asio::post(*io_serv, pri_queue.wrap(priority, std::forward<Func>(func)));
+         // }
 
          /**
           * Provide access to execution priority queue so it can be used to wrap functions for
@@ -224,9 +224,9 @@ namespace appbase {
           *   boost::asio::steady_timer timer( app().get_io_service() );
           *   timer.async_wait( app().get_priority_queue().wrap(priority::low, [](){ do_something(); }) );
           */
-         auto& get_priority_queue() {
-            return pri_queue;
-         }
+         // auto& get_priority_queue() {
+         //    return pri_queue;
+         // }
 
          const bpo::variables_map& get_options() const;
 
@@ -261,7 +261,7 @@ namespace appbase {
          map<std::type_index, erased_channel_ptr>  channels;
 
          std::shared_ptr<boost::asio::io_service>  io_serv;
-         execution_priority_queue                  pri_queue;
+         // execution_priority_queue                  pri_queue;
 
          void start_sighup_handler( std::shared_ptr<boost::asio::signal_set> sighup_set );
          void set_program_options();
@@ -331,14 +331,14 @@ namespace appbase {
          std::string _name;
    };
 
-   template<typename Data, typename DispatchPolicy>
-   void channel<Data,DispatchPolicy>::publish(int priority, const Data& data) {
-      if (has_subscribers()) {
-         // this will copy data into the lambda
-         app().post( priority, [this, data]() {
-            _signal(data);
-         });
-      }
-   }
+   // template<typename Data, typename DispatchPolicy>
+   // void channel<Data,DispatchPolicy>::publish(int priority, const Data& data) {
+   //    if (has_subscribers()) {
+   //       // this will copy data into the lambda
+   //       app().post( priority, [this, data]() {
+   //          _signal(data);
+   //       });
+   //    }
+   // }
 
 }
