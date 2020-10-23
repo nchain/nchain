@@ -62,7 +62,7 @@ message("${NODE_EXECUTABLE_NAME} link libs: commons secp256k1  leveldb Oracle::B
 # set_target_properties(${NODE_EXECUTABLE_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden)
 
 target_link_libraries( ${NODE_EXECUTABLE_NAME}
-  PRIVATE commons secp256k1  leveldb Oracle::BerkeleyDB ${Boost_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
+  PRIVATE commons secp256k1  leveldb BerkeleyDB::CXX ${Boost_LIBRARIES} OpenSSL::SSL OpenSSL::Crypto ${Event_LIBRARIES}
 )
 
 # target_link_libraries( ${NODE_EXECUTABLE_NAME}

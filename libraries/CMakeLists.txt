@@ -252,7 +252,9 @@ add_library( commons STATIC
 
 target_link_libraries( commons
     PRIVATE
-       secp256k1 leveldb  Oracle::BerkeleyDB softfloat
+       secp256k1 leveldb softfloat
+    PUBLIC
+        BerkeleyDB::CXX OpenSSL::Crypto
 )
 
 # set_target_properties(commons PROPERTIES CXX_VISIBILITY_PRESET hidden)
