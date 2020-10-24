@@ -42,9 +42,10 @@ using namespace std;
 using namespace boost;
 namespace file_system = boost::filesystem;
 
-#if defined(NDEBUG)
-#error "Coin cannot be compiled without assertions."
-#endif
+// TODO: define ASSERT
+// #if defined(NDEBUG)
+// #error "Coin cannot be compiled without assertions."
+// #endif
 
 //
 // Global state

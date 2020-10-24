@@ -43,13 +43,14 @@ function usage() {
   -c          Enable Code Coverage
   -d          Generate Doxygen
   -m          Build MongoDB dependencies
+  -g          only generate buiding files by cmake
    \\n" "$0" 1>&2
    exit 1
 }
 
 TIME_BEGIN=$( date -u +%s )
 if [ $# -ne 0 ]; then
-   while getopts "o:s:b:i:ycdhmP" opt; do
+   while getopts "o:s:b:i:ycdhmPg" opt; do
       case "${opt}" in
          o )
             options=( "Debug" "Release" "RelWithDebInfo" "MinSizeRel" )
@@ -89,6 +90,9 @@ if [ $# -ne 0 ]; then
          ;;
          P )
             PIN_COMPILER=true
+         ;;
+         g )
+            ONLY_GEN_CMAKE=true
          ;;
          h )
             usage
@@ -219,6 +223,11 @@ $ENABLE_DOXYGEN && LOCAL_CMAKE_FLAGS="-DBUILD_DOXYGEN='${DOXYGEN}' ${LOCAL_CMAKE
 $ENABLE_COVERAGE_TESTING && LOCAL_CMAKE_FLAGS="-DENABLE_COVERAGE_TESTING='${ENABLE_COVERAGE_TESTING}' ${LOCAL_CMAKE_FLAGS}"
 
 execute bash -c "$CMAKE -DCMAKE_BUILD_TYPE='${CMAKE_BUILD_TYPE}' -DCORE_SYMBOL_NAME='${CORE_SYMBOL_NAME}' -DCMAKE_INSTALL_PREFIX='${NCHAIN_INSTALL_DIR}' ${LOCAL_CMAKE_FLAGS} '${REPO_ROOT}'"
+
+if [[ -n "$ONLY_GEN_CMAKE" ]]; then
+   echo "execute cmake completed"
+   exit 0
+fi
 execute make -j$JOBS
 execute cd $REPO_ROOT 1>/dev/null
 

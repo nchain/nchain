@@ -156,7 +156,7 @@ find_package(Event 2.0.22 REQUIRED COMPONENTS event pthreads)
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -DMAC_OS" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -DMAC_OS -I/usr/local/include" )
 else()
     # Linux Specific Options Here
     message( STATUS "Configuring NCHAIN on Linux" )
@@ -173,10 +173,10 @@ else()
 endif()
 
 # disable inconsistent-missing-override
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override -Wno-overloaded-virtual" )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override -Wno-overloaded-virtual -Wno-unused-variable -Wno-unused-function")
 
 ## TODO: must remove NDEBUG for assert
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG" )
+# set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG" )
 
 # based on http://www.delorie.com/gnu/docs/gdb/gdb_70.html
 # uncomment this line to tell GDB about macros (slows compile times)

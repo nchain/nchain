@@ -490,7 +490,7 @@ namespace dex {
         // get frozen money
         TokenSymbol frozenSymbol;
         uint64_t frozenAmount = 0;
-        ReceiptType code;
+        ReceiptType code = ReceiptType::DEX_UNFREEZE_ASSET_TO_SELLER;
         if (activeOrder.order_side == ORDER_BUY) {
             frozenSymbol = activeOrder.coin_symbol;
             frozenAmount = activeOrder.coin_amount - activeOrder.total_deal_coin_amount;

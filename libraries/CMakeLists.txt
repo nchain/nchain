@@ -254,7 +254,7 @@ target_link_libraries( commons
     PRIVATE
        secp256k1 leveldb softfloat
     PUBLIC
-        BerkeleyDB::CXX OpenSSL::Crypto
+        BerkeleyDB::CXX OpenSSL::Crypto ${Event_LIBRARIES}
 )
 
 # set_target_properties(commons PROPERTIES CXX_VISIBILITY_PRESET hidden)
