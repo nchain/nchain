@@ -42,7 +42,7 @@ function setup() {
         echo "SUDO_LOCATION: ${SUDO_LOCATION}"
         echo "PIN_COMPILER: ${PIN_COMPILER}"
     fi
-    ( [[ -d $BUILD_DIR ]] && [[ -z $BUILD_DIR_CLEANUP_SKIP ]] ) && execute rm -rf $BUILD_DIR/* # cleanup old build directory; support disabling it (Zach requested)
+    ( [[ -d $BUILD_DIR ]] && [[ -n "$BUILD_DIR_CLEANUP" ]] ) && execute rm -rf $BUILD_DIR/* # cleanup old build directory; support disabling it (Zach requested)
     execute-always mkdir -p $TEMP_DIR
     execute mkdir -p $BUILD_DIR
     execute mkdir -p $SRC_DIR
@@ -174,9 +174,9 @@ function ensure-compiler() {
                 [[ $( $(which $CXX) --version | cut -d ' ' -f 4 | cut -d '.' -f 1 | head -n 1 ) -lt 10 ]] && export NO_CPP17=true
             else
                 if [[ $( $(which $CXX) --version | cut -d ' ' -f 3 | head -n 1 | cut -d '.' -f1) =~ ^[0-9]+$ ]]; then # Check if the version message cut returns an integer
-                    [[ $( $(which $CXX) --version | cut -d ' ' -f 3 | head -n 1 | cut -d '.' -f1) < 6 ]] && export NO_CPP17=true
+                    [[ $( $(which $CXX) --version | cut -d ' ' -f 3 | head -n 1 | cut -d '.' -f1) < 7 ]] && export NO_CPP17=true
                 elif [[ $(clang --version | cut -d ' ' -f 4 | head -n 1 | cut -d '.' -f1) =~ ^[0-9]+$ ]]; then # Check if the version message cut returns an integer
-                    [[ $( $(which $CXX) --version | cut -d ' ' -f 4 | cut -d '.' -f 1 | head -n 1 ) < 6 ]] && export NO_CPP17=true
+                    [[ $( $(which $CXX) --version | cut -d ' ' -f 4 | cut -d '.' -f 1 | head -n 1 ) < 7 ]] && export NO_CPP17=true
                 fi
             fi
         else

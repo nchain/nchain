@@ -113,6 +113,7 @@ if [ $# -ne 0 ]; then
 fi
 
 export CURRENT_WORKING_DIR=$(pwd) # relative path support
+export BUILD_DIR=${CURRENT_WORKING_DIR}
 export SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 # Ensure we're in the repo root and not inside of scripts
