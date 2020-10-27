@@ -149,6 +149,17 @@ function prompt-mongo-install() {
     fi
 }
 
+function find-clang-bin() {
+    versions=(8 9 10 7)
+    for v in ${versions[@]}; do
+        cxx_bin=$(which "clang++-$v") || continue
+        cc_bin=$(which "clang-$v") || continue
+        export CXX=${cxx_bin}
+        export CC=${cc_bin}
+        break
+    done
+}
+
 function ensure-compiler() {
     # Support build-essentials on ubuntu
     if [[ $NAME == "CentOS Linux" ]] || [[ $VERSION_ID == "16.04" ]] || ( $PIN_COMPILER && [[ $VERSION_ID == "18.04" ]] ); then
@@ -179,6 +190,7 @@ function ensure-compiler() {
                     [[ $( $(which $CXX) --version | cut -d ' ' -f 4 | cut -d '.' -f 1 | head -n 1 ) < 7 ]] && export NO_CPP17=true
                 fi
             fi
+            [[ $NO_CPP17 == true ]] && find-clang-bin && export NO_CPP17=false
         else
             ## Check for c++ version 7 or higher
             [[ $( $(which $CXX) -dumpversion | cut -d '.' -f 1 ) -lt 7 ]] && export NO_CPP17=true
@@ -311,11 +323,11 @@ function ensure-llvm() {
     fi
 }
 
-
 function build-clang() {
     if $BUILD_CLANG; then
         echo "${COLOR_CYAN}[Ensuring Clang support]${COLOR_NC}"
         if [[ ! -d $CLANG_ROOT ]]; then
+            Z3_FIX="-DCLANG_ANALYZER_ENABLE_Z3_SOLVER=OFF"
             execute bash -c "cd ${TEMP_DIR} \
             && rm -rf clang8 \
             && git clone --single-branch --branch $PINNED_COMPILER_BRANCH https://git.llvm.org/git/llvm.git clang8 \
@@ -327,7 +339,7 @@ function build-clang() {
             && cd polly && git checkout $PINNED_COMPILER_POLLY_COMMIT && cd ../ \
             && git clone --single-branch --branch $PINNED_COMPILER_BRANCH https://git.llvm.org/git/clang.git clang && cd clang \
             && git checkout $PINNED_COMPILER_CLANG_COMMIT \
-            && patch -p2 < \"$REPO_ROOT/scripts/clang-devtoolset8-support.patch\" \
+            && patch -p2 < \"$REPO_ROOT/scripts/patches/clang-devtoolset8-support.patch\" \
             && cd tools && mkdir extra && cd extra \
             && git clone --single-branch --branch $PINNED_COMPILER_BRANCH https://git.llvm.org/git/clang-tools-extra.git \
             && cd clang-tools-extra && git checkout $PINNED_COMPILER_CLANG_TOOLS_EXTRA_COMMIT && cd .. \
@@ -342,7 +354,7 @@ function build-clang() {
             && cd compiler-rt && git checkout $PINNED_COMPILER_COMPILER_RT_COMMIT && cd ../ \
             && cd ${TEMP_DIR}/clang8 \
             && mkdir build && cd build \
-            && ${CMAKE} -G 'Unix Makefiles' -DCMAKE_INSTALL_PREFIX='${CLANG_ROOT}' -DLLVM_BUILD_EXTERNAL_COMPILER_RT=ON -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_INCLUDE_DOCS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=all -DCMAKE_BUILD_TYPE=Release .. \
+            && ${CMAKE} -G 'Unix Makefiles' -DCMAKE_INSTALL_PREFIX='${CLANG_ROOT}' ${Z3_FIX} -DLLVM_BUILD_EXTERNAL_COMPILER_RT=ON -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_ENABLE_LIBCXX=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_INCLUDE_DOCS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=all -DCMAKE_BUILD_TYPE=Release .. \
             && make -j${JOBS} \
             && make install \
             && rm -rf ${TEMP_DIR}/clang8"
