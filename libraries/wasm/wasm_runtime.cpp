@@ -1,5 +1,6 @@
 #pragma GCC diagnostic ignored "-Wunused-variable"
 
+#include "wasm_base.hpp"
 #include "wasm/wasm_runtime.hpp"
 #include "eosio/vm/watchdog.hpp"
 #include "wasm/wasm_log.hpp"
@@ -111,7 +112,7 @@ namespace wasm {
     template<typename Impl>
     class wasm_vm_instantiated_module2 : public wasm_instantiated_module_interface {
         using backend_t = backend2<wasm::wasm_context_interface, Impl>;
-        
+
     public:
 
         wasm_vm_instantiated_module2(wasm_vm_runtime2 <Impl> *runtime, std::shared_ptr <backend_t> mod) :
@@ -227,7 +228,7 @@ namespace wasm {
 
                 parser_t parser = parser_t{ mod_ptr->allocator };
                 wasm_code_ptr wasm_code((uint8_t *) code_bytes, code_size);
-                parser.parse_module2(wasm_code, code_size, *mod_ptr); 
+                parser.parse_module2(wasm_code, code_size, *mod_ptr);
                 mod_ptr->finalize();
                 registered_host_functions<wasm::wasm_context_interface>::resolve(*mod_ptr);
 

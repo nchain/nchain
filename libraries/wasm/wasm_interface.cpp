@@ -1,3 +1,4 @@
+#include "wasm_base.hpp"
 #include <eosio/vm/backend.hpp>
 #include <eosio/vm/error_codes.hpp>
 
@@ -655,7 +656,7 @@ namespace wasm {
 
             std::vector<uint8_t> return_value = pWasmContext->get_return();
             uint32_t size = return_value.size();
- 
+
             if(data_len == 0){
                 return size;
             }
@@ -684,7 +685,7 @@ namespace wasm {
             pWasmContext->append_log(payer, receiver, t, d);
 
         }
-        // fixme:V4 support 
+        // fixme:V4 support
 
         //llvm compiler builtins rt apis( GCC low-level runtime library ), eg. std:string in contract
         void __ashlti3( __int128 &ret, uint64_t low, uint64_t high, uint32_t shift ) {
