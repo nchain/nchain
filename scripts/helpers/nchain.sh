@@ -156,6 +156,7 @@ function find-clang-bin() {
         cc_bin=$(which "clang-$v") || continue
         export CXX=${cxx_bin}
         export CC=${cc_bin}
+        debug "--- found clang bin CXX=${cxx_bin} CC=${cc_bin}"
         break
     done
 }
