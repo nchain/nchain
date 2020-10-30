@@ -78,7 +78,7 @@ CPubKey CKey::GetPubKey() const {
     secp256k1_pubkey pubkey;
     size_t clen = CPubKey::PUBLIC_KEY_SIZE;
     CPubKey result;
-    int32_t ret = secp256k1_ec_pubkey_create(secp256k1_context_sign, &pubkey, begin());
+    int32_t ret = secp256k1_ec_pubkey_create_ex(secp256k1_context_sign, &pubkey, begin());
     assert(ret);
     secp256k1_ec_pubkey_serialize(secp256k1_context_sign, (uint8_t *)result.begin(), &clen, &pubkey,
                                   fCompressed ? SECP256K1_EC_COMPRESSED : SECP256K1_EC_UNCOMPRESSED);
@@ -100,13 +100,13 @@ bool CKey::Sign(const uint256 &hash, vector<uint8_t> &vchSig) const {
     WriteLE32(extra_entropy, test_case);
     secp256k1_ecdsa_signature sig;
     uint32_t counter = 0;
-    int32_t ret = secp256k1_ecdsa_sign(secp256k1_context_sign, &sig, hash.begin(), begin(),
+    int32_t ret = secp256k1_ecdsa_sign_ex(secp256k1_context_sign, &sig, hash.begin(), begin(),
                                     secp256k1_nonce_function_rfc6979, (!grind && test_case) ? extra_entropy : nullptr);
 
     // Grind for low R
     while (ret && !SigHasLowR(&sig) && grind) {
         WriteLE32(extra_entropy, ++counter);
-        ret = secp256k1_ecdsa_sign(secp256k1_context_sign, &sig, hash.begin(), begin(),
+        ret = secp256k1_ecdsa_sign_ex(secp256k1_context_sign, &sig, hash.begin(), begin(),
                                    secp256k1_nonce_function_rfc6979, extra_entropy);
     }
     assert(ret);
@@ -120,11 +120,11 @@ bool CKey::SignCompact(const uint256 &hash, vector<uint8_t> &vchSig) const {
 
     vchSig.resize(CPubKey::COMPACT_SIGNATURE_SIZE);
     int32_t rec = -1;
-    secp256k1_ecdsa_recoverable_signature sig;
-    int32_t ret = secp256k1_ecdsa_sign_recoverable(secp256k1_context_sign, &sig, hash.begin(), begin(),
-                                               secp256k1_nonce_function_rfc6979, nullptr);
-    assert(ret);
-    ret = secp256k1_ecdsa_recoverable_signature_serialize_compact(secp256k1_context_sign, &vchSig[1], &rec, &sig);
+    // secp256k1_ecdsa_recoverable_signature sig;
+    // int32_t ret = secp256k1_ecdsa_sign_recoverable(secp256k1_context_sign, &sig, hash.begin(), begin(),
+    //                                            secp256k1_nonce_function_rfc6979, nullptr);
+    // assert(ret);
+    // ret = secp256k1_ecdsa_recoverable_signature_serialize_compact(secp256k1_context_sign, &vchSig[1], &rec, &sig);
     assert(ret);
     assert(rec != -1);
     vchSig[0] = 27 + rec + (fCompressed ? 4 : 0);
@@ -206,7 +206,7 @@ bool CPubKey::Verify(const uint256 &hash, const vector<uint8_t> &vchSig) const {
     /* libsecp256k1's ECDSA verification requires lower-S signatures, which have
      * not historically been enforced in Bitcoin, so normalize them first. */
     secp256k1_ecdsa_signature_normalize(secp256k1_context_verify, &sig, &sig);
-    return secp256k1_ecdsa_verify(secp256k1_context_verify, &sig, hash.begin(), &pubkey);
+    return secp256k1_ecdsa_verify_ex(secp256k1_context_verify, &sig, hash.begin(), &pubkey);
 }
 
 bool CPubKey::RecoverCompact(const uint256 &hash, const vector<uint8_t> &vchSig) {
@@ -215,13 +215,13 @@ bool CPubKey::RecoverCompact(const uint256 &hash, const vector<uint8_t> &vchSig)
     int32_t recid  = (vchSig[0] - 27) & 3;
     bool fComp = ((vchSig[0] - 27) & 4) != 0;
     secp256k1_pubkey pubkey;
-    secp256k1_ecdsa_recoverable_signature sig;
-    if (!secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1_context_verify, &sig, &vchSig[1], recid)) {
-        return false;
-    }
-    if (!secp256k1_ecdsa_recover(secp256k1_context_verify, &pubkey, &sig, hash.begin())) {
-        return false;
-    }
+    // secp256k1_ecdsa_recoverable_signature sig;
+    // if (!secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1_context_verify, &sig, &vchSig[1], recid)) {
+    //     return false;
+    // }
+    // if (!secp256k1_ecdsa_recover(secp256k1_context_verify, &pubkey, &sig, hash.begin())) {
+    //     return false;
+    // }
     uint8_t pub[PUBLIC_KEY_SIZE];
     size_t publen = PUBLIC_KEY_SIZE;
     secp256k1_ec_pubkey_serialize(secp256k1_context_verify, pub, &publen, &pubkey,
@@ -263,7 +263,7 @@ bool CPubKey::Derive(CPubKey &pubkeyChild, uint8_t ccChild[32], uint32_t nChild,
     if (!secp256k1_ec_pubkey_parse(secp256k1_context_verify, &pubkey, vch, size())) {
         return false;
     }
-    if (!secp256k1_ec_pubkey_tweak_add(secp256k1_context_verify, &pubkey, out)) {
+    if (!secp256k1_ec_pubkey_tweak_add_ex(secp256k1_context_verify, &pubkey, out)) {
         return false;
     }
     uint8_t pub[COMPRESSED_PUBLIC_KEY_SIZE];

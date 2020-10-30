@@ -1,8 +1,10 @@
-add_subdirectory( crypto )
+# add_subdirectory( crypto )
 add_subdirectory( persistence )
 add_subdirectory( softfloat )
 
 target_compile_options(softfloat PRIVATE -Wno-unused-label )
+
+add_subdirectory( fc )
 
 ## appbase
 
