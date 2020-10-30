@@ -10,6 +10,10 @@ add_subdirectory( fc )
 
 add_subdirectory( appbase )
 
+
+## chainbase
+add_subdirectory( chainbase )
+
 ## commons
 
 file( GLOB_RECURSE COMMONS_HEADERS "commons/*.h" "commons/*.hpp"
