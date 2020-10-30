@@ -157,17 +157,17 @@ void application::startup() {
 
 void application::start_sighup_handler( std::shared_ptr<boost::asio::signal_set> sighup_set ) {
 #ifdef SIGHUP
-   // sighup_set->async_wait([sighup_set, this](const boost::system::error_code& err, int /*num*/) {
-   //    if( err ) return;
-   //    app().post(priority::medium, [sighup_set, this]() {
-   //       sighup_callback();
-   //       for( auto plugin : initialized_plugins ) {
-   //          if( is_quiting() ) return;
-   //          plugin->handle_sighup();
-   //       }
-   //    });
-   //    start_sighup_handler( sighup_set );
-   // });
+   sighup_set->async_wait([sighup_set, this](const boost::system::error_code& err, int /*num*/) {
+      if( err ) return;
+      app().post(priority::medium, [sighup_set, this]() {
+         sighup_callback();
+         for( auto plugin : initialized_plugins ) {
+            if( is_quiting() ) return;
+            plugin->handle_sighup();
+         }
+      });
+      start_sighup_handler( sighup_set );
+   });
 #endif
 }
 
@@ -408,18 +408,16 @@ void application::set_thread_priority_max() {
 }
 
 void application::exec() {
-   {
-      boost::asio::io_service::work work(*io_serv);
-      (void)work;
-      bool more = true;
-      while( more || io_serv->run_one() ) {
-         while( io_serv->poll_one() ) {}
-         // execute the highest priority item
-         //more = pri_queue.execute_highest();
-      }
-
-      shutdown(); /// perform synchronous shutdown
+   boost::asio::io_service::work work(*io_serv);
+   (void)work;
+   bool more = true;
+   while( more || io_serv->run_one() ) {
+      while( io_serv->poll_one() ) {}
+      // execute the highest priority item
+      more = pri_queue.execute_highest();
    }
+
+   shutdown(); /// perform synchronous shutdown
    io_serv.reset();
 }
 
@@ -467,7 +465,7 @@ void application::print_default_config(std::ostream& os) {
          else {
             // The string is formatted "arg (=<interesting part>)"
             example.erase(0, 6);
-            if(!example.empty()) example.erase(example.length()-1);
+            example.erase(example.length()-1);
             os << "# " << od->long_name() << " = " << example << std::endl;
          }
       }

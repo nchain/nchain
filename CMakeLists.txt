@@ -145,7 +145,7 @@ endif()
 set( Boost_USE_STATIC_LIBS ON CACHE STRING "ON or OFF" )
 # Most boost deps get implictly picked up via fc, as just about everything links to fc. In addition we pick up
 # the pthread dependency through fc.
-find_package(Boost 1.65 REQUIRED COMPONENTS thread system program_options filesystem unit_test_framework)
+find_package(Boost 1.67 REQUIRED COMPONENTS thread system program_options filesystem unit_test_framework)
 
 find_package(BerkeleyDB REQUIRED)
 
