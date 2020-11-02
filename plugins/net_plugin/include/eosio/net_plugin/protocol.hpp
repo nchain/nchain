@@ -1,11 +1,12 @@
 #pragma once
-#include <eosio/chain/block.hpp>
-#include <eosio/chain/types.hpp>
+#include "eosio/chain/block.hpp"
+#include "eosio/chain/types.hpp"
 #include <chrono>
 
 namespace eosio {
-   using namespace chain;
-   using namespace fc;
+   using namespace eosio;
+   using namespace eosio::chain;
+   // using namespace fc;
 
    static_assert(sizeof(std::chrono::system_clock::duration::rep) >= 8, "system_clock is expected to be at least 64 bits");
    typedef std::chrono::system_clock::duration::rep tstamp;
