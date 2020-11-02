@@ -35,7 +35,7 @@ namespace chain {
       void reflector_init()const;
 
       private:
-         chain_id_type() = default;
+         // chain_id_type() = default;
 
          // Some exceptions are unfortunately necessary:
          template<typename T>
