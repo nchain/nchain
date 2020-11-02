@@ -1,10 +1,10 @@
 #pragma once
+#include "eosio/chain/name.hpp"
 #include "eosio/chain/block.hpp"
 #include "eosio/chain/types.hpp"
 #include <chrono>
 
 namespace eosio {
-   using namespace eosio;
    using namespace eosio::chain;
    // using namespace fc;
 

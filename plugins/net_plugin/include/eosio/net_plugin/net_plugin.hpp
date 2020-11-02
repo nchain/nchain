@@ -4,16 +4,10 @@
 #include <eosio/chain/name.hpp>
 #include <eosio/chain/exceptions.hpp>
 #include <eosio/net_plugin/protocol.hpp>
+#include <eosio/net_plugin/connection_base.hpp>
 
 namespace eosio {
    using namespace appbase;
-
-   struct connection_status {
-      string            peer;
-      bool              connecting = false;
-      bool              syncing    = false;
-      handshake_message last_handshake;
-   };
 
    class net_plugin : public appbase::plugin<net_plugin>
    {
