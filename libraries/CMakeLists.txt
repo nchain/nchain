@@ -4,6 +4,7 @@ add_subdirectory( softfloat )
 
 target_compile_options(softfloat PRIVATE -Wno-unused-label )
 
+set(SKIP_FC_TESTS OFF)
 add_subdirectory( fc )
 
 ## appbase
