@@ -4,15 +4,14 @@ content_title: prepare before build
 
 ## Ubuntu linux:
 ```sh
-apt-get update -y
-apt-get upgrade -y
-apt-get install cmake -y
-apt-get install clang -y
-apt-get install git -y
-apt-get install clang -y
-apt-get install libdb-dev -y
-apt-get install libdb++-dev -y
-apt-get install libevent-dev -y
+apt-get -y update
+apt-get -y upgrade
+apt-get -y install cmake
+apt-get -y install clang
+apt-get -y install git
+apt-get -y install libdb-dev
+apt-get -y install libdb++-dev
+apt-get -y install libevent-dev
 
 export GIT_SSL_NO_VERIFY=1
 ```

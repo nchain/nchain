@@ -6,7 +6,7 @@ To download the nchain source code, clone the `nchain` repo and its submodules. 
 
 ```sh
 mkdir -p ~/nchain && cd ~/nchain
-git clone --recursive https://github.com/nchain/nchain.git
+git clone --recurse-submodules https://github.com/nchain/nchain.git
 ```
 
 ## Update Submodules
