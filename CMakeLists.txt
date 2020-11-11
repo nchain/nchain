@@ -173,7 +173,13 @@ else()
 endif()
 
 # disable inconsistent-missing-override
+if(APPLE)
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override -Wno-overloaded-virtual -Wno-unused-variable -Wno-unused-function -Wno-range-loop-analysis -Wno-tautological-bitwise-compare")
+endif()
+
+if(UNIX)
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-inconsistent-missing-override -Wno-overloaded-virtual -Wno-unused-variable -Wno-unused-function -Wno-range-loop-analysis")
+endif()
 
 ## TODO: must remove NDEBUG for assert
 # set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNDEBUG" )
