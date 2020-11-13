@@ -23,3 +23,6 @@
 [submodule "libraries/p2p/externals/gsl"]
 	path = libraries/p2p/externals/gsl
 	url = https://github.com/hunter-packages/Microsoft.GSL
+[submodule "libraries/wabt"]
+	path = libraries/wabt
+	url = https://github.com/EOSIO/wabt
