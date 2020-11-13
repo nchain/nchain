@@ -184,8 +184,16 @@ add_library(p2p
 )
 
 target_link_libraries(p2p INTERFACE
+    Boost::Boost.DI
+    p2p_basic_host
     p2p_default_host
     p2p_default_network
+    p2p_peer_repository
+    p2p_inmem_address_repository
+    p2p_inmem_key_repository
+    p2p_inmem_protocol_repository
+    p2p_protocol_echo
+    p2p_literals
     GSL
 )
 
