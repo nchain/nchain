@@ -8,3 +8,18 @@
 [submodule "libraries/fc"]
 	path = libraries/fc
 	url = https://github.com/chenxinhua2018/fc
+[submodule "libraries/p2p/libp2p"]
+	path = libraries/p2p/libp2p
+	url = https://github.com/libp2p/cpp-libp2p.git
+[submodule "libraries/p2p/externals/spdlog"]
+	path = libraries/p2p/externals/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "libraries/p2p/externals/tsl_hat_trie"]
+	path = libraries/p2p/externals/tsl_hat_trie
+	url = https://github.com/Tessil/hat-trie
+[submodule "libraries/p2p/externals/boost-di"]
+	path = libraries/p2p/externals/boost-di
+	url = https://github.com/boost-ext/di
+[submodule "libraries/p2p/externals/gsl"]
+	path = libraries/p2p/externals/gsl
+	url = https://github.com/hunter-packages/Microsoft.GSL

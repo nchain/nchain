@@ -15,6 +15,9 @@ add_subdirectory( appbase )
 ## chainbase
 add_subdirectory( chainbase )
 
+## p2p
+add_subdirectory( p2p )
+
 ## commons
 
 file( GLOB_RECURSE COMMONS_HEADERS "commons/*.h" "commons/*.hpp"
