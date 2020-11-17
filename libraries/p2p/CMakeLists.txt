@@ -38,10 +38,10 @@ set(${LIBP2P_ROOT}/cmake_EXPORT_COMPILE_COMMANDS ON)
 find_package(Boost 1.71 REQUIRED random filesystem program_options)
 
 # https://www.openssl.org/
-if(APPLE AND UNIX AND "${OPENSSL_ROOT_DIR}" STREQUAL "")
-   set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl@1.1")
-endif()
-find_package(OpenSSL REQUIRED)
+# if(APPLE AND UNIX AND "${OPENSSL_ROOT_DIR}" STREQUAL "")
+#    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl@1.1")
+# endif()
+# find_package(OpenSSL REQUIRED)
 
 # https://developers.google.com/protocol-buffers
 find_package(Protobuf 3.12.0 REQUIRED)
@@ -163,6 +163,7 @@ include_directories(
     ${LIBP2P_ROOT}/include
     ${Boost_INCLUDE_DIRS}
     ${spdlog_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIR}
 )
 
 add_subdirectory(${LIBP2P_SRC_ROOT}/basic)

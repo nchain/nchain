@@ -1,10 +1,18 @@
 # add_subdirectory( crypto )
-add_subdirectory( persistence )
+add_subdirectory( builtins )
 add_subdirectory( softfloat )
+add_subdirectory( persistence )
+add_subdirectory( wasm-jit)
+add_subdirectory( wabt )
+#TODO:
+add_subdirectory( chain )
+add_subdirectory( version )
+
 
 target_compile_options(softfloat PRIVATE -Wno-unused-label )
 
 set(SKIP_FC_TESTS OFF)
+
 add_subdirectory( fc )
 
 ## appbase
@@ -86,7 +94,8 @@ set(ENTITIES_SOURCES
     entities/contract.cpp
     entities/dexorder.cpp
     entities/id.cpp
-    entities/key.cpp
+    #TODO:
+    #entities/key.cpp
     entities/keystore.cpp
     entities/proposal.cpp
 )
@@ -94,7 +103,7 @@ set(ENTITIES_SOURCES
 set(ENTITIES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/entities)
 
 ## chain
-file( GLOB CHAIN_HEADERS "chain/*.h" "chain/*.hpp" )
+file( GLOB CHAIN_HEADERS "chain/include/eosio/chain/*.hpp" "chain/*.h" "chain/*.hpp")
 
 set(CHAIN_SOURCES
     chain/blockdelegates.cpp
