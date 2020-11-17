@@ -347,8 +347,8 @@ namespace eosio {
    };
 
    const fc::string logger_name("net_plugin_impl");
-   fc::logger logger;
-   std::string peer_log_format;
+   extern fc::logger logger;
+   extern std::string peer_log_format;
 
 #define peer_dlog( PEER, FORMAT, ... ) \
   FC_MULTILINE_MACRO_BEGIN \

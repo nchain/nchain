@@ -1,11 +1,10 @@
 #include "appbase/application.hpp"
 #include <eosio/chain/exceptions.hpp>
+
 //TODO:
-//#include <eosio/chain_plugin/chain_plugin.hpp>
+// #include <eosio/chain_plugin/chain_plugin.hpp>
 //#include <eosio/http_plugin/http_plugin.hpp>
-
-
-//#include <eosio/net_plugin/net_plugin.hpp>
+#include <eosio/net_plugin/net_plugin.hpp>
 //#include <eosio/producer_plugin/producer_plugin.hpp>
 #include <eosio/version/version.hpp>
 
@@ -107,7 +106,7 @@ int main(int argc, char** argv)
 
       // TODO: ...
       // if(!app().initialize<chain_plugin, net_plugin, producer_plugin>(argc, argv)) {
-      if(!app().initialize<>(argc, argv)) {
+      if(!app().initialize<net_plugin>(argc, argv)) {
          const auto& opts = app().get_options();
          if( opts.count("help") || opts.count("version") || opts.count("full-version") || opts.count("print-default-config") ) {
             return SUCCESS;

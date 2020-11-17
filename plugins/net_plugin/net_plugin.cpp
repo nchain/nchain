@@ -35,6 +35,8 @@ using namespace eosio::chain::plugin_interface;
 namespace eosio {
    static appbase::abstract_plugin& _net_plugin = app().register_plugin<net_plugin>();
    net_plugin_impl *my_impl;
+   fc::logger logger = {};
+   std::string peer_log_format = "";
 
    template<typename Function>
    void for_each_connection( Function f ) {
