@@ -81,7 +81,8 @@ add_library( eosio_chain
              trace.cpp
              transaction_context.cpp
              transaction.cpp
-             wasm_interface.cpp
+             #TODO:
+             #wasm_interface.cpp
              platform_timer_accuracy
              ${HEADERS}
              )

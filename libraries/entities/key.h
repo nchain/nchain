@@ -12,7 +12,7 @@
 #include "commons/util/util.h"
 #include "crypto/hash.h"
 
-#include <secp256k1.h>
+//#include <secp256k1.h>
 #include <boost/variant.hpp>
 
 #include <stdexcept>

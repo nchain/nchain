@@ -218,8 +218,9 @@ endif()
 message( STATUS "Using '${NCHAIN_ROOT_KEY}' as public key for 'nchain' account" )
 
 add_subdirectory( libraries )
-add_subdirectory( programs  )
 add_subdirectory( plugins   )
+add_subdirectory( programs  )
+
 
 # add_subdirectory( scripts )
 # add_subdirectory( unittests )

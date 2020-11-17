@@ -6,10 +6,9 @@
 #include <eosio/chain/transaction_object.hpp>
 #include <eosio/chain/thread_utils.hpp>
 #include <eosio/chain/unapplied_transaction_queue.hpp>
-
-#include <fc/io/json.hpp>
+#include <fc/io/json.hpp>4
 #include <fc/log/logger_config.hpp>
-#include <fc/smart_ref_impl.hpp>
+//#include <fc/smart_ref_impl.hpp>
 #include <fc/scoped_exit.hpp>
 
 #include <boost/asio.hpp>
