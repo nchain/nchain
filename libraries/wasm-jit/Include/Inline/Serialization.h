@@ -2,7 +2,7 @@
 
 #include "Platform/Platform.h"
 
-#include "../../../chain/include/eosio/chain/wasm_eosio_constraints.hpp"
+#include "eosio/chain/wasm_eosio_constraints.hpp"
 #include <string>
 #include <vector>
 #include <string.h>
@@ -27,7 +27,7 @@ namespace Serialization
 		OutputStream(): next(nullptr), end(nullptr) {}
 
 		Uptr capacity() const { return SIZE_MAX; }
-		
+
 		// Advances the stream cursor by numBytes, and returns a pointer to the previous stream cursor.
 		inline U8* advance(Uptr numBytes)
 		{
@@ -61,7 +61,7 @@ namespace Serialization
 			end = nullptr;
 			return std::move(bytes);
 		}
-		
+
 	private:
 
 		std::vector<U8> bytes;
@@ -88,7 +88,7 @@ namespace Serialization
 		InputStream(const U8* inNext,const U8* inEnd): next(inNext), end(inEnd) {}
 
 		virtual Uptr capacity() const = 0;
-		
+
 		// Advances the stream cursor by numBytes, and returns a pointer to the previous stream cursor.
 		inline const U8* advance(Uptr numBytes)
 		{
@@ -109,7 +109,7 @@ namespace Serialization
 
 		const U8* next;
 		const U8* end;
-		
+
 		// Called when there isn't enough space in the buffer to satisfy a read from the stream.
 		// Should update next and end to point to a new buffer, and ensure that the new
 		// buffer has at least numBytes. May throw FatalSerializationException.
@@ -129,13 +129,13 @@ namespace Serialization
 	FORCEINLINE void serializeBytes(OutputStream& stream,const U8* bytes,Uptr numBytes)
 	{ memcpy(stream.advance(numBytes),bytes,numBytes); }
 	FORCEINLINE void serializeBytes(InputStream& stream,U8* bytes,Uptr numBytes)
-	{ 
+	{
       if ( numBytes < eosio::chain::wasm_constraints::wasm_page_size )
-         memcpy(bytes,stream.advance(numBytes),numBytes); 
+         memcpy(bytes,stream.advance(numBytes),numBytes);
       else
          throw FatalSerializationException(std::string("Trying to deserialize bytes of size : " + std::to_string((uint64_t)numBytes)));
    }
-	
+
 	// Serialize basic C++ types.
 	template<typename Stream,typename Value>
 	FORCEINLINE void serializeNativeValue(Stream& stream,Value& value) { serializeBytes(stream,(U8*)&value,sizeof(Value)); }
@@ -172,7 +172,7 @@ namespace Serialization
 			*stream.advance(1) = outputByte;
 		};
 	}
-	
+
 	template<typename Value,Uptr maxBits>
 	FORCEINLINE void serializeVarInt(InputStream& stream,Value& value,Value minValue,Value maxValue)
 	{
@@ -219,7 +219,7 @@ namespace Serialization
 		value = 0;
 		for(Uptr byteIndex = 0;byteIndex < maxBytes;++byteIndex)
 		{ value |= Value(bytes[byteIndex] & ~0x80) << (byteIndex * 7); }
-		
+
 		// Sign extend the output integer to the full size of Value.
 		if(std::is_signed<Value>::value && signExtendShift > 0)
 		{ value = Value(value << signExtendShift) >> signExtendShift; }

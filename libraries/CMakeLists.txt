@@ -104,7 +104,7 @@ set(ENTITIES_SOURCES
 set(ENTITIES_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/entities)
 
 ## chain
-file( GLOB CHAIN_HEADERS "chain/include/eosio/chain/*.hpp" "chain/*.h" "chain/*.hpp")
+file( GLOB CHAIN_HEADERS "chain/*.h" "chain/*.hpp")
 
 set(CHAIN_SOURCES
     chain/blockdelegates.cpp
