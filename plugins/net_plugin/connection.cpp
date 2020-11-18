@@ -250,37 +250,36 @@ void connection::blk_send_branch( const block_id_type& msg_head_id ) {
     const auto lib_num = block_header::num_from_id(lib_id);
     if( lib_num == 0 ) return; // if last_irreversible_block_id is null (we have not received handshake or reset)
 
-    // TODO: chain_plug
-    // app().post( priority::medium, [chain_plug = my_impl->chain_plug, c = shared_from_this(),
-    //       lib_num, head_num, msg_head_id]() {
-    //    auto msg_head_num = block_header::num_from_id(msg_head_id);
-    //    bool on_fork = msg_head_num == 0;
-    //    bool unknown_block = false;
-    //    if( !on_fork ) {
-    //       try {
-    //          const controller& cc = chain_plug->chain();
-    //          block_id_type my_id = cc.get_block_id_for_num( msg_head_num );
-    //          on_fork = my_id != msg_head_id;
-    //       } catch( const unknown_block_exception& ) {
-    //          unknown_block = true;
-    //       } catch( ... ) {
-    //          on_fork = true;
-    //       }
-    //    }
-    //    if( unknown_block ) {
-    //       c->strand.post( [msg_head_num, c]() {
-    //          peer_ilog( c, "Peer asked for unknown block ${mn}, sending: benign_other go away", ("mn", msg_head_num) );
-    //          c->no_retry = benign_other;
-    //          c->enqueue( go_away_message( benign_other ) );
-    //       } );
-    //    } else {
-    //       if( on_fork ) msg_head_num = 0;
-    //       // if peer on fork, start at their last lib, otherwise we can start at msg_head+1
-    //       c->strand.post( [c, msg_head_num, lib_num, head_num]() {
-    //          c->blk_send_branch_impl( msg_head_num, lib_num, head_num );
-    //       } );
-    //    }
-    // } );
+    app().post( priority::medium, [chain_plug = my_impl->chain_plug, c = shared_from_this(),
+          lib_num, head_num, msg_head_id]() {
+       auto msg_head_num = block_header::num_from_id(msg_head_id);
+       bool on_fork = msg_head_num == 0;
+       bool unknown_block = false;
+       if( !on_fork ) {
+          try {
+             const controller& cc = chain_plug->chain();
+             block_id_type my_id = cc.get_block_id_for_num( msg_head_num );
+             on_fork = my_id != msg_head_id;
+          } catch( const unknown_block_exception& ) {
+             unknown_block = true;
+          } catch( ... ) {
+             on_fork = true;
+          }
+       }
+       if( unknown_block ) {
+          c->strand.post( [msg_head_num, c]() {
+             peer_ilog( c, "Peer asked for unknown block ${mn}, sending: benign_other go away", ("mn", msg_head_num) );
+             c->no_retry = benign_other;
+             c->enqueue( go_away_message( benign_other ) );
+          } );
+       } else {
+          if( on_fork ) msg_head_num = 0;
+          // if peer on fork, start at their last lib, otherwise we can start at msg_head+1
+          c->strand.post( [c, msg_head_num, lib_num, head_num]() {
+             c->blk_send_branch_impl( msg_head_num, lib_num, head_num );
+          } );
+       }
+    } );
 }
 
 void connection::blk_send_branch_impl( uint32_t msg_head_num, uint32_t lib_num, uint32_t head_num ) {
@@ -303,31 +302,31 @@ void connection::blk_send_branch_impl( uint32_t msg_head_num, uint32_t lib_num, 
 
 void connection::blk_send( const block_id_type& blkid ) {
     connection_wptr weak = shared_from_this();
-    // TODO: chain_plug
-    // app().post( priority::medium, [blkid, weak{std::move(weak)}]() {
-    //    connection_ptr c = weak.lock();
-    //    if( !c ) return;
-    //    try {
-    //       controller& cc = my_impl->chain_plug->chain();
-    //       signed_block_ptr b = cc.fetch_block_by_id( blkid );
-    //       if( b ) {
-    //          fc_dlog( logger, "found block for id at num ${n}", ("n", b->block_num()) );
-    //          my_impl->dispatcher->add_peer_block( blkid, c->connection_id );
-    //          c->strand.post( [c, b{std::move(b)}]() {
-    //             c->enqueue_block( b );
-    //          } );
-    //       } else {
-    //          fc_ilog( logger, "fetch block by id returned null, id ${id} for ${p}",
-    //                   ("id", blkid)( "p", c->peer_address() ) );
-    //       }
-    //    } catch( const assert_exception& ex ) {
-    //       fc_elog( logger, "caught assert on fetch_block_by_id, ${ex}, id ${id} for ${p}",
-    //                ("ex", ex.to_string())( "id", blkid )( "p", c->peer_address() ) );
-    //    } catch( ... ) {
-    //       fc_elog( logger, "caught other exception fetching block id ${id} for ${p}",
-    //                ("id", blkid)( "p", c->peer_address() ) );
-    //    }
-    // });
+
+    app().post( priority::medium, [blkid, weak{std::move(weak)}]() {
+       connection_ptr c = weak.lock();
+       if( !c ) return;
+       try {
+          controller& cc = my_impl->chain_plug->chain();
+          signed_block_ptr b = cc.fetch_block_by_id( blkid );
+          if( b ) {
+             fc_dlog( logger, "found block for id at num ${n}", ("n", b->block_num()) );
+             my_impl->dispatcher->add_peer_block( blkid, c->connection_id );
+             c->strand.post( [c, b{std::move(b)}]() {
+                c->enqueue_block( b );
+             } );
+          } else {
+             fc_ilog( logger, "fetch block by id returned null, id ${id} for ${p}",
+                      ("id", blkid)( "p", c->peer_address() ) );
+          }
+       } catch( const assert_exception& ex ) {
+          fc_elog( logger, "caught assert on fetch_block_by_id, ${ex}, id ${id} for ${p}",
+                   ("ex", ex.to_string())( "id", blkid )( "p", c->peer_address() ) );
+       } catch( ... ) {
+          fc_elog( logger, "caught other exception fetching block id ${id} for ${p}",
+                   ("id", blkid)( "p", c->peer_address() ) );
+       }
+    });
 }
 
 void connection::stop_send() {
@@ -456,27 +455,27 @@ bool connection::enqueue_sync_block() {
         peer_requested.reset();
         fc_ilog( logger, "completing enqueue_sync_block ${num} to ${p}", ("num", num)("p", peer_name()) );
     }
-    // TODO: chain_plug
-    // connection_wptr weak = shared_from_this();
-    // app().post( priority::medium, [num, weak{std::move(weak)}]() {
-    //    connection_ptr c = weak.lock();
-    //    if( !c ) return;
-    //    controller& cc = my_impl->chain_plug->chain();
-    //    signed_block_ptr sb;
-    //    try {
-    //       sb = cc.fetch_block_by_number( num );
-    //    } FC_LOG_AND_DROP();
-    //    if( sb ) {
-    //       c->strand.post( [c, sb{std::move(sb)}]() {
-    //          c->enqueue_block( sb, true );
-    //       });
-    //    } else {
-    //       c->strand.post( [c, num]() {
-    //          peer_ilog( c, "enqueue sync, unable to fetch block ${num}", ("num", num) );
-    //          c->send_handshake();
-    //       });
-    //    }
-    // });
+
+    connection_wptr weak = shared_from_this();
+    app().post( priority::medium, [num, weak{std::move(weak)}]() {
+       connection_ptr c = weak.lock();
+       if( !c ) return;
+       controller& cc = my_impl->chain_plug->chain();
+       signed_block_ptr sb;
+       try {
+          sb = cc.fetch_block_by_number( num );
+       } FC_LOG_AND_DROP();
+       if( sb ) {
+          c->strand.post( [c, sb{std::move(sb)}]() {
+             c->enqueue_block( sb, true );
+          });
+       } else {
+          c->strand.post( [c, num]() {
+             peer_ilog( c, "enqueue sync, unable to fetch block ${num}", ("num", num) );
+             c->send_handshake();
+          });
+       }
+    });
 
     return true;
 }
@@ -1036,37 +1035,36 @@ void connection::handle_message( const handshake_message& msg ) {
 
         uint32_t peer_lib = msg.last_irreversible_block_num;
 
-        // TODO: chain_plug
-        // connection_wptr weak = shared_from_this();
-        // app().post( priority::medium, [peer_lib, chain_plug = my_impl->chain_plug, weak{std::move(weak)},
-        //                             msg_lib_id = msg.last_irreversible_block_id]() {
-        //    connection_ptr c = weak.lock();
-        //    if( !c ) return;
-        //    controller& cc = chain_plug->chain();
-        //    uint32_t lib_num = cc.last_irreversible_block_num();
+        connection_wptr weak = shared_from_this();
+        app().post( priority::medium, [peer_lib, chain_plug = my_impl->chain_plug, weak{std::move(weak)},
+                                    msg_lib_id = msg.last_irreversible_block_id]() {
+           connection_ptr c = weak.lock();
+           if( !c ) return;
+           controller& cc = chain_plug->chain();
+           uint32_t lib_num = cc.last_irreversible_block_num();
 
-        //    fc_dlog( logger, "handshake, check for fork lib_num = ${ln} peer_lib = ${pl}", ("ln", lib_num)( "pl", peer_lib ) );
+           fc_dlog( logger, "handshake, check for fork lib_num = ${ln} peer_lib = ${pl}", ("ln", lib_num)( "pl", peer_lib ) );
 
-        //    if( peer_lib <= lib_num && peer_lib > 0 ) {
-        //       bool on_fork = false;
-        //       try {
-        //          block_id_type peer_lib_id = cc.get_block_id_for_num( peer_lib );
-        //          on_fork = (msg_lib_id != peer_lib_id);
-        //       } catch( const unknown_block_exception& ) {
-        //          // allow this for now, will be checked on sync
-        //          peer_dlog( c, "peer last irreversible block ${pl} is unknown", ("pl", peer_lib) );
-        //       } catch( ... ) {
-        //          peer_wlog( c, "caught an exception getting block id for ${pl}", ("pl", peer_lib) );
-        //          on_fork = true;
-        //       }
-        //       if( on_fork ) {
-        //          c->strand.post( [c]() {
-        //             peer_elog( c, "Peer chain is forked, sending: forked go away" );
-        //             c->enqueue( go_away_message( forked ) );
-        //          } );
-        //       }
-        //    }
-        // });
+           if( peer_lib <= lib_num && peer_lib > 0 ) {
+              bool on_fork = false;
+              try {
+                 block_id_type peer_lib_id = cc.get_block_id_for_num( peer_lib );
+                 on_fork = (msg_lib_id != peer_lib_id);
+              } catch( const unknown_block_exception& ) {
+                 // allow this for now, will be checked on sync
+                 peer_dlog( c, "peer last irreversible block ${pl} is unknown", ("pl", peer_lib) );
+              } catch( ... ) {
+                 peer_wlog( c, "caught an exception getting block id for ${pl}", ("pl", peer_lib) );
+                 on_fork = true;
+              }
+              if( on_fork ) {
+                 c->strand.post( [c]() {
+                    peer_elog( c, "Peer chain is forked, sending: forked go away" );
+                    c->enqueue( go_away_message( forked ) );
+                 } );
+              }
+           }
+        });
 
         if( sent_handshake_count == 0 ) {
         send_handshake();
@@ -1264,8 +1262,7 @@ void connection::handle_message( packed_transaction_ptr trx ) {
     if( trx_in_progress_sz > def_max_trx_in_progress_size ) {
         char reason[72];
         snprintf(reason, 72, "Dropping trx, too many trx in progress %lu bytes", (unsigned long) trx_in_progress_sz);
-        // TODO:
-        // my_impl->producer_plug->log_failed_transaction(tid, reason);
+        my_impl->producer_plug->log_failed_transaction(tid, reason);
         return;
     }
 
@@ -1280,27 +1277,26 @@ void connection::handle_message( packed_transaction_ptr trx ) {
 
     trx_in_progress_size += calc_trx_size( trx );
 
-    // TODO: chain_plug
-    // app().post( priority::low, [trx{std::move(trx)}, weak = weak_from_this()]() {
-    //    my_impl->chain_plug->accept_transaction( trx,
-    //       [weak, trx](const static_variant<fc::exception_ptr, transaction_trace_ptr>& result) mutable {
-    //    // next (this lambda) called from application thread
-    //    if (result.contains<fc::exception_ptr>()) {
-    //       fc_dlog( logger, "bad packed_transaction : ${m}", ("m", result.get<fc::exception_ptr>()->what()) );
-    //    } else {
-    //       const transaction_trace_ptr& trace = result.get<transaction_trace_ptr>();
-    //       if( !trace->except ) {
-    //          fc_dlog( logger, "chain accepted transaction, bcast ${id}", ("id", trace->id) );
-    //       } else {
-    //          fc_elog( logger, "bad packed_transaction : ${m}", ("m", trace->except->what()));
-    //       }
-    //    }
-    //    connection_ptr conn = weak.lock();
-    //    if( conn ) {
-    //       conn->trx_in_progress_size -= calc_trx_size( trx );
-    //    }
-    //   });
-    // });
+    app().post( priority::low, [trx{std::move(trx)}, weak = weak_from_this()]() {
+       my_impl->chain_plug->accept_transaction( trx,
+          [weak, trx](const static_variant<fc::exception_ptr, transaction_trace_ptr>& result) mutable {
+       // next (this lambda) called from application thread
+       if (result.contains<fc::exception_ptr>()) {
+          fc_dlog( logger, "bad packed_transaction : ${m}", ("m", result.get<fc::exception_ptr>()->what()) );
+       } else {
+          const transaction_trace_ptr& trace = result.get<transaction_trace_ptr>();
+          if( !trace->except ) {
+             fc_dlog( logger, "chain accepted transaction, bcast ${id}", ("id", trace->id) );
+          } else {
+             fc_elog( logger, "bad packed_transaction : ${m}", ("m", trace->except->what()));
+          }
+       }
+       connection_ptr conn = weak.lock();
+       if( conn ) {
+          conn->trx_in_progress_size -= calc_trx_size( trx );
+       }
+      });
+    });
 }
 
 // called from connection strand
@@ -1315,70 +1311,69 @@ void connection::handle_message( const block_id_type& id, signed_block_ptr ptr )
 // called from application thread
 void connection::process_signed_block( const block_id_type& blk_id, signed_block_ptr msg ) {
 
-    // TODO: chain_plug
-    // controller& cc = my_impl->chain_plug->chain();
-    // uint32_t blk_num = msg->block_num();
-    // // use c in this method instead of this to highlight that all methods called on c-> must be thread safe
-    // connection_ptr c = shared_from_this();
+    controller& cc = my_impl->chain_plug->chain();
+    uint32_t blk_num = msg->block_num();
+    // use c in this method instead of this to highlight that all methods called on c-> must be thread safe
+    connection_ptr c = shared_from_this();
 
-    // // if we have closed connection then stop processing
-    // if( !c->socket_is_open() )
-    //    return;
+    // if we have closed connection then stop processing
+    if( !c->socket_is_open() )
+       return;
 
-    // try {
-    //    if( cc.fetch_block_by_id(blk_id) ) {
-    //       c->strand.post( [sync_master = my_impl->sync_master.get(),
-    //                        dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
-    //          dispatcher->add_peer_block( blk_id, c->connection_id );
-    //          sync_master->sync_recv_block( c, blk_id, blk_num, false );
-    //       });
-    //       return;
-    //    }
-    // } catch( ...) {
-    //    // should this even be caught?
-    //    fc_elog( logger,"Caught an unknown exception trying to recall blockID" );
-    // }
+    try {
+       if( cc.fetch_block_by_id(blk_id) ) {
+          c->strand.post( [sync_master = my_impl->sync_master.get(),
+                           dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
+             dispatcher->add_peer_block( blk_id, c->connection_id );
+             sync_master->sync_recv_block( c, blk_id, blk_num, false );
+          });
+          return;
+       }
+    } catch( ...) {
+       // should this even be caught?
+       fc_elog( logger,"Caught an unknown exception trying to recall blockID" );
+    }
 
-    // fc::microseconds age( fc::time_point::now() - msg->timestamp);
-    // peer_dlog( c, "received signed_block : #${n} block age in secs = ${age}",
-    //            ("n", blk_num)( "age", age.to_seconds() ) );
+    fc::microseconds age( fc::time_point::now() - msg->timestamp);
+    peer_dlog( c, "received signed_block : #${n} block age in secs = ${age}",
+               ("n", blk_num)( "age", age.to_seconds() ) );
 
-    // go_away_reason reason = fatal_other;
-    // try {
-    //    bool accepted = my_impl->chain_plug->accept_block(msg, blk_id);
-    //    my_impl->update_chain_info();
-    //    if( !accepted ) return;
-    //    reason = no_reason;
-    // } catch( const unlinkable_block_exception &ex) {
-    //    peer_elog(c, "unlinkable_block_exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
-    //    reason = unlinkable;
-    // } catch( const block_validate_exception &ex) {
-    //    peer_elog(c, "block_validate_exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
-    //    reason = validation;
-    // } catch( const assert_exception &ex) {
-    //    peer_elog(c, "block assert_exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
-    // } catch( const fc::exception &ex) {
-    //    peer_elog(c, "bad block exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
-    // } catch( ...) {
-    //    peer_elog(c, "bad block #${n} ${id}...: unknown exception", ("n", blk_num)("id", blk_id.str().substr(8,16)));
-    // }
+    go_away_reason reason = fatal_other;
+    try {
+       bool accepted = my_impl->chain_plug->accept_block(msg, blk_id);
+       my_impl->update_chain_info();
+       if( !accepted ) return;
+       reason = no_reason;
+    } catch( const unlinkable_block_exception &ex) {
+       peer_elog(c, "unlinkable_block_exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
+       reason = unlinkable;
+    } catch( const block_validate_exception &ex) {
+       peer_elog(c, "block_validate_exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
+       reason = validation;
+    } catch( const assert_exception &ex) {
+       peer_elog(c, "block assert_exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
+    } catch( const fc::exception &ex) {
+       peer_elog(c, "bad block exception #${n} ${id}...: ${m}", ("n", blk_num)("id", blk_id.str().substr(8,16))("m",ex.to_string()));
+    } catch( ...) {
+       peer_elog(c, "bad block #${n} ${id}...: unknown exception", ("n", blk_num)("id", blk_id.str().substr(8,16)));
+    }
 
-    // if( reason == no_reason ) {
-    //    boost::asio::post( my_impl->thread_pool->get_executor(), [dispatcher = my_impl->dispatcher.get(), cid=c->connection_id, blk_id, msg]() {
-    //       fc_dlog( logger, "accepted signed_block : #${n} ${id}...", ("n", msg->block_num())("id", blk_id.str().substr(8,16)) );
-    //       dispatcher->add_peer_block( blk_id, cid );
-    //       dispatcher->update_txns_block_num( msg );
-    //    });
-    //    c->strand.post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
-    //       dispatcher->recv_block( c, blk_id, blk_num );
-    //       sync_master->sync_recv_block( c, blk_id, blk_num, true );
-    //    });
-    // } else {
-    //    c->strand.post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
-    //       sync_master->rejected_block( c, blk_num );
-    //       dispatcher->rejected_block( blk_id );
-    //    });
-    // }
+    if( reason == no_reason ) {
+       boost::asio::post( my_impl->thread_pool->get_executor(), [dispatcher = my_impl->dispatcher.get(), cid=c->connection_id, blk_id, msg]() {
+          fc_dlog( logger, "accepted signed_block : #${n} ${id}...", ("n", msg->block_num())("id", blk_id.str().substr(8,16)) );
+          dispatcher->add_peer_block( blk_id, cid );
+          dispatcher->update_txns_block_num( msg );
+       });
+       c->strand.post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
+          dispatcher->recv_block( c, blk_id, blk_num );
+          sync_master->sync_recv_block( c, blk_id, blk_num, true );
+       });
+    } else {
+       c->strand.post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
+          sync_master->rejected_block( c, blk_num );
+          dispatcher->rejected_block( blk_id );
+       });
+    }
 }
 
 

@@ -12,7 +12,7 @@
 #include <eosio/chain/block.hpp>
 #include <eosio/chain/plugin_interface.hpp>
 #include <eosio/chain/thread_utils.hpp>
-// #include <eosio/producer_plugin/producer_plugin.hpp>
+#include <eosio/producer_plugin/producer_plugin.hpp>
 #include <eosio/chain/contract_types.hpp>
 #include <eosio/chain/generated_transaction_object.hpp>
 #include "connection.hpp"
@@ -251,8 +251,8 @@ namespace eosio {
       fc::sha256                            node_id;
       string                                user_agent_name;
 
-      // chain_plugin*                         chain_plug = nullptr;
-      // producer_plugin*                      producer_plug = nullptr;
+      chain_plugin*                         chain_plug = nullptr;
+      producer_plugin*                      producer_plug = nullptr;
       bool                                  use_socket_read_watermark = false;
       /** @} */
 

@@ -7,7 +7,7 @@
 #include <eosio/chain/block.hpp>
 #include <eosio/chain/plugin_interface.hpp>
 #include <eosio/chain/thread_utils.hpp>
-// #include <eosio/producer_plugin/producer_plugin.hpp>
+#include <eosio/producer_plugin/producer_plugin.hpp>
 #include <eosio/chain/contract_types.hpp>
 #include <eosio/chain/generated_transaction_object.hpp>
 #include "connection.hpp"
@@ -350,23 +350,23 @@ namespace eosio {
             c->enqueue( note );
          }
          c->syncing = false;
-         // TODO: chain_plug
-         // app().post( priority::medium, [chain_plug = my_impl->chain_plug, c,
-         //                                msg_head_num = msg.head_num, msg_head_id = msg.head_id]() {
-         //    bool on_fork = true;
-         //    try {
-         //       controller& cc = chain_plug->chain();
-         //       on_fork = cc.get_block_id_for_num( msg_head_num ) != msg_head_id;
-         //    } catch( ... ) {}
-         //    if( on_fork ) {
-         //       c->strand.post( [c]() {
-         //          request_message req;
-         //          req.req_blocks.mode = catch_up;
-         //          req.req_trx.mode = none;
-         //          c->enqueue( req );
-         //       } );
-         //    }
-         // } );
+
+         app().post( priority::medium, [chain_plug = my_impl->chain_plug, c,
+                                        msg_head_num = msg.head_num, msg_head_id = msg.head_id]() {
+            bool on_fork = true;
+            try {
+               controller& cc = chain_plug->chain();
+               on_fork = cc.get_block_id_for_num( msg_head_num ) != msg_head_id;
+            } catch( ... ) {}
+            if( on_fork ) {
+               c->strand.post( [c]() {
+                  request_message req;
+                  req.req_blocks.mode = catch_up;
+                  req.req_trx.mode = none;
+                  c->enqueue( req );
+               } );
+            }
+         } );
          return;
       }
    }
@@ -878,17 +878,17 @@ namespace eosio {
 
    // call only from main application thread
    void net_plugin_impl::update_chain_info() {
-      // TODO: chain_plug
-      // controller& cc = chain_plug->chain();
-      // std::lock_guard<std::mutex> g( chain_info_mtx );
-      // chain_lib_num = cc.last_irreversible_block_num();
-      // chain_lib_id = cc.last_irreversible_block_id();
-      // chain_head_blk_num = cc.head_block_num();
-      // chain_head_blk_id = cc.head_block_id();
-      // chain_fork_head_blk_num = cc.fork_db_pending_head_block_num();
-      // chain_fork_head_blk_id = cc.fork_db_pending_head_block_id();
-      // fc_dlog( logger, "updating chain info lib ${lib}, head ${head}, fork ${fork}",
-      //          ("lib", chain_lib_num)("head", chain_head_blk_num)("fork", chain_fork_head_blk_num) );
+
+      controller& cc = chain_plug->chain();
+      std::lock_guard<std::mutex> g( chain_info_mtx );
+      chain_lib_num = cc.last_irreversible_block_num();
+      chain_lib_id = cc.last_irreversible_block_id();
+      chain_head_blk_num = cc.head_block_num();
+      chain_head_blk_id = cc.head_block_id();
+      chain_fork_head_blk_num = cc.fork_db_pending_head_block_num();
+      chain_fork_head_blk_id = cc.fork_db_pending_head_block_id();
+      fc_dlog( logger, "updating chain info lib ${lib}, head ${head}, fork ${fork}",
+               ("lib", chain_lib_num)("head", chain_head_blk_num)("fork", chain_fork_head_blk_num) );
    }
 
    //         lib_num, head_blk_num, fork_head_blk_num, lib_id, head_blk_id, fork_head_blk_id
@@ -1033,27 +1033,25 @@ namespace eosio {
    void net_plugin_impl::on_accepted_block(const block_state_ptr& bs) {
       update_chain_info();
 
-      // TODO: chain_plug
-      // controller& cc = chain_plug->chain();
-      // dispatcher->strand.post( [this, bs]() {
-      //    fc_dlog( logger, "signaled accepted_block, blk num = ${num}, id = ${id}", ("num", bs->block_num)("id", bs->id) );
-      //    dispatcher->bcast_block( bs->block, bs->id );
-      // });
+      controller& cc = chain_plug->chain();
+      dispatcher->strand.post( [this, bs]() {
+         fc_dlog( logger, "signaled accepted_block, blk num = ${num}, id = ${id}", ("num", bs->block_num)("id", bs->id) );
+         dispatcher->bcast_block( bs->block, bs->id );
+      });
    }
 
    // called from application thread
    void net_plugin_impl::on_pre_accepted_block(const signed_block_ptr& block) {
       update_chain_info();
 
-      // TODO: chain_plug
-      // controller& cc = chain_plug->chain();
-      // if( cc.is_trusted_producer(block->producer) ) {
-      //    dispatcher->strand.post( [this, block]() {
-      //       auto id = block->id();
-      //       fc_dlog( logger, "signaled pre_accepted_block, blk num = ${num}, id = ${id}", ("num", block->block_num())("id", id) );
-      //       dispatcher->bcast_block( block, id );
-      //    });
-      // }
+      controller& cc = chain_plug->chain();
+      if( cc.is_trusted_producer(block->producer) ) {
+         dispatcher->strand.post( [this, block]() {
+            auto id = block->id();
+            fc_dlog( logger, "signaled pre_accepted_block, blk num = ${num}, id = ${id}", ("num", block->block_num())("id", id) );
+            dispatcher->bcast_block( block, id );
+         });
+      }
    }
 
    // called from application thread
@@ -1086,20 +1084,20 @@ namespace eosio {
       if(allowed_connections == Any)
          return true;
 
-      // TODO:
-      // if(allowed_connections & (Producers | Specified)) {
-      //    auto allowed_it = std::find(allowed_peers.begin(), allowed_peers.end(), msg.key);
-      //    auto private_it = private_keys.find(msg.key);
 
-      //    bool found_producer_key = false;
-      //    if(producer_plug != nullptr)
-      //       found_producer_key = producer_plug->is_producer_key(msg.key);
-      //    if( allowed_it == allowed_peers.end() && private_it == private_keys.end() && !found_producer_key) {
-      //       fc_elog( logger, "Peer ${peer} sent a handshake with an unauthorized key: ${key}.",
-      //                ("peer", msg.p2p_address)("key", msg.key) );
-      //       return false;
-      //    }
-      // }
+      if(allowed_connections & (Producers | Specified)) {
+         auto allowed_it = std::find(allowed_peers.begin(), allowed_peers.end(), msg.key);
+         auto private_it = private_keys.find(msg.key);
+
+         bool found_producer_key = false;
+         if(producer_plug != nullptr)
+            found_producer_key = producer_plug->is_producer_key(msg.key);
+         if( allowed_it == allowed_peers.end() && private_it == private_keys.end() && !found_producer_key) {
+            fc_elog( logger, "Peer ${peer} sent a handshake with an unauthorized key: ${key}.",
+                     ("peer", msg.p2p_address)("key", msg.key) );
+            return false;
+         }
+      }
 
       namespace sc = std::chrono;
       sc::system_clock::duration msg_time(msg.time);
@@ -1150,9 +1148,9 @@ namespace eosio {
       auto private_key_itr = private_keys.find(signer);
       if(private_key_itr != private_keys.end())
          return private_key_itr->second.sign(digest);
-      // TODO: ...
-      // if(producer_plug != nullptr && producer_plug->get_state() == abstract_plugin::started)
-      //    return producer_plug->sign_compact(signer, digest);
+
+      if(producer_plug != nullptr && producer_plug->get_state() == abstract_plugin::started)
+         return producer_plug->sign_compact(signer, digest);
       return chain::signature_type();
    }
 
@@ -1286,23 +1284,22 @@ namespace eosio {
          }
 
 
-         // TODO: chain_plug
-         // my->chain_plug = app().find_plugin<chain_plugin>();
-         // EOS_ASSERT( my->chain_plug, chain::missing_chain_plugin_exception, ""  );
-         // my->chain_id = my->chain_plug->get_chain_id();
-         // fc::rand_pseudo_bytes( my->node_id.data(), my->node_id.data_size());
-         // const controller& cc = my->chain_plug->chain();
+         my->chain_plug = app().find_plugin<chain_plugin>();
+         EOS_ASSERT( my->chain_plug, chain::missing_chain_plugin_exception, ""  );
+         my->chain_id = my->chain_plug->get_chain_id();
+         fc::rand_pseudo_bytes( my->node_id.data(), my->node_id.data_size());
+         const controller& cc = my->chain_plug->chain();
 
-         // if( cc.get_read_mode() == db_read_mode::IRREVERSIBLE || cc.get_read_mode() == db_read_mode::READ_ONLY ) {
-         //    if( my->p2p_accept_transactions ) {
-         //       my->p2p_accept_transactions = false;
-         //       string m = cc.get_read_mode() == db_read_mode::IRREVERSIBLE ? "irreversible" : "read-only";
-         //       wlog( "p2p-accept-transactions set to false due to read-mode: ${m}", ("m", m) );
-         //    }
-         // }
-         // if( my->p2p_accept_transactions ) {
-         //    my->chain_plug->enable_accept_transactions();
-         // }
+         if( cc.get_read_mode() == db_read_mode::IRREVERSIBLE || cc.get_read_mode() == db_read_mode::READ_ONLY ) {
+            if( my->p2p_accept_transactions ) {
+               my->p2p_accept_transactions = false;
+               string m = cc.get_read_mode() == db_read_mode::IRREVERSIBLE ? "irreversible" : "read-only";
+               wlog( "p2p-accept-transactions set to false due to read-mode: ${m}", ("m", m) );
+            }
+         }
+         if( my->p2p_accept_transactions ) {
+            my->chain_plug->enable_accept_transactions();
+         }
 
       } FC_LOG_AND_RETHROW()
    }
@@ -1313,7 +1310,7 @@ namespace eosio {
 
       fc_ilog( logger, "my node_id is ${id}", ("id", my->node_id ));
 
-      // my->producer_plug = app().find_plugin<producer_plugin>();
+      my->producer_plug = app().find_plugin<producer_plugin>();
 
       my->thread_pool.emplace( "net", my->thread_pool_size );
 
@@ -1372,17 +1369,16 @@ namespace eosio {
       }
       {
 
-         // TODO: chain_plug
-         // chain::controller& cc = my->chain_plug->chain();
-         // cc.accepted_block.connect( [my = my]( const block_state_ptr& s ) {
-         //    my->on_accepted_block( s );
-         // } );
-         // cc.pre_accepted_block.connect( [my = my]( const signed_block_ptr& s ) {
-         //    my->on_pre_accepted_block( s );
-         // } );
-         // cc.irreversible_block.connect( [my = my]( const block_state_ptr& s ) {
-         //    my->on_irreversible_block( s );
-         // } );
+         chain::controller& cc = my->chain_plug->chain();
+         cc.accepted_block.connect( [my = my]( const block_state_ptr& s ) {
+            my->on_accepted_block( s );
+         } );
+         cc.pre_accepted_block.connect( [my = my]( const signed_block_ptr& s ) {
+            my->on_pre_accepted_block( s );
+         } );
+         cc.irreversible_block.connect( [my = my]( const block_state_ptr& s ) {
+            my->on_irreversible_block( s );
+         } );
       }
 
       {

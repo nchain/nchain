@@ -4,8 +4,7 @@ add_library( net_plugin
     connection.cpp
     ${HEADERS} )
 
-#target_link_libraries( net_plugin chain_plugin producer_plugin appbase fc )
-target_link_libraries( net_plugin appbase eosio_chain chainbase softfloat fc )
+target_link_libraries( net_plugin chain_plugin producer_plugin appbase eosio_chain chainbase softfloat fc )
 target_include_directories( net_plugin
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
