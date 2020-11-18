@@ -5,7 +5,6 @@ add_subdirectory( persistence )
 add_subdirectory( wasm-jit)
 add_subdirectory( wabt )
 #TODO:
-add_subdirectory( chain )
 add_subdirectory( version )
 
 
@@ -22,6 +21,8 @@ add_subdirectory( appbase )
 
 ## chainbase
 add_subdirectory( chainbase )
+
+add_subdirectory( eosio-chain )
 
 ## p2p
 add_subdirectory( p2p )
