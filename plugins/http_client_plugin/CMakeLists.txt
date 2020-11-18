@@ -1,7 +1,6 @@
 file(GLOB HEADERS "include/eosio/http_client_plugin/*.hpp")
 add_library( http_client_plugin
-             #TODO:
-             #http_client_plugin.cpp
+             http_client_plugin.cpp
              ${HEADERS} )
 
 target_link_libraries( http_client_plugin appbase eosio_chain fc )

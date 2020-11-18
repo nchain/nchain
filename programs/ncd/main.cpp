@@ -1,11 +1,10 @@
 #include "appbase/application.hpp"
 #include <eosio/chain/exceptions.hpp>
 
-//TODO:
-// #include <eosio/chain_plugin/chain_plugin.hpp>
-//#include <eosio/http_plugin/http_plugin.hpp>
+#include <eosio/chain_plugin/chain_plugin.hpp>
+#include <eosio/http_plugin/http_plugin.hpp>
 #include <eosio/net_plugin/net_plugin.hpp>
-//#include <eosio/producer_plugin/producer_plugin.hpp>
+#include <eosio/producer_plugin/producer_plugin.hpp>
 #include <eosio/version/version.hpp>
 
 #include <fc/log/logger_config.hpp>
@@ -26,7 +25,6 @@ namespace detail {
 
 void configure_logging(const bfs::path& config_path)
 {
-   //TODO:
    try {
       try {
           if( fc::exists( config_path ) ) {
@@ -35,8 +33,8 @@ void configure_logging(const bfs::path& config_path)
                fc::configure_logging( fc::logging_config::default_config() );
          }
       } catch (...) {
-   //       elog("Error reloading logging.json");
-   //       throw;
+         elog("Error reloading logging.json");
+         throw;
       }
     }
    catch (const fc::exception& e) {
@@ -56,7 +54,6 @@ void configure_logging(const bfs::path& config_path)
 void logging_conf_handler()
 {
    auto config_path = app().get_logging_conf();
-   //TODO:
    if( fc::exists( config_path ) ) {
       ilog( "Received HUP.  Reloading logging configuration from ${p}.", ("p", config_path.string()) );
    } else {
@@ -98,15 +95,14 @@ int main(int argc, char** argv)
       auto root = fc::app_path();
       app().set_default_data_dir(root / "eosio" / nodeos::config::node_executable_name / "data" );
       app().set_default_config_dir(root / "eosio" / nodeos::config::node_executable_name / "config" );
-      // TODO:
-      // http_plugin::set_defaults({
-      //    .default_unix_socket_path = "",
-      //    .default_http_port = 8888
-      // });
 
-      // TODO: ...
-      // if(!app().initialize<chain_plugin, net_plugin, producer_plugin>(argc, argv)) {
-      if(!app().initialize<net_plugin>(argc, argv)) {
+      http_plugin::set_defaults({
+         .default_unix_socket_path = "",
+         .default_http_port = 8888
+      });
+
+
+      if(!app().initialize<chain_plugin, net_plugin, producer_plugin>(argc, argv)) {
          const auto& opts = app().get_options();
          if( opts.count("help") || opts.count("version") || opts.count("full-version") || opts.count("print-default-config") ) {
             return SUCCESS;
