@@ -156,7 +156,7 @@ find_package(Event 2.0.22 REQUIRED COMPONENTS event pthreads)
 if( APPLE AND UNIX )
 # Apple Specific Options Here
     message( STATUS "Configuring NCHAIN on macOS" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -DMAC_OS" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations -DMAC_OS -isystem /usr/local/include" )
 else()
     # Linux Specific Options Here
     message( STATUS "Configuring NCHAIN on Linux" )
