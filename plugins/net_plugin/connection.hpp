@@ -207,7 +207,7 @@ public:
 };
 
 using message_buf_t = fc::message_buffer<1024*1024>;
-class net_stream {
+class net_transport {
 public:
     using init_callback_func = std::function<void(boost::system::error_code)>;
     using read_callback = void(boost::system::error_code, size_t);
@@ -215,7 +215,7 @@ public:
     using write_callback = void(boost::system::error_code, size_t);
     using write_callback_func = std::function<write_callback>;
 
-    virtual ~net_stream() {};
+    virtual ~net_transport() {};
 
     virtual bool init(std::shared_ptr<strand_t> strand) = 0;
 
@@ -226,28 +226,28 @@ public:
     virtual void write(queued_buffer &buffer_queue, write_callback_func cb) = 0;
 
     /**
-     * Check, if this stream is closed bor both writes and reads
-     * @return true, if stream is closed entirely, false otherwise
+     * Check, if this transport is closed bor both writes and reads
+     * @return true, if transport is closed entirely, false otherwise
      */
     // virtual bool is_closed() const = 0;
 
     /**
-     * Close a stream, indicating we are not going to write to it anymore; the
+     * Close a transport, indicating we are not going to write to it anymore; the
      * other side, however, can write to it, if it was not closed from there
      * before
-     * @param cb to be called, when the stream is closed, or error happens
+     * @param cb to be called, when the transport is closed, or error happens
      */
     // virtual void close(void_result_handler_func cb) = 0;
 
     // /**
-    //  * @brief Close this stream entirely; this normally means an error happened,
-    //  * so it should not be used just to close the stream
+    //  * @brief Close this transport entirely; this normally means an error happened,
+    //  * so it should not be used just to close the transport
     //  */
     // virtual void reset() = 0;
 
     // /**
-    //  * Set a new receive window size of this stream - how much unread bytes can
-    //  * we have on our side of the stream
+    //  * Set a new receive window size of this transport - how much unread bytes can
+    //  * we have on our side of the transport
     //  * @param new_size for the window
     //  * @param cb to be called, when the operation succeeds of fails
     //  */
@@ -255,12 +255,12 @@ public:
     //                               VoidResultHandlerFunc cb) = 0;
 
     /**
-     * Is that stream opened over a connection, which was an initiator?
+     * Is that transport opened over a connection, which was an initiator?
      */
     // virtual outcome::result<bool> is_initiator() const = 0;
 
     // /**
-    //  * Get a peer, which the stream is connected to
+    //  * Get a peer, which the transport is connected to
     //  * @return id of the peer
     //  */
     // virtual outcome::result<peer::PeerId> remotePeerId() const = 0;
@@ -272,7 +272,7 @@ public:
     // virtual outcome::result<multi::Multiaddress> localMultiaddr() const = 0;
 
     // /**
-    //  * Get a multiaddress, to which the stream is connected
+    //  * Get a multiaddress, to which the transport is connected
     //  * @return multiaddress or error
     //  */
     // virtual outcome::result<multi::Multiaddress> remoteMultiaddr() const = 0;
@@ -286,7 +286,7 @@ class connector_t {
 public:
     virtual ~connector_t() {}
     using connection_callback =
-        void(boost::system::error_code, std::shared_ptr<net_stream>);
+        void(boost::system::error_code, std::shared_ptr<net_transport>);
     using handler_func = std::function<connection_callback>;
 
     virtual void connect(handler_func handler) = 0;
@@ -314,11 +314,11 @@ private:
     void set_connection_type( const string& peer_addr );
 };
 
-class tcp_stream: public net_stream, public std::enable_shared_from_this<tcp_stream> {
+class tcp_transport: public net_transport, public std::enable_shared_from_this<tcp_transport> {
 public:
-    tcp_stream(std::shared_ptr<tcp::socket> socket, const string &peer_addr)
+    tcp_transport(std::shared_ptr<tcp::socket> socket, const string &peer_addr)
         : socket_(socket), peer_addr_(peer_addr) {}
-    ~tcp_stream();
+    ~tcp_transport();
 
     bool init(std::shared_ptr<strand_t> strand) override;
 
@@ -356,7 +356,7 @@ private:
 class tcp_listener: public std::enable_shared_from_this<tcp_listener> {
 public:
     using connection_callback =
-        void(boost::system::error_code, std::shared_ptr<net_stream>, const std::string&);
+        void(boost::system::error_code, std::shared_ptr<net_transport>, const std::string&);
     using handler_func = std::function<connection_callback>;
 
     bool init(std::shared_ptr<strand_t> strand);
@@ -372,7 +372,7 @@ private:
 class connection : public std::enable_shared_from_this<connection> {
 public:
     explicit connection( string endpoint );
-    explicit connection(std::shared_ptr<net_stream> stream);
+    explicit connection(std::shared_ptr<net_transport> transport);
     connection();
 
     ~connection() {}
@@ -564,7 +564,7 @@ public:
     }
 private:
     std::shared_ptr<connector_t> connector_;
-    std::shared_ptr<net_stream> stream_;
+    std::shared_ptr<net_transport> transport_;
 };
 
 template< typename T>

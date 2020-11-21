@@ -813,10 +813,10 @@ namespace eosio {
    void net_plugin_impl::start_listen_loop() {
        strand->post([this]() {
            listener->accept(boost::asio::bind_executor(
-               *strand, [this](boost::system::error_code ec, std::shared_ptr<net_stream> stream,
+               *strand, [this](boost::system::error_code ec, std::shared_ptr<net_transport> transport,
                                const std::string &remote_addr) {
                    if (!ec) {
-                       if (!stream) {
+                       if (!transport) {
                            return; // ignore error happen
                        }
 
@@ -837,7 +837,7 @@ namespace eosio {
                            });
                            if (from_addr < max_nodes_per_host &&
                                (max_client_count == 0 || visitors < max_client_count)) {
-                               connection_ptr new_connection = std::make_shared<connection>(stream);
+                               connection_ptr new_connection = std::make_shared<connection>(transport);
 
                                // new_connection->connecting = true;
                                fc_ilog(logger, "Accepted new connection: " + remote_addr);
@@ -857,9 +857,9 @@ namespace eosio {
                                    fc_dlog(logger, "max_client_count ${m} exceeded",
                                            ("m", max_client_count));
                                }
-                               // stream never added to connections and start_session not called,
+                               // transport never added to connections and start_session not called,
                                // lifetime will end
-                               stream->close();
+                               transport->close();
                            }
                        }
                    } else {

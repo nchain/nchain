@@ -101,9 +101,9 @@ void tcp_connector::connect(connector_t::handler_func handler) {
                         [resolver, self, handler](const boost::system::error_code &err,
                                                     const tcp::endpoint &endpoint) {
                             if (!err && self->socket_->is_open()) {
-                                auto stream =
-                                    std::make_shared<tcp_stream>(self->socket_, self->peer_addr);
-                                handler(err, stream);
+                                auto transport =
+                                    std::make_shared<tcp_transport>(self->socket_, self->peer_addr);
+                                handler(err, transport);
                                 self->connecting = false;
                             } else {
                                 fc_elog(logger, "connection failed to ${peer}: ${error}",
@@ -124,11 +124,11 @@ void tcp_connector::connect(connector_t::handler_func handler) {
         }));
 }
 
-tcp_stream::~tcp_stream() {
+tcp_transport::~tcp_transport() {
     close();
 }
 
-void tcp_stream::close() {
+void tcp_transport::close() {
     boost::system::error_code ec;
     if (socket_) {
         if( socket_->is_open() ) {
@@ -141,7 +141,7 @@ void tcp_stream::close() {
     strand_ = nullptr;
 }
 
-bool tcp_stream::init(std::shared_ptr<strand_t> strand) {
+bool tcp_transport::init(std::shared_ptr<strand_t> strand) {
     strand_ = strand;
     update_endpoints();
 
@@ -156,7 +156,7 @@ bool tcp_stream::init(std::shared_ptr<strand_t> strand) {
     return true;
 }
 
-void tcp_stream::write(queued_buffer &buffer_queue, write_callback_func cb) {
+void tcp_transport::write(queued_buffer &buffer_queue, write_callback_func cb) {
 
     //     if( !buffer_queue.ready_to_send() )
     //         return;
@@ -178,7 +178,7 @@ void tcp_stream::write(queued_buffer &buffer_queue, write_callback_func cb) {
     });
 }
 
-void tcp_stream::read(message_buf_t &buffer, std::size_t min_size, read_callback_func cb) {
+void tcp_transport::read(message_buf_t &buffer, std::size_t min_size, read_callback_func cb) {
 
     assert(is_init_);
     if (my_impl->use_socket_read_watermark) {
@@ -212,15 +212,15 @@ void tcp_stream::read(message_buf_t &buffer, std::size_t min_size, read_callback
 }
 
 
-bool tcp_stream::is_init() const {
+bool tcp_transport::is_init() const {
     return is_init_;
 }
 
-const endpoint_info_t& tcp_stream::get_endpoint_info() {
+const endpoint_info_t& tcp_transport::get_endpoint_info() {
     return endpoint_info_;
 }
 
-void tcp_stream::update_endpoints() {
+void tcp_transport::update_endpoints() {
     boost::system::error_code ec;
     boost::system::error_code ec2;
     auto rep = socket_->remote_endpoint(ec);
@@ -231,14 +231,6 @@ void tcp_stream::update_endpoints() {
     endpoint_info_.local_endpoint_ip = ec2 ? unknown : lep.address().to_string();
     endpoint_info_.local_endpoint_port = ec2 ? unknown : std::to_string(lep.port());
 }
-
-// class tcp_listener: public std::enable_shared_from_this<tcp_listener> {
-// public:
-//     using connection_callback =
-//         void(boost::system::error_code, std::shared_ptr<net_stream>);
-//     using handler_func = std::function<connection_callback>;
-//     void accept(handler_func);
-// };
 
 bool tcp_listener::init(std::shared_ptr<strand_t> strand) {
     strand_ = strand;
@@ -326,8 +318,8 @@ void tcp_listener::accept(handler_func handler) {
                 paddr_str = paddr_add.to_string();
             }
             // TODO: get peer address
-            auto stream = std::make_shared<tcp_stream>(socket, "");
-            handler(ec, stream, paddr_str);
+            auto transport = std::make_shared<tcp_transport>(socket, "");
+            handler(ec, transport, paddr_str);
         }));
 }
 

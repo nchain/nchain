@@ -94,14 +94,14 @@ connection::connection( string endpoint )
 }
 
 
-connection::connection(std::shared_ptr<net_stream> stream)
+connection::connection(std::shared_ptr<net_transport> transport)
     : peer_addr(),
     strand( std::make_shared<strand_t>(my_impl->thread_pool->get_executor()) ),
     connection_id( ++my_impl->current_connection_id ),
     response_expected_timer( my_impl->thread_pool->get_executor() ),
     last_handshake_recv(),
     last_handshake_sent(),
-    stream_(stream)
+    transport_(transport)
 {
     fc_dlog( logger, "new connection object created" );
 }
@@ -156,14 +156,14 @@ bool connection::start_session() {
     verify_strand_in_this_thread( *strand, __func__, __LINE__ );
 
     // TODO: need lock?
-    if (!stream_->init(strand)) {
-        fc_elog( logger, "connection failed (stream) ${peer}: init", ("peer", peer_name()) );
+    if (!transport_->init(strand)) {
+        fc_elog( logger, "connection failed (transport) ${peer}: init", ("peer", peer_name()) );
         close();
         return false;
     }
     {
         std::lock_guard<std::mutex> g_conn( conn_mtx );
-        endpoint_info_ = stream_->get_endpoint_info();
+        endpoint_info_ = transport_->get_endpoint_info();
     }
     connected_ = true;
     fc_dlog( logger, "connected to ${peer}", ("peer", peer_name()) );
@@ -191,9 +191,9 @@ void connection::close( bool reconnect, bool shutdown ) {
 
 void connection::_close( connection* self, bool reconnect, bool shutdown ) {
 
-    if (self->stream_) {
-        self->stream_->close();
-        self->stream_ = nullptr;
+    if (self->transport_) {
+        self->transport_->close();
+        self->transport_ = nullptr;
     }
 
     self->flush_queues();
@@ -386,18 +386,18 @@ void connection::do_queue_write() {
         return;
     connection_ptr c(shared_from_this());
 
-    strand->post([c{std::move(c)}, stream = stream_]() {
-        if (!c->stream_ || stream != c->stream_) {
+    strand->post([c{std::move(c)}, transport = transport_]() {
+        if (!c->transport_ || transport != c->transport_) {
             return; // connection is closed
         }
 
-        stream->write(c->buffer_queue, [c, stream](boost::system::error_code ec, std::size_t w) {
+        transport->write(c->buffer_queue, [c, transport](boost::system::error_code ec, std::size_t w) {
             try {
                 c->buffer_queue.clear_out_queue();
                 // May have closed connection and cleared buffer_queue
-                if (!c->stream_ || stream != c->stream_) {
-                    fc_ilog(logger, "async write stream ${r} before callback: ${p}",
-                            ("r", c->stream_ ? "changed" : "closed")("p", c->peer_name()));
+                if (!c->transport_ || transport != c->transport_) {
+                    fc_ilog(logger, "async write transport ${r} before callback: ${p}",
+                            ("r", c->transport_ ? "changed" : "closed")("p", c->peer_name()));
                     c->close();
                     return;
                 }
@@ -644,10 +644,10 @@ bool connection::resolve_and_connect() {
             }
         }
 
-        c->connector_->connect([c]( boost::system::error_code ec, std::shared_ptr<net_stream> stream ) {
+        c->connector_->connect([c]( boost::system::error_code ec, std::shared_ptr<net_transport> transport ) {
             c->connecting = false;
             if( !ec ) {
-                c->stream_ = stream;
+                c->transport_ = transport;
                 if( c->start_session() ) {
                     c->send_handshake();
                 }
@@ -664,7 +664,7 @@ bool connection::resolve_and_connect() {
 
 // only called from strand thread
 void connection::start_read_message() {
-    if (!stream_) {
+    if (!transport_) {
         return;
     }
     try {
@@ -682,10 +682,10 @@ void connection::start_read_message() {
             return;
         }
 
-        stream_->read(pending_message_buffer, minimum_read, [conn = shared_from_this(), stream=stream_] (boost::system::error_code ec, size_t bytes_transferred) {
+        transport_->read(pending_message_buffer, minimum_read, [conn = shared_from_this(), transport=transport_] (boost::system::error_code ec, size_t bytes_transferred) {
 
             // may have closed connection and cleared pending_message_buffer
-            if( stream != conn->stream_ ) return;
+            if( transport != conn->transport_ ) return;
 
             bool close_connection = false;
             try {
