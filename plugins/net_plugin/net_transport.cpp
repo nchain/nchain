@@ -288,7 +288,7 @@ bool tcp_listener::init(std::shared_ptr<strand_t> strand) {
     return false;
 }
 
-void tcp_listener::accept(handler_func handler) {
+void tcp_listener::accept(net_listener::accept_callback_func handler) {
     assert(strand_);
     if (!acceptor_) return;
 

@@ -205,17 +205,26 @@ private:
     void update_endpoints();
 };
 
-class tcp_listener: public std::enable_shared_from_this<tcp_listener> {
+class net_listener {
 public:
-    using connection_callback =
+    using accept_callback =
         void(boost::system::error_code, std::shared_ptr<net_transport>, const std::string&);
-    using handler_func = std::function<connection_callback>;
+    using accept_callback_func = std::function<accept_callback>;
 
-    bool init(std::shared_ptr<strand_t> strand);
+    virtual bool init(std::shared_ptr<strand_t> strand) = 0;
 
-    void accept(handler_func handler);
+    virtual void accept(accept_callback_func handler) = 0;
 
-    void close();
+    virtual void close() = 0;
+};
+
+class tcp_listener: public net_listener, public std::enable_shared_from_this<tcp_listener> {
+public:
+    bool init(std::shared_ptr<strand_t> strand) override;
+
+    void accept(net_listener::accept_callback_func handler) override;
+
+    void close() override;
 private:
     std::shared_ptr<strand_t> strand_;
     std::unique_ptr<tcp::acceptor>        acceptor_;
