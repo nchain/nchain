@@ -125,6 +125,10 @@ void tcp_connector::connect(connector_t::handler_func handler) {
         }));
 }
 
+const std::string& tcp_connector::peer_address() const {
+    return peer_addr;
+}
+
 tcp_transport::~tcp_transport() {
     close();
 }

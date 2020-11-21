@@ -139,6 +139,8 @@ public:
     using handler_func = std::function<connection_callback>;
 
     virtual void connect(handler_func handler) = 0;
+
+    virtual const std::string& peer_address() const = 0;
 };
 
 class tcp_connector: public connector_t, public std::enable_shared_from_this<tcp_connector> {
@@ -148,6 +150,7 @@ public:
 
     static std::shared_ptr<tcp_connector> create(std::shared_ptr<strand_t> strand, const string &peer_addr);
 
+    const std::string& peer_address() const override;
 
     connection_types get_connection_type() const { return connection_type; };
 
