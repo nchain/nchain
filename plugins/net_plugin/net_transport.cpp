@@ -18,24 +18,25 @@ extern net_plugin_impl *my_impl;
 
 using tcp_connector_wptr = std::weak_ptr<tcp_connector>;
 
-std::shared_ptr<tcp_connector> tcp_connector::create(std::shared_ptr<strand_t> strand, const string &peer_addr) {
+bool tcp_connector::init(std::shared_ptr<strand_t> strand, const string &peer_addr) {
+    strand_ = strand;
+    peer_addr_ = peer_addr;
     string::size_type colon = peer_addr.find(':');
     if (colon == std::string::npos || colon == 0) {
         fc_elog( logger, "Invalid peer address. must be \"host:port[:<blk>|<trx>]\": ${p}", ("p", peer_addr) );
-        return nullptr;
+        return false;
     }
 
     string::size_type colon2 = peer_addr.find(':', colon + 1);
+
     string host = peer_addr.substr( 0, colon );
     string port = peer_addr.substr( colon + 1, colon2 == string::npos ? string::npos : colon2 - (colon + 1));
     idump((host)(port));
-    auto connector = std::make_shared<tcp_connector>();
-    connector->strand_ = strand;
-    connector->peer_addr = peer_addr;
-    connector->host = host;
-    connector->port = port;
-    connector->set_connection_type( peer_addr );
-    return connector;
+
+    host_ = host;
+    port_ = port;
+    set_connection_type( peer_addr_ );
+    return true;
 }
 
 void tcp_connector::set_connection_type( const string& peer_add ) {
@@ -51,13 +52,13 @@ void tcp_connector::set_connection_type( const string& peer_add ) {
 
     if( type.empty() ) {
         fc_dlog( logger, "Setting connection type for: ${peer} to both transactions and blocks", ("peer", peer_add) );
-        connection_type = both;
+        connection_type_ = both;
     } else if( type == "trx" ) {
         fc_dlog( logger, "Setting connection type for: ${peer} to transactions only", ("peer", peer_add) );
-        connection_type = transactions_only;
+        connection_type_ = transactions_only;
     } else if( type == "blk" ) {
         fc_dlog( logger, "Setting connection type for: ${peer} to blocks only", ("peer", peer_add) );
-        connection_type = blocks_only;
+        connection_type_ = blocks_only;
     } else {
         fc_wlog( logger, "Unknown connection type: ${t}", ("t", type) );
     }
@@ -75,13 +76,13 @@ std::string endpoints_to_string(tcp::resolver::results_type &endpoints) {
 
 void tcp_connector::connect(connector_t::handler_func handler) {
 
-    if (connecting) { // TODO: need check timeout?
+    if (connecting_) { // TODO: need check timeout?
         return;
     }
-    connecting = true;
+    connecting_ = true;
     auto self  = shared_from_this();
 
-    tcp::resolver::query query(tcp::v4(), host, port);
+    tcp::resolver::query query(tcp::v4(), host_, port_);
     // Note: need to add support for IPv6 too
 
     socket_       = std::make_shared<tcp::socket>(my_impl->thread_pool->get_executor());
@@ -93,7 +94,7 @@ void tcp_connector::connect(connector_t::handler_func handler) {
                                                         tcp::resolver::results_type endpoints) {
             if (!err) {
                 fc_dlog(logger, "resolv peer:${peer} as ${eps}",
-                        ("peer", self->peer_addr)("eps", endpoints_to_string(endpoints)));
+                        ("peer", self->peer_addr_)("eps", endpoints_to_string(endpoints)));
 
                 boost::asio::async_connect(
                     *self->socket_, endpoints,
@@ -103,30 +104,30 @@ void tcp_connector::connect(connector_t::handler_func handler) {
                                                     const tcp::endpoint &endpoint) {
                             if (!err && self->socket_->is_open()) {
                                 auto transport =
-                                    std::make_shared<tcp_transport>(self->socket_, self->peer_addr);
+                                    std::make_shared<tcp_transport>(self->socket_, self->peer_addr_);
                                 handler(err, transport);
-                                self->connecting = false;
+                                self->connecting_ = false;
                             } else {
                                 fc_elog(logger, "connection failed to ${peer}: ${error}",
-                                        ("peer", self->peer_addr)("error", err.message()));
-                                self->connecting = false;
+                                        ("peer", self->peer_addr_)("error", err.message()));
+                                self->connecting_ = false;
                                 handler(err, nullptr);
                                 // c->close( false );
                             }
                         }));
             } else {
                 fc_elog(logger, "Unable to resolve ${add}: ${error}",
-                        ("add", self->peer_addr)("error", err.message()));
+                        ("add", self->peer_addr_)("error", err.message()));
                 // c->connecting = false;
                 // ++c->consecutive_immediate_connection_close;
-                self->connecting = false;
+                self->connecting_ = false;
                 handler(err, nullptr);
             }
         }));
 }
 
 const std::string& tcp_connector::peer_address() const {
-    return peer_addr;
+    return peer_addr_;
 }
 
 tcp_transport::~tcp_transport() {

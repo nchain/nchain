@@ -81,16 +81,16 @@ struct msg_handler : public fc::visitor<void> {
 
 //---------------------------------------------------------------------------
 
-connection::connection( string endpoint )
-    : peer_addr( endpoint ),
-    strand( std::make_shared<strand_t>(my_impl->thread_pool->get_executor()) ),
+connection::connection( std::shared_ptr<strand_t> strand_in, std::shared_ptr<connector_t> connector )
+    : peer_addr( connector->peer_address() ),
+    strand( strand_in ),
     connection_id( ++my_impl->current_connection_id ),
     response_expected_timer( my_impl->thread_pool->get_executor() ),
     last_handshake_recv(),
     last_handshake_sent(),
-    connector_(tcp_connector::create(strand, endpoint))
+    connector_(connector)
 {
-    fc_ilog( logger, "creating connection to ${n}", ("n", endpoint) );
+    fc_ilog( logger, "creating connection to ${n}", ("n", peer_addr) );
 }
 
 

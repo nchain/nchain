@@ -1472,7 +1472,13 @@ namespace eosio {
       if( my->find_connection( host ) )
          return "already connected";
 
-      connection_ptr c = std::make_shared<connection>( host );
+      auto strand = std::make_shared<strand_t>(my->thread_pool->get_executor());
+      auto connector = std::make_shared<tcp_connector>();
+      if (!connector->init(strand, host)) {
+         return "invalid host";
+      }
+
+      connection_ptr c = std::make_shared<connection>( strand, connector );
       fc_dlog( logger, "calling active connector: ${h}", ("h", host) );
       if( c->resolve_and_connect() ) {
          fc_dlog( logger, "adding new connection to the list: ${c}", ("c", c->peer_name()) );

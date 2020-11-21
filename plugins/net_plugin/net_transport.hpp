@@ -145,22 +145,22 @@ public:
 
 class tcp_connector: public connector_t, public std::enable_shared_from_this<tcp_connector> {
 public:
+    bool init(std::shared_ptr<strand_t> strand, const string &peer_addr);
+
     // TODO: ...
     void connect(connector_t::handler_func handler) override;
 
-    static std::shared_ptr<tcp_connector> create(std::shared_ptr<strand_t> strand, const string &peer_addr);
-
     const std::string& peer_address() const override;
 
-    connection_types get_connection_type() const { return connection_type; };
+    connection_types get_connection_type() const { return connection_type_; };
 
 private:
     std::shared_ptr<strand_t> strand_;
-    string peer_addr;
-    string host;
-    string port;
-    std::atomic<connection_types> connection_type{both};
-    std::atomic<bool> connecting{false};
+    string peer_addr_;
+    string host_;
+    string port_;
+    std::atomic<connection_types> connection_type_{both};
+    std::atomic<bool> connecting_{false};
     std::shared_ptr<tcp::socket>              socket_;
 
     void set_connection_type( const string& peer_addr );

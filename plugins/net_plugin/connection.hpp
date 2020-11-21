@@ -196,7 +196,7 @@ private:
 
 class connection : public std::enable_shared_from_this<connection> {
 public:
-    explicit connection( string endpoint );
+    explicit connection( std::shared_ptr<strand_t> strand, std::shared_ptr<connector_t> connector );
     explicit connection(std::shared_ptr<net_transport> transport);
     connection();
 
