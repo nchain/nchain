@@ -4,6 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 // #include <eosio/chain/types.hpp>
 
+#include "net_transport.hpp"
 #include "connection.hpp"
 #include "net_plugin_impl.hpp"
 
