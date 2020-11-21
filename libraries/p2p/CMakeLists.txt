@@ -198,5 +198,9 @@ target_link_libraries(p2p INTERFACE
     GSL
 )
 
+target_include_directories( p2p
+  PUBLIC
+    ${LIBP2P_ROOT}/include
+)
 #libp2p_install(p2p)
 

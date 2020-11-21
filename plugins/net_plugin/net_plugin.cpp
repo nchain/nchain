@@ -35,6 +35,8 @@ using namespace eosio::chain::plugin_interface;
 namespace eosio {
    static appbase::abstract_plugin& _net_plugin = app().register_plugin<net_plugin>();
    net_plugin_impl *my_impl;
+
+   static const fc::string logger_name("net_plugin_impl");
    fc::logger logger = {};
    std::string peer_log_format = "";
 
@@ -191,7 +193,7 @@ namespace eosio {
             connection_ptr c = sync_source;
             g_sync.unlock();
             request_sent = true;
-            c->strand.post( [c, start, end]() {
+            c->strand->post( [c, start, end]() {
                fc_ilog( logger, "requesting range ${s} to ${e}, from ${n}", ("n", c->peer_name())( "s", start )( "e", end ) );
                c->request_sync_blocks( start, end );
             } );
@@ -359,7 +361,7 @@ namespace eosio {
                on_fork = cc.get_block_id_for_num( msg_head_num ) != msg_head_id;
             } catch( ... ) {}
             if( on_fork ) {
-               c->strand.post( [c]() {
+               c->strand->post( [c]() {
                   request_message req;
                   req.req_blocks.mode = catch_up;
                   req.req_trx.mode = none;
@@ -648,8 +650,8 @@ namespace eosio {
 
       bool have_connection = false;
       for_each_block_connection( [&have_connection]( auto& cp ) {
-         peer_dlog( cp, "socket_is_open ${s}, connecting ${c}, syncing ${ss}",
-                    ("s", cp->socket_is_open())("c", cp->connecting.load())("ss", cp->syncing.load()) );
+         peer_dlog( cp, "connected ${s}, connecting ${c}, syncing ${ss}",
+                    ("s", cp->connected())("c", cp->connecting.load())("ss", cp->syncing.load()) );
 
          if( !cp->current() ) {
             return true;
@@ -665,7 +667,7 @@ namespace eosio {
          if( !cp->current() ) {
             return true;
          }
-         cp->strand.post( [this, cp, id, bnum, send_buffer]() {
+         cp->strand->post( [this, cp, id, bnum, send_buffer]() {
             std::unique_lock<std::mutex> g_conn( cp->conn_mtx );
             bool has_block = cp->last_handshake_recv.last_irreversible_block_num >= bnum;
             g_conn.unlock();
@@ -721,7 +723,7 @@ namespace eosio {
             send_buffer = create_send_buffer( trx );
          }
 
-         cp->strand.post( [cp, send_buffer]() {
+         cp->strand->post( [cp, send_buffer]() {
             fc_dlog( logger, "sending trx to ${n}", ("n", cp->peer_name()) );
             cp->enqueue_buffer( send_buffer, no_reason );
          } );
@@ -789,7 +791,7 @@ namespace eosio {
 
          bool sendit = peer_has_block( bid, conn->connection_id );
          if( sendit ) {
-            conn->strand.post( [conn, last_req{std::move(last_req)}]() {
+            conn->strand->post( [conn, last_req{std::move(last_req)}]() {
                conn->enqueue( last_req );
                conn->fetch_wait();
                std::lock_guard<std::mutex> g_conn_conn( conn->conn_mtx );
@@ -809,71 +811,75 @@ namespace eosio {
    }
 
    void net_plugin_impl::start_listen_loop() {
-      connection_ptr new_connection = std::make_shared<connection>();
-      new_connection->connecting = true;
-      new_connection->strand.post( [this, new_connection = std::move( new_connection )](){
-         acceptor->async_accept( *new_connection->socket,
-            boost::asio::bind_executor( new_connection->strand, [new_connection, socket=new_connection->socket, this]( boost::system::error_code ec ) {
-            if( !ec ) {
-               uint32_t visitors = 0;
-               uint32_t from_addr = 0;
-               boost::system::error_code rec;
-               const auto& paddr_add = socket->remote_endpoint( rec ).address();
-               string paddr_str;
-               if( rec ) {
-                  fc_elog( logger, "Error getting remote endpoint: ${m}", ("m", rec.message()));
-               } else {
-                  paddr_str = paddr_add.to_string();
-                  for_each_connection( [&visitors, &from_addr, &paddr_str]( auto& conn ) {
-                     if( conn->socket_is_open()) {
-                        if( conn->peer_address().empty()) {
-                           ++visitors;
-                           std::lock_guard<std::mutex> g_conn( conn->conn_mtx );
-                           if( paddr_str == conn->remote_endpoint_ip ) {
-                              ++from_addr;
-                           }
-                        }
-                     }
-                     return true;
-                  } );
-                  if( from_addr < max_nodes_per_host && (max_client_count == 0 || visitors < max_client_count)) {
-                     fc_ilog( logger, "Accepted new connection: " + paddr_str );
-                     if( new_connection->start_session()) {
-                        std::lock_guard<std::shared_mutex> g_unique( connections_mtx );
-                        connections.insert( new_connection );
-                     }
+       strand->post([this]() {
+           listener->accept(boost::asio::bind_executor(
+               *strand, [this](boost::system::error_code ec, std::shared_ptr<net_stream> stream,
+                               const std::string &remote_addr) {
+                   if (!ec) {
+                       if (!stream) {
+                           return; // ignore error happen
+                       }
 
-                  } else {
-                     if( from_addr >= max_nodes_per_host ) {
-                        fc_dlog( logger, "Number of connections (${n}) from ${ra} exceeds limit ${l}",
-                                 ("n", from_addr + 1)( "ra", paddr_str )( "l", max_nodes_per_host ));
-                     } else {
-                        fc_dlog( logger, "max_client_count ${m} exceeded", ("m", max_client_count));
-                     }
-                     // new_connection never added to connections and start_session not called, lifetime will end
-                     boost::system::error_code ec;
-                     socket->shutdown( tcp::socket::shutdown_both, ec );
-                     socket->close( ec );
-                  }
-               }
-            } else {
-               fc_elog( logger, "Error accepting connection: ${m}", ("m", ec.message()));
-               // For the listed error codes below, recall start_listen_loop()
-               switch (ec.value()) {
-                  case ECONNABORTED:
-                  case EMFILE:
-                  case ENFILE:
-                  case ENOBUFS:
-                  case ENOMEM:
-                  case EPROTO:
-                     break;
-                  default:
-                     return;
-               }
-            }
-            start_listen_loop();
-         }));
-      } );
+                       uint32_t visitors  = 0;
+                       uint32_t from_addr = 0;
+                       if (!remote_addr.empty()) {
+                           for_each_connection([&visitors, &from_addr, &remote_addr](auto &conn) {
+                               if (conn->connected()) {
+                                   if (conn->peer_address().empty()) {
+                                       ++visitors;
+                                       std::lock_guard<std::mutex> g_conn(conn->conn_mtx);
+                                       if (remote_addr == conn->get_remote_endpoint_ip()) {
+                                           ++from_addr;
+                                       }
+                                   }
+                               }
+                               return true;
+                           });
+                           if (from_addr < max_nodes_per_host &&
+                               (max_client_count == 0 || visitors < max_client_count)) {
+                               connection_ptr new_connection = std::make_shared<connection>(stream);
+
+                               // new_connection->connecting = true;
+                               fc_ilog(logger, "Accepted new connection: " + remote_addr);
+                               if (new_connection->start_session()) {
+                                   std::lock_guard<std::shared_mutex> g_unique(connections_mtx);
+                                   connections.insert(new_connection);
+                               }
+
+                           } else {
+                               if (from_addr >= max_nodes_per_host) {
+                                   fc_dlog(
+                                       logger,
+                                       "Number of connections (${n}) from ${ra} exceeds limit ${l}",
+                                       ("n", from_addr + 1)("ra", remote_addr)("l",
+                                                                               max_nodes_per_host));
+                               } else {
+                                   fc_dlog(logger, "max_client_count ${m} exceeded",
+                                           ("m", max_client_count));
+                               }
+                               // stream never added to connections and start_session not called,
+                               // lifetime will end
+                               stream->close();
+                           }
+                       }
+                   } else {
+                       fc_elog(logger, "Error accepting connection: ${m}", ("m", ec.message()));
+                       // For the listed error codes below, recall start_listen_loop()
+                       switch (ec.value()) {
+                       case ECONNABORTED:
+                       case EMFILE:
+                       case ENFILE:
+                       case ENOBUFS:
+                       case ENOMEM:
+                       case EPROTO:
+                           break;
+                       default:
+                           return;
+                       }
+                   }
+                   start_listen_loop();
+               }));
+       });
    }
 
    // call only from main application thread
@@ -950,8 +956,8 @@ namespace eosio {
                fc_wlog( logger, "Peer keepalive ticked sooner than expected: ${m}", ("m", ec.message()) );
             }
             for_each_connection( []( auto& c ) {
-               if( c->socket_is_open() ) {
-                  c->strand.post( [c]() {
+               if( c->connected() ) {
+                  c->strand->post( [c]() {
                      c->send_time();
                   } );
                }
@@ -1004,7 +1010,7 @@ namespace eosio {
             return;
          }
          (*it)->peer_address().empty() ? ++num_clients : ++num_peers;
-         if( !(*it)->socket_is_open() && !(*it)->connecting) {
+         if( !(*it)->connected() && !(*it)->connecting) {
             if( !(*it)->peer_address().empty() ) {
                if( !(*it)->resolve_and_connect() ) {
                   it = connections.erase(it);
@@ -1323,50 +1329,56 @@ namespace eosio {
                "*    Transactions not forwarded   *\n"
                "***********************************\n" );
       }
-
-      tcp::endpoint listen_endpoint;
-      if( my->p2p_address.size() > 0 ) {
-         auto host = my->p2p_address.substr( 0, my->p2p_address.find( ':' ));
-         auto port = my->p2p_address.substr( host.size() + 1, my->p2p_address.size());
-         tcp::resolver::query query( tcp::v4(), host.c_str(), port.c_str());
-         // Note: need to add support for IPv6 too?
-
-         tcp::resolver resolver( my->thread_pool->get_executor() );
-         listen_endpoint = *resolver.resolve( query );
-
-         my->acceptor.reset( new tcp::acceptor( my_impl->thread_pool->get_executor() ) );
-
-         if( !my->p2p_server_address.empty() ) {
-            my->p2p_address = my->p2p_server_address;
-         } else {
-            if( listen_endpoint.address().to_v4() == address_v4::any()) {
-               boost::system::error_code ec;
-               auto host = host_name( ec );
-               if( ec.value() != boost::system::errc::success ) {
-
-                  FC_THROW_EXCEPTION( fc::invalid_arg_exception,
-                                      "Unable to retrieve host_name. ${msg}", ("msg", ec.message()));
-
-               }
-               auto port = my->p2p_address.substr( my->p2p_address.find( ':' ), my->p2p_address.size());
-               my->p2p_address = host + port;
-            }
-         }
-      }
-
-      if( my->acceptor ) {
-         try {
-           my->acceptor->open(listen_endpoint.protocol());
-           my->acceptor->set_option(tcp::acceptor::reuse_address(true));
-           my->acceptor->bind(listen_endpoint);
-           my->acceptor->listen();
-         } catch (const std::exception& e) {
-           elog( "net_plugin::plugin_startup failed to bind to port ${port}", ("port", listen_endpoint.port()) );
-           throw e;
-         }
-         fc_ilog( logger, "starting listener, max clients is ${mc}",("mc",my->max_client_count) );
+      my->strand = std::make_shared<strand_t>(my_impl->thread_pool->get_executor());
+      my->listener = std::make_shared<tcp_listener>();
+      if (my->listener->init(my->strand)) {
          my->start_listen_loop();
       }
+
+      // tcp::endpoint listen_endpoint;
+      // if( my->p2p_address.size() > 0 ) {
+      //    auto host = my->p2p_address.substr( 0, my->p2p_address.find( ':' ));
+      //    auto port = my->p2p_address.substr( host.size() + 1, my->p2p_address.size());
+      //    tcp::resolver::query query( tcp::v4(), host.c_str(), port.c_str());
+      //    // Note: need to add support for IPv6 too?
+
+      //    tcp::resolver resolver( my->thread_pool->get_executor() );
+      //    listen_endpoint = *resolver.resolve( query );
+
+      //    my->acceptor.reset( new tcp::acceptor( my_impl->thread_pool->get_executor() ) );
+
+      //    if( !my->p2p_server_address.empty() ) {
+      //       my->p2p_address = my->p2p_server_address;
+      //    } else {
+      //       if( listen_endpoint.address().to_v4() == address_v4::any()) {
+      //          boost::system::error_code ec;
+      //          auto host = host_name( ec );
+      //          if( ec.value() != boost::system::errc::success ) {
+
+      //             FC_THROW_EXCEPTION( fc::invalid_arg_exception,
+      //                                 "Unable to retrieve host_name. ${msg}", ("msg", ec.message()));
+
+      //          }
+      //          auto port = my->p2p_address.substr( my->p2p_address.find( ':' ), my->p2p_address.size());
+      //          my->p2p_address = host + port;
+      //       }
+      //    }
+      // }
+
+      // if( my->acceptor ) {
+      //    try {
+      //      my->acceptor->open(listen_endpoint.protocol());
+      //      my->acceptor->set_option(tcp::acceptor::reuse_address(true));
+      //      my->acceptor->bind(listen_endpoint);
+      //      my->acceptor->listen();
+      //    } catch (const std::exception& e) {
+      //      elog( "net_plugin::plugin_startup failed to bind to port ${port}", ("port", listen_endpoint.port()) );
+      //      throw e;
+      //    }
+      //    fc_ilog( logger, "starting listener, max clients is ${mc}",("mc",my->max_client_count) );
+      //    my->start_listen_loop();
+      // }
+
       {
 
          chain::controller& cc = my->chain_plug->chain();
@@ -1441,10 +1453,9 @@ namespace eosio {
             my->thread_pool->stop();
          }
 
-         if( my->acceptor ) {
-            boost::system::error_code ec;
-            my->acceptor->cancel( ec );
-            my->acceptor->close( ec );
+         if (my->listener) {
+            my->listener->close();
+            my->listener = nullptr;
          }
 
          app().post( 0, [me = my](){} ); // keep my pointer alive until queue is drained

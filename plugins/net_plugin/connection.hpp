@@ -29,6 +29,7 @@
 
 #include <atomic>
 #include <shared_mutex>
+#include <memory>
 
 namespace eosio {
 
@@ -36,6 +37,7 @@ using boost::asio::ip::tcp;
 using boost::asio::ip::address_v4;
 using boost::asio::ip::host_name;
 using boost::multi_index_container;
+using strand_t = boost::asio::io_context::strand;
 
 /**
 * default value initializers
@@ -66,6 +68,12 @@ constexpr uint16_t proto_explicit_sync = 1;
 constexpr uint16_t block_id_notify = 2; // reserved. feature was removed. next net_version should be 3
 
 constexpr uint16_t net_version = proto_explicit_sync;
+
+enum connection_types : char {
+    both,
+    transactions_only,
+    blocks_only
+};
 
 /**
 *  For a while, network version was a 16 bit value equal to the second set of 16 bits
@@ -190,16 +198,187 @@ private:
 
 }; // queued_buffer
 
+class endpoint_info_t {
+public:
+    string                      remote_endpoint_ip;
+    string                      remote_endpoint_port;
+    string                      local_endpoint_ip;
+    string                      local_endpoint_port;
+};
+
+using message_buf_t = fc::message_buffer<1024*1024>;
+class net_stream {
+public:
+    using init_callback_func = std::function<void(boost::system::error_code)>;
+    using read_callback = void(boost::system::error_code, size_t);
+    using read_callback_func = std::function<read_callback>;
+    using write_callback = void(boost::system::error_code, size_t);
+    using write_callback_func = std::function<write_callback>;
+
+    virtual ~net_stream() {};
+
+    virtual bool init(std::shared_ptr<strand_t> strand) = 0;
+
+    virtual void close() = 0;
+
+    virtual void read(message_buf_t &buffer, std::size_t min_size, read_callback_func cb) = 0;
+
+    virtual void write(queued_buffer &buffer_queue, write_callback_func cb) = 0;
+
+    /**
+     * Check, if this stream is closed bor both writes and reads
+     * @return true, if stream is closed entirely, false otherwise
+     */
+    // virtual bool is_closed() const = 0;
+
+    /**
+     * Close a stream, indicating we are not going to write to it anymore; the
+     * other side, however, can write to it, if it was not closed from there
+     * before
+     * @param cb to be called, when the stream is closed, or error happens
+     */
+    // virtual void close(void_result_handler_func cb) = 0;
+
+    // /**
+    //  * @brief Close this stream entirely; this normally means an error happened,
+    //  * so it should not be used just to close the stream
+    //  */
+    // virtual void reset() = 0;
+
+    // /**
+    //  * Set a new receive window size of this stream - how much unread bytes can
+    //  * we have on our side of the stream
+    //  * @param new_size for the window
+    //  * @param cb to be called, when the operation succeeds of fails
+    //  */
+    // virtual void adjustWindowSize(uint32_t new_size,
+    //                               VoidResultHandlerFunc cb) = 0;
+
+    /**
+     * Is that stream opened over a connection, which was an initiator?
+     */
+    // virtual outcome::result<bool> is_initiator() const = 0;
+
+    // /**
+    //  * Get a peer, which the stream is connected to
+    //  * @return id of the peer
+    //  */
+    // virtual outcome::result<peer::PeerId> remotePeerId() const = 0;
+
+    // /**
+    //  * Get a local multiaddress
+    //  * @return address or error
+    //  */
+    // virtual outcome::result<multi::Multiaddress> localMultiaddr() const = 0;
+
+    // /**
+    //  * Get a multiaddress, to which the stream is connected
+    //  * @return multiaddress or error
+    //  */
+    // virtual outcome::result<multi::Multiaddress> remoteMultiaddr() const = 0;
+
+    virtual bool is_init() const = 0;
+    virtual const endpoint_info_t& get_endpoint_info() = 0;
+  };
+
+
+class connector_t {
+public:
+    virtual ~connector_t() {}
+    using connection_callback =
+        void(boost::system::error_code, std::shared_ptr<net_stream>);
+    using handler_func = std::function<connection_callback>;
+
+    virtual void connect(handler_func handler) = 0;
+};
+
+class tcp_connector: public connector_t, public std::enable_shared_from_this<tcp_connector> {
+public:
+    // TODO: ...
+    void connect(connector_t::handler_func handler) override;
+
+    static std::shared_ptr<tcp_connector> create(std::shared_ptr<strand_t> strand, const string &peer_addr);
+
+
+    connection_types get_connection_type() const { return connection_type; };
+
+private:
+    std::shared_ptr<strand_t> strand_;
+    string peer_addr;
+    string host;
+    string port;
+    std::atomic<connection_types> connection_type{both};
+    std::atomic<bool> connecting{false};
+    std::shared_ptr<tcp::socket>              socket_;
+
+    void set_connection_type( const string& peer_addr );
+};
+
+class tcp_stream: public net_stream, public std::enable_shared_from_this<tcp_stream> {
+public:
+    tcp_stream(std::shared_ptr<tcp::socket> socket, const string &peer_addr)
+        : socket_(socket), peer_addr_(peer_addr) {}
+    ~tcp_stream();
+
+    bool init(std::shared_ptr<strand_t> strand) override;
+
+    void close() override;
+    /**
+     * @brief Write exactly {@code} in.size() {@nocode} bytes.
+     * Won't call \param cb before all are successfully written.
+     * Returns immediately.
+     * @param in data to write.
+     * @param bytes number of bytes to write
+     * @param cb callback with result of operation
+     *
+     * @note caller should maintain validity of an input buffer until callback
+     * is executed. It is usually done with either wrapping buffer as shared
+     * pointer, or having buffer as part of some class/struct, and using
+     * enable_shared_from_this()
+     */
+    void write(queued_buffer &buffer_queue, write_callback_func cb) override;
+
+    void read(message_buf_t &buffer, std::size_t min_size, read_callback_func cb) override;
+
+    bool is_init() const override;
+
+    const endpoint_info_t& get_endpoint_info() override;
+private:
+    std::shared_ptr<strand_t> strand_;
+    std::shared_ptr<tcp::socket> socket_; // only accessed through strand after construction
+    std::string peer_addr_;
+    endpoint_info_t endpoint_info_;
+    bool is_init_;
+
+    void update_endpoints();
+};
+
+class tcp_listener: public std::enable_shared_from_this<tcp_listener> {
+public:
+    using connection_callback =
+        void(boost::system::error_code, std::shared_ptr<net_stream>, const std::string&);
+    using handler_func = std::function<connection_callback>;
+
+    bool init(std::shared_ptr<strand_t> strand);
+
+    void accept(handler_func handler);
+
+    void close();
+private:
+    std::shared_ptr<strand_t> strand_;
+    std::unique_ptr<tcp::acceptor>        acceptor_;
+};
+
 class connection : public std::enable_shared_from_this<connection> {
 public:
     explicit connection( string endpoint );
+    explicit connection(std::shared_ptr<net_stream> stream);
     connection();
 
     ~connection() {}
 
     bool start_session();
 
-    bool socket_is_open() const { return socket_open.load(); } // thread safe, atomic
     const string& peer_address() const { return peer_addr; } // thread safe, const
 
     void set_connection_type( const string& peer_addr );
@@ -209,24 +388,17 @@ public:
 private:
     static const string unknown;
 
-    void update_endpoints();
+    std::optional<peer_sync_state>    peer_requested;  // this peer is requesting info from us
 
-    optional<peer_sync_state>    peer_requested;  // this peer is requesting info from us
-
-    std::atomic<bool>                         socket_open{false};
+    std::atomic<bool>                         connected_{false};
 
     const string            peer_addr;
-    enum connection_types : char {
-        both,
-        transactions_only,
-        blocks_only
-    };
 
     std::atomic<connection_types>             connection_type{both};
+    endpoint_info_t             endpoint_info_;
 
 public:
-    boost::asio::io_context::strand           strand;
-    std::shared_ptr<tcp::socket>              socket; // only accessed through strand after construction
+    std::shared_ptr<strand_t> strand;
 
     fc::message_buffer<1024*1024>    pending_message_buffer;
     std::atomic<std::size_t>         outstanding_read_bytes{0}; // accessed only from strand threads
@@ -236,7 +408,7 @@ public:
     std::atomic<uint32_t>   trx_in_progress_size{0};
     const uint32_t          connection_id;
     int16_t                 sent_handshake_count = 0;
-    std::atomic<bool>       connecting{true};
+    std::atomic<bool>       connecting{false};
     std::atomic<bool>       syncing{false};
     uint16_t                protocol_version = 0;
     uint16_t                consecutive_rejected_blocks = 0;
@@ -255,12 +427,10 @@ public:
     uint32_t                    fork_head_num{0};
     fc::time_point              last_close;
     fc::sha256                  conn_node_id;
-    string                      remote_endpoint_ip;
-    string                      remote_endpoint_port;
-    string                      local_endpoint_ip;
-    string                      local_endpoint_port;
 
     connection_status get_status()const;
+
+    const string& get_remote_endpoint_ip() const {    return endpoint_info_.remote_endpoint_ip; }
 
     /** \name Peer Timestamps
      *  Time message handling
@@ -286,7 +456,7 @@ public:
     bool populate_handshake( handshake_message& hello, bool force );
 
     bool resolve_and_connect();
-    void connect( const std::shared_ptr<tcp::resolver>& resolver, tcp::resolver::results_type endpoints );
+    // void connect( const std::shared_ptr<tcp::resolver>& resolver, tcp::resolver::results_type endpoints );
     void start_read_message();
 
     /** \brief Process the next message from the pending message buffer
@@ -386,12 +556,15 @@ public:
         std::lock_guard<std::mutex> g_conn( conn_mtx );
         mvo( "_id", conn_node_id )
         ( "_sid", conn_node_id.str().substr( 0, 7 ) )
-        ( "_ip", remote_endpoint_ip )
-        ( "_port", remote_endpoint_port )
-        ( "_lip", local_endpoint_ip )
-        ( "_lport", local_endpoint_port );
+        ( "_ip", endpoint_info_.remote_endpoint_ip )
+        ( "_port", endpoint_info_.remote_endpoint_port )
+        ( "_lip", endpoint_info_.local_endpoint_ip )
+        ( "_lport", endpoint_info_.local_endpoint_port );
         return mvo;
     }
+private:
+    std::shared_ptr<connector_t> connector_;
+    std::shared_ptr<net_stream> stream_;
 };
 
 template< typename T>

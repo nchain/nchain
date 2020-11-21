@@ -209,7 +209,8 @@ namespace eosio {
 
    class net_plugin_impl : public std::enable_shared_from_this<net_plugin_impl> {
    public:
-      unique_ptr<tcp::acceptor>        acceptor;
+      std::shared_ptr<strand_t>  strand;
+      std::shared_ptr<tcp_listener>    listener;
       std::atomic<uint32_t>            current_connection_id{0};
 
       unique_ptr< sync_manager >       sync_master;
@@ -346,7 +347,6 @@ namespace eosio {
       connection_ptr find_connection(const string& host)const; // must call with held mutex
    };
 
-   const fc::string logger_name("net_plugin_impl");
    extern fc::logger logger;
    extern std::string peer_log_format;
 

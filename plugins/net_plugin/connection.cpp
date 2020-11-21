@@ -83,38 +83,38 @@ struct msg_handler : public fc::visitor<void> {
 
 connection::connection( string endpoint )
     : peer_addr( endpoint ),
-    strand( my_impl->thread_pool->get_executor() ),
-    socket( new tcp::socket( my_impl->thread_pool->get_executor() ) ),
+    strand( std::make_shared<strand_t>(my_impl->thread_pool->get_executor()) ),
     connection_id( ++my_impl->current_connection_id ),
     response_expected_timer( my_impl->thread_pool->get_executor() ),
     last_handshake_recv(),
-    last_handshake_sent()
+    last_handshake_sent(),
+    connector_(tcp_connector::create(strand, endpoint))
 {
     fc_ilog( logger, "creating connection to ${n}", ("n", endpoint) );
 }
 
+
+connection::connection(std::shared_ptr<net_stream> stream)
+    : peer_addr(),
+    strand( std::make_shared<strand_t>(my_impl->thread_pool->get_executor()) ),
+    connection_id( ++my_impl->current_connection_id ),
+    response_expected_timer( my_impl->thread_pool->get_executor() ),
+    last_handshake_recv(),
+    last_handshake_sent(),
+    stream_(stream)
+{
+    fc_dlog( logger, "new connection object created" );
+}
+
 connection::connection()
     : peer_addr(),
-    strand( my_impl->thread_pool->get_executor() ),
-    socket( new tcp::socket( my_impl->thread_pool->get_executor() ) ),
+    strand( std::make_shared<strand_t>(my_impl->thread_pool->get_executor()) ),
     connection_id( ++my_impl->current_connection_id ),
     response_expected_timer( my_impl->thread_pool->get_executor() ),
     last_handshake_recv(),
     last_handshake_sent()
 {
     fc_dlog( logger, "new connection object created" );
-}
-
-void connection::update_endpoints() {
-    boost::system::error_code ec;
-    boost::system::error_code ec2;
-    auto rep = socket->remote_endpoint(ec);
-    auto lep = socket->local_endpoint(ec2);
-    std::lock_guard<std::mutex> g_conn( conn_mtx );
-    remote_endpoint_ip = ec ? unknown : rep.address().to_string();
-    remote_endpoint_port = ec ? unknown : std::to_string(rep.port());
-    local_endpoint_ip = ec2 ? unknown : lep.address().to_string();
-    local_endpoint_port = ec2 ? unknown : std::to_string(lep.port());
 }
 
 void connection::set_connection_type( const string& peer_add ) {
@@ -153,26 +153,26 @@ connection_status connection::get_status()const {
 }
 
 bool connection::start_session() {
-    verify_strand_in_this_thread( strand, __func__, __LINE__ );
+    verify_strand_in_this_thread( *strand, __func__, __LINE__ );
 
-    update_endpoints();
-    boost::asio::ip::tcp::no_delay nodelay( true );
-    boost::system::error_code ec;
-    socket->set_option( nodelay, ec );
-    if( ec ) {
-        fc_elog( logger, "connection failed (set_option) ${peer}: ${e1}", ("peer", peer_name())( "e1", ec.message() ) );
+    // TODO: need lock?
+    if (!stream_->init(strand)) {
+        fc_elog( logger, "connection failed (stream) ${peer}: init", ("peer", peer_name()) );
         close();
         return false;
-    } else {
-        fc_dlog( logger, "connected to ${peer}", ("peer", peer_name()) );
-        socket_open = true;
-        start_read_message();
-        return true;
     }
+    {
+        std::lock_guard<std::mutex> g_conn( conn_mtx );
+        endpoint_info_ = stream_->get_endpoint_info();
+    }
+    connected_ = true;
+    fc_dlog( logger, "connected to ${peer}", ("peer", peer_name()) );
+    start_read_message();
+    return true;
 }
 
 bool connection::connected() {
-    return socket_is_open() && !connecting;
+    return connected_.load();;
 }
 
 bool connection::current() {
@@ -184,20 +184,20 @@ void connection::flush_queues() {
 }
 
 void connection::close( bool reconnect, bool shutdown ) {
-    strand.post( [self = shared_from_this(), reconnect, shutdown]() {
+    strand->post( [self = shared_from_this(), reconnect, shutdown]() {
         connection::_close( self.get(), reconnect, shutdown );
     });
 }
 
 void connection::_close( connection* self, bool reconnect, bool shutdown ) {
-    self->socket_open = false;
-    boost::system::error_code ec;
-    if( self->socket->is_open() ) {
-        self->socket->shutdown( tcp::socket::shutdown_both, ec );
-        self->socket->close( ec );
+
+    if (self->stream_) {
+        self->stream_->close();
+        self->stream_ = nullptr;
     }
-    self->socket.reset( new tcp::socket( my_impl->thread_pool->get_executor() ) );
+
     self->flush_queues();
+    self->connected_ = false;
     self->connecting = false;
     self->syncing = false;
     self->consecutive_rejected_blocks = 0;
@@ -267,7 +267,7 @@ void connection::blk_send_branch( const block_id_type& msg_head_id ) {
           }
        }
        if( unknown_block ) {
-          c->strand.post( [msg_head_num, c]() {
+          c->strand->post( [msg_head_num, c]() {
              peer_ilog( c, "Peer asked for unknown block ${mn}, sending: benign_other go away", ("mn", msg_head_num) );
              c->no_retry = benign_other;
              c->enqueue( go_away_message( benign_other ) );
@@ -275,7 +275,7 @@ void connection::blk_send_branch( const block_id_type& msg_head_id ) {
        } else {
           if( on_fork ) msg_head_num = 0;
           // if peer on fork, start at their last lib, otherwise we can start at msg_head+1
-          c->strand.post( [c, msg_head_num, lib_num, head_num]() {
+          c->strand->post( [c, msg_head_num, lib_num, head_num]() {
              c->blk_send_branch_impl( msg_head_num, lib_num, head_num );
           } );
        }
@@ -312,7 +312,7 @@ void connection::blk_send( const block_id_type& blkid ) {
           if( b ) {
              fc_dlog( logger, "found block for id at num ${n}", ("n", b->block_num()) );
              my_impl->dispatcher->add_peer_block( blkid, c->connection_id );
-             c->strand.post( [c, b{std::move(b)}]() {
+             c->strand->post( [c, b{std::move(b)}]() {
                 c->enqueue_block( b );
              } );
           } else {
@@ -334,7 +334,7 @@ void connection::stop_send() {
 }
 
 void connection::send_handshake( bool force ) {
-    strand.post( [force, c = shared_from_this()]() {
+    strand->post( [force, c = shared_from_this()]() {
         std::unique_lock<std::mutex> g_conn( c->conn_mtx );
         if( c->populate_handshake( c->last_handshake_sent, force ) ) {
         static_assert( std::is_same_v<decltype( c->sent_handshake_count ), int16_t>, "INT16_MAX based on int16_t" );
@@ -381,48 +381,53 @@ void connection::queue_write(const std::shared_ptr<vector<char>>& buff,
 }
 
 void connection::do_queue_write() {
-    if( !buffer_queue.ready_to_send() )
+
+    if (!buffer_queue.ready_to_send())
         return;
     connection_ptr c(shared_from_this());
 
-    std::vector<boost::asio::const_buffer> bufs;
-    buffer_queue.fill_out_buffer( bufs );
-
-    strand.post( [c{std::move(c)}, bufs{std::move(bufs)}]() {
-        boost::asio::async_write( *c->socket, bufs,
-        boost::asio::bind_executor( c->strand, [c, socket=c->socket]( boost::system::error_code ec, std::size_t w ) {
-        try {
-            c->buffer_queue.clear_out_queue();
-            // May have closed connection and cleared buffer_queue
-            if( !c->socket_is_open() || socket != c->socket ) {
-                fc_ilog( logger, "async write socket ${r} before callback: ${p}",
-                        ("r", c->socket_is_open() ? "changed" : "closed")("p", c->peer_name()) );
-                c->close();
-                return;
-            }
-
-            if( ec ) {
-                if( ec.value() != boost::asio::error::eof ) {
-                    fc_elog( logger, "Error sending to peer ${p}: ${i}", ("p", c->peer_name())( "i", ec.message() ) );
-                } else {
-                    fc_wlog( logger, "connection closure detected on write to ${p}", ("p", c->peer_name()) );
-                }
-                c->close();
-                return;
-            }
-
-            c->buffer_queue.out_callback( ec, w );
-
-            c->enqueue_sync_block();
-            c->do_queue_write();
-        } catch( const std::exception& ex ) {
-            fc_elog( logger, "Exception in do_queue_write to ${p} ${s}", ("p", c->peer_name())( "s", ex.what() ) );
-        } catch( const fc::exception& ex ) {
-            fc_elog( logger, "Exception in do_queue_write to ${p} ${s}", ("p", c->peer_name())( "s", ex.to_string() ) );
-        } catch( ... ) {
-            fc_elog( logger, "Exception in do_queue_write to ${p}", ("p", c->peer_name()) );
+    strand->post([c{std::move(c)}, stream = stream_]() {
+        if (!c->stream_ || stream != c->stream_) {
+            return; // connection is closed
         }
-        }));
+
+        stream->write(c->buffer_queue, [c, stream](boost::system::error_code ec, std::size_t w) {
+            try {
+                c->buffer_queue.clear_out_queue();
+                // May have closed connection and cleared buffer_queue
+                if (!c->stream_ || stream != c->stream_) {
+                    fc_ilog(logger, "async write stream ${r} before callback: ${p}",
+                            ("r", c->stream_ ? "changed" : "closed")("p", c->peer_name()));
+                    c->close();
+                    return;
+                }
+
+                if (ec) {
+                    if (ec.value() != boost::asio::error::eof) {
+                        fc_elog(logger, "Error sending to peer ${p}: ${i}",
+                                ("p", c->peer_name())("i", ec.message()));
+                    } else {
+                        fc_wlog(logger, "connection closure detected on write to ${p}",
+                                ("p", c->peer_name()));
+                    }
+                    c->close();
+                    return;
+                }
+
+                c->buffer_queue.out_callback(ec, w);
+
+                c->enqueue_sync_block();
+                c->do_queue_write();
+            } catch (const std::exception &ex) {
+                fc_elog(logger, "Exception in do_queue_write to ${p} ${s}",
+                        ("p", c->peer_name())("s", ex.what()));
+            } catch (const fc::exception &ex) {
+                fc_elog(logger, "Exception in do_queue_write to ${p} ${s}",
+                        ("p", c->peer_name())("s", ex.to_string()));
+            } catch (...) {
+                fc_elog(logger, "Exception in do_queue_write to ${p}", ("p", c->peer_name()));
+            }
+        });
     });
 }
 
@@ -466,11 +471,11 @@ bool connection::enqueue_sync_block() {
           sb = cc.fetch_block_by_number( num );
        } FC_LOG_AND_DROP();
        if( sb ) {
-          c->strand.post( [c, sb{std::move(sb)}]() {
+          c->strand->post( [c, sb{std::move(sb)}]() {
              c->enqueue_block( sb, true );
           });
        } else {
-          c->strand.post( [c, num]() {
+          c->strand->post( [c, num]() {
              peer_ilog( c, "enqueue sync, unable to fetch block ${num}", ("num", num) );
              c->send_handshake();
           });
@@ -481,7 +486,7 @@ bool connection::enqueue_sync_block() {
 }
 
 void connection::enqueue( const net_message& m ) {
-    verify_strand_in_this_thread( strand, __func__, __LINE__ );
+    verify_strand_in_this_thread( *strand, __func__, __LINE__ );
     go_away_reason close_after_send = no_reason;
     if (m.contains<go_away_message>()) {
         close_after_send = m.get<go_away_message>().reason;
@@ -505,7 +510,7 @@ void connection::enqueue( const net_message& m ) {
 
 void connection::enqueue_block( const signed_block_ptr& sb, bool to_sync_queue) {
     fc_dlog( logger, "enqueue block ${num}", ("num", sb->block_num()) );
-    verify_strand_in_this_thread( strand, __func__, __LINE__ );
+    verify_strand_in_this_thread( *strand, __func__, __LINE__ );
     enqueue_buffer( create_send_buffer( sb ), no_reason, to_sync_queue);
 }
 
@@ -539,7 +544,7 @@ void connection::sync_wait() {
     std::lock_guard<std::mutex> g( response_expected_timer_mtx );
     response_expected_timer.expires_from_now( my_impl->resp_expected_period );
     response_expected_timer.async_wait(
-        boost::asio::bind_executor( c->strand, [c]( boost::system::error_code ec ) {
+        boost::asio::bind_executor( *c->strand, [c]( boost::system::error_code ec ) {
             c->sync_timeout( ec );
         } ) );
 }
@@ -550,7 +555,7 @@ void connection::fetch_wait() {
     std::lock_guard<std::mutex> g( response_expected_timer_mtx );
     response_expected_timer.expires_from_now( my_impl->resp_expected_period );
     response_expected_timer.async_wait(
-        boost::asio::bind_executor( c->strand, [c]( boost::system::error_code ec ) {
+        boost::asio::bind_executor( *c->strand, [c]( boost::system::error_code ec ) {
             c->fetch_timeout(ec);
         } ) );
 }
@@ -574,8 +579,8 @@ const string connection::peer_name() {
     if( !peer_address().empty() ) {
         return peer_address();
     }
-    if( remote_endpoint_port != unknown ) {
-        return remote_endpoint_ip + ":" + remote_endpoint_port;
+    if( endpoint_info_.remote_endpoint_port != unknown ) {
+        return endpoint_info_.remote_endpoint_ip + ":" + endpoint_info_.remote_endpoint_port;
     }
     return "connecting client";
 }
@@ -613,118 +618,74 @@ bool connection::resolve_and_connect() {
         return false;
     }
 
-    string::size_type colon = peer_address().find(':');
-    if (colon == std::string::npos || colon == 0) {
-        fc_elog( logger, "Invalid peer address. must be \"host:port[:<blk>|<trx>]\": ${p}", ("p", peer_address()) );
+    if (!connector_) {
         return false;
     }
 
-    connection_ptr c = shared_from_this();
-
-    if( consecutive_immediate_connection_close > def_max_consecutive_immediate_connection_close || no_retry == benign_other ) {
-        auto connector_period_us = std::chrono::duration_cast<std::chrono::microseconds>( my_impl->connector_period );
-        std::lock_guard<std::mutex> g( c->conn_mtx );
-        if( last_close == fc::time_point() || last_close > fc::time_point::now() - fc::microseconds( connector_period_us.count() ) ) {
-        return true; // true so doesn't remove from valid connections
-        }
+    if (connecting) { // TODO: need to check timeout?
+        fc_dlog( logger, "connection has been in connecting to ${peer}", ("peer", peer_name()));
+        return true;
     }
 
-    strand.post([c]() {
-        string::size_type colon = c->peer_address().find(':');
-        string::size_type colon2 = c->peer_address().find(':', colon + 1);
-        string host = c->peer_address().substr( 0, colon );
-        string port = c->peer_address().substr( colon + 1, colon2 == string::npos ? string::npos : colon2 - (colon + 1));
-        idump((host)(port));
-        c->set_connection_type( c->peer_address() );
-        tcp::resolver::query query( tcp::v4(), host, port );
-        // Note: need to add support for IPv6 too
+    connecting = true;
+    fc_dlog( logger, "connection is connecting to ${peer}", ("peer", peer_name()));
 
-        auto resolver = std::make_shared<tcp::resolver>( my_impl->thread_pool->get_executor() );
-        connection_wptr weak_conn = c;
-        resolver->async_resolve( query, boost::asio::bind_executor( c->strand,
-        [resolver, weak_conn]( const boost::system::error_code& err, tcp::resolver::results_type endpoints ) {
-            auto c = weak_conn.lock();
-            if( !c ) return;
-            if( !err ) {
-                c->connect( resolver, endpoints );
-            } else {
-                fc_elog( logger, "Unable to resolve ${add}: ${error}", ("add", c->peer_name())( "error", err.message() ) );
+    connection_ptr c = shared_from_this();
+    strand->post([c]() {
+        if (c->consecutive_immediate_connection_close > def_max_consecutive_immediate_connection_close ||
+            c->no_retry == benign_other) {
+            auto connector_period_us =
+                std::chrono::duration_cast<std::chrono::microseconds>(my_impl->connector_period);
+            std::lock_guard<std::mutex> g(c->conn_mtx);
+            if (c->last_close == fc::time_point() ||
+                c->last_close > fc::time_point::now() - fc::microseconds(connector_period_us.count())) {
                 c->connecting = false;
-                ++c->consecutive_immediate_connection_close;
+                return;
             }
-        } ) );
-    } );
+        }
+
+        c->connector_->connect([c]( boost::system::error_code ec, std::shared_ptr<net_stream> stream ) {
+            c->connecting = false;
+            if( !ec ) {
+                c->stream_ = stream;
+                if( c->start_session() ) {
+                    c->send_handshake();
+                }
+            } else {
+                fc_elog( logger, "connection failed to ${peer}: ${error}", ("peer", c->peer_name())( "error", ec.message()));
+                ++c->consecutive_immediate_connection_close;
+                c->close( false );
+            }
+        });
+    });
+
     return true;
 }
 
-// called from connection strand
-void connection::connect( const std::shared_ptr<tcp::resolver>& resolver, tcp::resolver::results_type endpoints ) {
-    switch ( no_retry ) {
-        case no_reason:
-        case wrong_version:
-        case benign_other:
-        break;
-        default:
-        return;
-    }
-    connecting = true;
-    pending_message_buffer.reset();
-    buffer_queue.clear_out_queue();
-    boost::asio::async_connect( *socket, endpoints,
-        boost::asio::bind_executor( strand,
-            [resolver, c = shared_from_this(), socket=socket]( const boost::system::error_code& err, const tcp::endpoint& endpoint ) {
-        if( !err && socket->is_open() && socket == c->socket ) {
-            if( c->start_session() ) {
-                c->send_handshake();
-            }
-        } else {
-            fc_elog( logger, "connection failed to ${peer}: ${error}", ("peer", c->peer_name())( "error", err.message()));
-            c->close( false );
-        }
-    } ) );
-}
-
-
 // only called from strand thread
 void connection::start_read_message() {
+    if (!stream_) {
+        return;
+    }
     try {
         std::size_t minimum_read =
             std::atomic_exchange<decltype(outstanding_read_bytes.load())>( &outstanding_read_bytes, 0 );
         minimum_read = minimum_read != 0 ? minimum_read : message_header_size;
 
-        if (my_impl->use_socket_read_watermark) {
-        const size_t max_socket_read_watermark = 4096;
-        std::size_t socket_read_watermark = std::min<std::size_t>(minimum_read, max_socket_read_watermark);
-        boost::asio::socket_base::receive_low_watermark read_watermark_opt(socket_read_watermark);
-        boost::system::error_code ec;
-        socket->set_option( read_watermark_opt, ec );
-        if( ec ) {
-            fc_elog( logger, "unable to set read watermark ${peer}: ${e1}", ("peer", peer_name())( "e1", ec.message() ) );
-        }
-        }
-
-        auto completion_handler = [minimum_read](boost::system::error_code ec, std::size_t bytes_transferred) -> std::size_t {
-        if (ec || bytes_transferred >= minimum_read ) {
-            return 0;
-        } else {
-            return minimum_read - bytes_transferred;
-        }
-        };
-
         uint32_t write_queue_size = buffer_queue.write_queue_size();
-        if( write_queue_size > def_max_write_queue_size ) {
-        fc_elog( logger, "write queue full ${s} bytes, giving up on connection, closing connection to: ${p}",
-                    ("s", write_queue_size)("p", peer_name()) );
-        close( false );
-        return;
+        if (write_queue_size > def_max_write_queue_size) {
+            fc_elog(
+                logger,
+                "write queue full ${s} bytes, giving up on connection, closing connection to: ${p}",
+                ("s", write_queue_size)("p", peer_name()));
+            close(false);
+            return;
         }
 
-        boost::asio::async_read( *socket,
-        pending_message_buffer.get_buffer_sequence_for_boost_async_read(), completion_handler,
-        boost::asio::bind_executor( strand,
-            [conn = shared_from_this(), socket=socket]( boost::system::error_code ec, std::size_t bytes_transferred ) {
+        stream_->read(pending_message_buffer, minimum_read, [conn = shared_from_this(), stream=stream_] (boost::system::error_code ec, size_t bytes_transferred) {
+
             // may have closed connection and cleared pending_message_buffer
-            if( !conn->socket_is_open() || socket != conn->socket ) return;
+            if( stream != conn->stream_ ) return;
 
             bool close_connection = false;
             try {
@@ -798,7 +759,7 @@ void connection::start_read_message() {
                 fc_elog( logger, "Closing connection to: ${p}", ("p", conn->peer_name()) );
                 conn->close();
             }
-        }));
+        });
     } catch (...) {
         fc_elog( logger, "Undefined exception in start_read_message, closing connection to: ${p}", ("p", peer_name()) );
         close();
@@ -1058,7 +1019,7 @@ void connection::handle_message( const handshake_message& msg ) {
                  on_fork = true;
               }
               if( on_fork ) {
-                 c->strand.post( [c]() {
+                 c->strand->post( [c]() {
                     peer_elog( c, "Peer chain is forked, sending: forked go away" );
                     c->enqueue( go_away_message( forked ) );
                  } );
@@ -1138,7 +1099,7 @@ void connection::handle_message( const notice_message& msg ) {
     // notices of previously unknown blocks or txns,
     //
     peer_dlog( this, "received notice_message" );
-    connecting = false;
+    // connecting = false;
     if( msg.known_blocks.ids.size() > 1 ) {
         fc_elog( logger, "Invalid notice_message, known_blocks.ids.size ${s}, closing connection: ${p}",
                 ("s", msg.known_blocks.ids.size())("p", peer_address()) );
@@ -1317,12 +1278,12 @@ void connection::process_signed_block( const block_id_type& blk_id, signed_block
     connection_ptr c = shared_from_this();
 
     // if we have closed connection then stop processing
-    if( !c->socket_is_open() )
+    if( !c->connected() )
        return;
 
     try {
        if( cc.fetch_block_by_id(blk_id) ) {
-          c->strand.post( [sync_master = my_impl->sync_master.get(),
+          c->strand->post( [sync_master = my_impl->sync_master.get(),
                            dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
              dispatcher->add_peer_block( blk_id, c->connection_id );
              sync_master->sync_recv_block( c, blk_id, blk_num, false );
@@ -1364,12 +1325,12 @@ void connection::process_signed_block( const block_id_type& blk_id, signed_block
           dispatcher->add_peer_block( blk_id, cid );
           dispatcher->update_txns_block_num( msg );
        });
-       c->strand.post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
+       c->strand->post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
           dispatcher->recv_block( c, blk_id, blk_num );
           sync_master->sync_recv_block( c, blk_id, blk_num, true );
        });
     } else {
-       c->strand.post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
+       c->strand->post( [sync_master = my_impl->sync_master.get(), dispatcher = my_impl->dispatcher.get(), c, blk_id, blk_num]() {
           sync_master->rejected_block( c, blk_num );
           dispatcher->rejected_block( blk_id );
        });
