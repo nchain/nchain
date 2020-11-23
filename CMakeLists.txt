@@ -46,6 +46,7 @@ else()
     set(VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 endif()
 
+set( CLI_CLIENT_EXECUTABLE_NAME ncc )
 set( NODE_EXECUTABLE_NAME ncd )
 
 # http://stackoverflow.com/a/18369825

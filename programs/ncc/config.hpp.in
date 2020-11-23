@@ -3,9 +3,10 @@
  */
 #pragma once
 
-namespace nchain { namespace client { namespace config {
+namespace eosio { namespace client { namespace config {
    constexpr char locale_path[]              {"${LOCALEDIR}"                };
    constexpr char locale_domain[]            {"${LOCALEDOMAIN}"             };
    constexpr char cli_client_executable_name[]{"${CLI_CLIENT_EXECUTABLE_NAME}"};
+   constexpr char key_store_executable_name[]{"${KEY_STORE_EXECUTABLE_NAME}"};
    constexpr char node_executable_name[]     {"${NODE_EXECUTABLE_NAME}"     };
 } } }
