@@ -7,7 +7,7 @@
 *.wast.hpp
 *.s
 *.dot
-*.abi.hpp
+#*.abi.hpp
 !.cicd
 !CMakeModules/*.cmake
 *.ninja
